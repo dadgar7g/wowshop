@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>تایید ایمیل</title>
+    <style>
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 30px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #0d6efd;
+            text-align: center;
+        }
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333333;
+            text-align: right;
+        }
+        a.button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background-color: #0d6efd;
+            color: #ffffff !important;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            text-align: center;
+        }
+        a.button:hover {
+            background-color: #0b5ed7;
+        }
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #777777;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <h2>سلام {{ obj.first_name }} {{ obj.last_name }}!</h2>
+
+        <p>
+            با تشکر از ثبت‌نام شما در سایت ما.
+            لطفاً ایمیل خود را با کلیک روی دکمه زیر تأیید کنید تا حساب شما فعال شود.
+        </p>
+
+        <div style="text-align: center;">
+            <a href="{{ link }}" class="button">تایید ایمیل</a>
+        </div>
+
+        <p>
+            اگر این ثبت‌نام توسط شما انجام نشده است، لطفاً این ایمیل را نادیده بگیرید.
+        </p>
+
+        <div class="footer">
+            © 2025 safewow. همه حقوق محفوظ است.
+        </div>
+    </div>
+</body>
+</html>

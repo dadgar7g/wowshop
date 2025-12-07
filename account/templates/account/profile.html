@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Profile</h2>
+
+<p><strong>نام:</strong> {{ request.user.first_name }}</p>
+<p><strong>نام خانوادگی:</strong> {{ request.user.last_name }}</p>
+<p><strong>ایمیل:</strong> {{ request.user.email }}</p>
+<p><strong>یوزرنیم:</strong> {{ request.user.username }}</p>
+
+<a href="{% url 'account:profile_edit' %}">ویرایش اطلاعات</a>
+
+{% endblock %}

@@ -1,0 +1,116 @@
+<nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">safewow</a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="mainNavbar">
+            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:about' %}">درباره ما</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:coach_register' %}">مهارتی دارید؟</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:fast_sell' %}">فروش فوری</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:coach_list' %}">مربی ها</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:orders' %}">اردرها</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'shop:product_list' %}">فروشگاه</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'core:home' %}">خانه</a></li>
+            </ul>
+
+            <div class="d-flex align-items-center">
+                <!-- سبد خرید -->
+                <a href="{% url 'shop:cart_show' %}" class="btn btn-outline-primary me-2">
+                    🛒 Cart (<span id="cart-count">{{ request.session.cart|length }}</span>)
+                </a>
+
+                {% if not request.user.is_authenticated %}
+                    <a href="{% url 'login' %}" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">ورود / ثبت‌نام</a>
+                {% else %}
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                            {{ request.user.username }}
+                        </button>
+
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'account:dashboard' %}">داشبورد</a></li>
+                            <li><a class="dropdown-item" href="{% url 'account:offers' %}">سفارش‌ها</a></li>
+
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+
+                            <li>
+                                <form action="{% url 'logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        خروج
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</nav>
+
+
+{#<main class="container mt-5 pt-5">#}
+{#    {% block content %}{% endblock %}#}
+{#</main>#}
+{#<nav class="navbar navbar-expand-lg bg-white shadow-sm fixed-top">#}
+{#    <div class="container">#}
+{#        <a class="navbar-brand fw-bold" href="#">safewow</a>#}
+{##}
+{#        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">#}
+{#            <span class="navbar-toggler-icon"></span>#}
+{#        </button>#}
+{##}
+{#        <div class="collapse navbar-collapse" id="mainNavbar">#}
+{#            <ul class="navbar-nav mx-auto mb-2 mb-lg-0">#}
+{#                <li class="nav-item"><a class="nav-link" href="{% url 'core:coach_register' %}">مهارتی دارید؟</a></li>#}
+{#                <li class="nav-item"><a class="nav-link" href="#">فروش فوری</a></li>#}
+{#                <li class="nav-item"><a class="nav-link" href="{% url 'core:coach_list' %}">مربی ها</a></li>#}
+{#                <li class="nav-item"><a class="nav-link" href="{% url 'core:orders' %}">اردرها</a></li>#}
+{#                <li class="nav-item"><a class="nav-link" href="{% url 'core:home' %}">خانه</a></li>#}
+{#            </ul>#}
+{##}
+{#            {% if not request.user.is_authenticated %}#}
+{#                <div class="d-flex">#}
+{#                <a href="{% url 'login' %}" class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm">ورود /#}
+{#                    ثبت‌نام</a>#}
+{#            {% else %}#}
+{##}
+{##}
+{#                <div class="dropdown">#}
+{#                    <button class="btn btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">#}
+{#                        پروفایل#}
+{#                    </button>#}
+{##}
+{#                    <ul class="dropdown-menu">#}
+{##}
+{#                        <li><a class="dropdown-item" href="{% url 'account:dashboard' %}">داشبورد</a></li>#}
+{#                        <li><a class="dropdown-item" href="{% url 'account:offers' %}">سفارش‌ها</a></li>#}
+{##}
+{#                        <li>#}
+{#                            <hr class="dropdown-divider">#}
+{#                        </li>#}
+{##}
+{#                        <li>#}
+{#                            <form action="{% url 'logout' %}" method="post">#}
+{#                                {% csrf_token %}#}
+{#                                <button type="submit" class="dropdown-item text-danger">#}
+{#                                    خروج#}
+{#                                </button>#}
+{#                            </form>#}
+{#                        </li>#}
+{##}
+{#                    </ul>#}
+{#                </div>#}
+{##}
+{#            {% endif %}#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#</nav>#}

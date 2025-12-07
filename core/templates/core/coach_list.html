@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4" dir="rtl">
+
+  <h3 class="mb-4 text-end">لیست مربیان</h3>
+
+  <div class="row g-4">
+
+    {% for coach in coaches %}
+      <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-1">
+
+          <div class="card-body text-end">
+
+            <h5 class="card-title mb-1 fw-bold">{{ coach.user.username }}</h5>
+
+            <!-- نمایش expansions -->
+                    <p><strong>اکسپنشن‌ها:</strong>
+                        {% for expansion in coach.expansions.all %}
+                            {{ expansion.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            ندارد
+                        {% endfor %}
+                    </p>
+
+                    <!-- نمایش methods -->
+                    <p><strong>نوع فعالیت‌ها:</strong>
+                        {% for method in coach.methods.all %}
+                            {{ method.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            ندارد
+                        {% endfor %}
+                    </p>
+
+            <p class="card-text mt-2" style="line-height: 1.8;">
+              {{ coach.description|truncatewords:20 }}
+            </p>
+
+            <p class="mb-1"><strong>ساعت بازی:</strong> {{ coach.timeplay }}</p>
+
+
+
+            <a href="{% url 'core:coach_detail' user=coach.user.username %}"
+               class="btn btn-primary w-100 mb-2">
+               مشاهده اطلاعات بیشتر
+            </a>
+
+
+
+          </div>
+
+        </div>
+      </div>
+    {% endfor %}
+
+  </div>
+
+</div>
+{% endblock %}

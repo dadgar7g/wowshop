@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>My Offers</h2>
+
+{% if offers %}
+    <ul>
+    {% for item in offers %}
+        <li>{{ item.title }} - وضعیت: {{ item.status }}</li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>هنوز هیچ آفر فعالی ندارید.</p>
+{% endif %}
+
+{% endblock %}

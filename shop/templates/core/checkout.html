@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 pt-4" dir="rtl">
+
+    <div class="row">
+
+        <div class="col-md-12">
+
+            <!-- عنوان -->
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-warning text-white fw-bold">
+                    فاکتور خرید
+                </div>
+            </div>
+
+            <!-- جدول فاکتور -->
+            <div class="card shadow-sm p-3" style="border-radius: 12px;">
+
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle text-center">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>نام محصول</th>
+                                <th>تعداد</th>
+                                <th>تخفیف</th>
+                                <th>قیمت واحد</th>
+                                <th>قیمت کل</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            {% for id,item in cart.items %}
+                                <tr>
+                                    <td>{{ item.obj.name }}</td>
+                                    <td>{{ item.count }}</td>
+
+                                    <td>
+                                        {% if item.obj.discount %}
+                                            <span class="badge bg-success">{{ item.obj.discount }}٪</span>
+                                        {% else %}
+                                            -
+                                        {% endif %}
+                                    </td>
+
+                                    <td>{{ item.obj.price }} تومان</td>
+                                    <td class="fw-bold text-success">{{ item.price }} تومان</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <hr>
+
+                <!-- مجموع -->
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="fw-bold">مجموع قابل پرداخت:</h5>
+                    <h4 class="text-success fw-bold" id="total-price">{{ total }} تومان</h4>
+                </div>
+
+                <hr>
+
+                <!-- فرم پرداخت -->
+                <form method="post" action="{% url 'shop:checkout' %}">
+                    {% csrf_token %}
+
+                    <div class="row mt-3">
+                        <div class="col-md-8 mx-auto">
+                            <div class="card p-3 shadow-sm">
+                                {{ form.as_p }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success w-50 py-2 fw-bold">
+                            پرداخت و تکمیل سفارش
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

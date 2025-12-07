@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% load form_filters %}
+{% block content %}
+    <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+
+        <div class="card shadow-lg p-4" style="width: 350px; border-radius: 15px;">
+
+            <h4 class="text-center mb-4">ورود به حساب</h4>
+
+            {% if form.errors %}
+                <div class="alert alert-danger text-center py-2">
+                    نام کاربری یا رمز عبور اشتباه است
+                </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">نام کاربری</label>
+                    {{ form.username|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">رمز عبور</label>
+                    {{ form.password|add_class:"form-control" }}
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 mt-2">
+                    ورود
+                </button>
+
+            </form>
+
+            <div class="text-center mt-3">
+                <a href="{% url 'password_reset' %}" class="text-decoration-none">
+                    فراموشی رمز عبور؟
+                </a>
+            </div>
+            <div class="text-center mt-3">
+                <span>حساب کاربری ندارید؟</span>
+                <a href="#" class="text-decoration-none fw-bold">
+                    ثبت‌نام کنید
+                </a>
+            </div>
+
+        </div>
+
+    </div>
+{% endblock %}

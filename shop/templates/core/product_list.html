@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container my-5">
+
+    <h3 class="text-center mb-4">Total Products: {{ products|length }}</h3>
+
+    <style>
+        /* ایزوله شده برای جلوگیری از تداخل */
+        .shop-product-card {
+            border-radius: 15px;
+            overflow: hidden;
+            transition: 0.3s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            background: #fff;
+        }
+        .shop-product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        .shop-product-img {
+            height: 260px;
+            object-fit: cover;
+            border-bottom: 1px solid #eee;
+        }
+        .shop-btn {
+            border-radius: 10px;
+            padding: 4px 15px;
+            transition: 0.2s;
+        }
+        .shop-btn:hover {
+            opacity: 0.85;
+        }
+        .shop-discount {
+            background: #ff4444;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+    </style>
+
+    <div class="row">
+        {% for product in products %}
+            <div class="col-md-4 mb-4">
+                <div class="card shop-product-card">
+
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" class="shop-product-img" alt="">
+                    {% else %}
+                        <img src="https://via.placeholder.com/300x260" class="shop-product-img" alt="">
+                    {% endif %}
+
+                    <div class="card-body">
+                        <h5 class="card-title text-center"><b>{{ product.name }}</b></h5>
+
+                        <p class="text-muted" style="font-size:14px;">
+                            قیمت: <b>{{ product.price }} تومان</b>
+                        </p>
+
+                        {% if product.discount > 0 %}
+                            <span class="shop-discount">تخفیف {{ product.discount }}%</span>
+                        {% endif %}
+
+                        <hr>
+
+                        <p class="card-text" style="font-size:14px;">
+                            {% autoescape off %}
+                                {{ product.description|truncatewords:20 }}
+                            {% endautoescape %}
+                        </p>
+
+                        <div class="d-flex justify-content-between mt-3">
+                            <a href="{% url 'shop:product_detail' id=product.id %}"
+                               class="btn btn-outline-primary btn-sm shop-btn">
+                                جزئیات
+                            </a>
+
+                            <a href="{% url 'shop:cart_add' product.id %}"
+                               data-id="{{ product.id }}"
+                               class="btn btn-success btn-sm shop-btn add-to-cart-link">
+                                افزودن به سبد
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+</div>  <!-- container -->
+
+<script>
+    $('.add-to-cart-link').click(function(e){
+        target_link = $(this).attr('href');
+        $.get(target_link, function (res){
+            item_count = Object.keys(res).length;
+            $('#cart-count').html(item_count);
+        });
+
+        e.preventDefault();
+        return false;
+    });
+</script>
+<div class="d-flex justify-content-center mt-3">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+
+                {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo;</a>
+                    </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                    {% endif %}
+                {% endfor %}
+
+                {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">&raquo;</a>
+                    </li>
+                {% endif %}
+
+            </ul>
+        </nav>
+    </div>
+{% endblock %}

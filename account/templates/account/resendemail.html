@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load form_filters %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    {% if messages %}
+        {% for message in messages %}
+            {% if forloop.last %}
+                <div class="alert alert-dismissible fade show
+                    {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}"
+                     role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <div class="card shadow-lg p-4 w-100" style="max-width: 500px; border-radius: 15px;">
+
+        <h4 class="text-center mb-4">ارسال دوباره کد تایید</h4>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="mb-3">
+                <label class="form-label">ایمیل خود را وارد کنید تا لینک تایید برای شما ارسال گردد</label>
+                {{ form.email|add_class:"form-control" }}
+                {{ form.email.errors }}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3">
+                تایید
+            </button>
+        </form>
+
+        <div class="text-center mt-3">
+            <span>حساب کاربری ندارید؟</span>
+            <a href="{% url 'account:signup' %}" class="text-decoration-none fw-bold">
+                ثبت‌نام کنید
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

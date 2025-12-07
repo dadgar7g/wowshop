@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% load form_filters %}
+
+{% block content %}
+<div class="row">
+
+    <!-- ستون راست -->
+    <div class="col-md-3">
+        <div class="card shadow-sm p-3" style="border-radius: 12px;">
+            <h6 class="mb-3 text-center">پنل کاربری</h6>
+            <ul class="list-group">
+
+                <a href="{% url 'account:dashboard' %}" class="list-group-item list-group-item-action text-end">
+                    داشبورد
+                </a>
+
+                <a href="{% url 'account:profile_edit' %}" class="list-group-item list-group-item-action text-end">
+                    ویرایش اطلاعات
+                </a>
+
+                <a href="{% url 'account:bank_edit' %}" class="list-group-item list-group-item-action text-end active">
+                        ثبت / ویرایش اطلاعات بانکی
+                </a>
+
+                <a href="{% url 'core:coach_edit' %}" class="list-group-item list-group-item-action text-end">
+                    ویرایش اطلاعات مربی
+                </a>
+
+                <a href="{% url 'account:offers' %}" class="list-group-item list-group-item-action text-end">
+                    آفرهای من
+                </a>
+
+
+
+                <a href="{% url 'password_change' %}" class="list-group-item list-group-item-action text-end">
+                    تغییر رمز عبور
+                </a>
+
+            </ul>
+        </div>
+    </div>
+
+    <!-- فرم -->
+    <div class="col-md-9">
+        <div class="card shadow-sm p-4" style="border-radius: 12px; direction: rtl;">
+            <h4 class="mb-4">ثبت / ویرایش اطلاعات بانکی</h4>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">نام روی کارت</label>
+                    {{ form.full_name|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">شماره کارت</label>
+                    {{ form.card_number|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">شماره شبا</label>
+                    {{ form.shaba_number|add_class:"form-control" }}
+                </div>
+
+                <button class="btn btn-success px-4 mt-3">ذخیره اطلاعات</button>
+            </form>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}
+v

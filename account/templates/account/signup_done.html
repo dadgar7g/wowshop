@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+
+    <div class="card shadow-lg p-5 text-center" style="max-width: 500px; border-radius: 15px; direction: rtl;">
+        <h2 class="mb-4 text-primary">ثبت‌نام شما با موفقیت انجام شد!</h2>
+
+        <h2 class="mb-4 text-primary">
+            یک ایمیل به آدرس ثبت شده شما ارسال شد.
+        </h2>
+        <h2 class="mb-4 text-primary">
+            لطفاً ایمیل خود را تایید کنید تا حساب شما فعال شود.
+        </h2>
+
+        <a href="{% url 'login' %}" class="btn btn-success px-4 py-2">
+            بازگشت به صفحه ورود
+        </a>
+    </div>
+
+</div>
+{% endblock %}

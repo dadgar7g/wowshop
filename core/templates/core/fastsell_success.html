@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="container mt-5" dir="rtl" style="text-align: right;">
+
+    <div class="card shadow-sm mx-auto" style="max-width: 600px;">
+        <div class="card-header bg-success text-white">
+            <h5 class="mb-0">ارسال موفقیت‌آمیز</h5>
+        </div>
+
+        <div class="card-body">
+            <p class="mb-3">
+                درخواست شما با موفقیت ارسال شد.<br>
+                در اسرع وقت با شما تماس خواهیم گرفت.<br>
+                <b>لطفاً شماره تلفن یا آیدی دیسکورد خود را اگر هنوز ثبت نکرده‌اید، نسبت به ثبت آنها اقدام نمایید.
+                با تشکر</b> <br>
+            </p>
+
+            <a href="{% url 'account:dashboard' %}" class="btn btn-primary mt-3 px-4">
+                بازگشت به داشبورد
+            </a>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

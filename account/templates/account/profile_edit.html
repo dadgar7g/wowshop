@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load form_filters %}
+
+{% block content %}
+<div class="row">
+
+    <!-- ستون راست -->
+    <div class="col-md-3">
+            <div class="card shadow-sm p-3" style="border-radius: 12px;">
+                <h6 class="mb-3 text-center">پنل کاربری</h6>
+                <ul class="list-group">
+
+                    <a href="{% url 'account:dashboard' %}" class="list-group-item list-group-item-action text-end">
+                        داشبورد
+                    </a>
+
+                    <a href="{% url 'account:profile_edit' %}" class="list-group-item list-group-item-action text-end active">
+                        ویرایش اطلاعات
+                    </a>
+
+                    <a href="{% url 'account:bank_edit' %}" class="list-group-item list-group-item-action text-end">
+                        ثبت / ویرایش اطلاعات بانکی
+                    </a>
+
+                    <a href="{% url 'core:coach_edit' %}" class="list-group-item list-group-item-action text-end">
+                        ویرایش اطلاعات مربی
+                    </a>
+
+                    <a href="{% url 'account:offers' %}" class="list-group-item list-group-item-action text-end">
+                        آفرهای من
+                    </a>
+
+                    <a href="{% url 'password_change' %}" class="list-group-item list-group-item-action text-end">
+                        تغییر رمز عبور
+                    </a>
+                </ul>
+            </div>
+        </div>
+
+    <!-- فرم -->
+    <div class="col-md-9">
+        <div class="card shadow-sm p-4" style="border-radius: 12px; direction: rtl;">
+            <h4 class="mb-4">ویرایش اطلاعات من</h4>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">نام</label>
+                    {{ form.first_name|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">نام خانوادگی</label>
+                    {{ form.last_name|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">شماره تلفن</label>
+                    {{ form.phone|add_class:"form-control" }}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Discord ID</label>
+                    {{ form.discord_id|add_class:"form-control" }}
+                    {{ form.discord_id.errors }}
+
+                </div>
+
+                <button class="btn btn-success px-4 mt-3">ذخیره تغییرات</button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

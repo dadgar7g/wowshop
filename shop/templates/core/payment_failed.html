@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 pt-5" dir="rtl">
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow-sm p-4 text-center" style="border-radius: 12px;">
+
+                <h3 class="text-danger fw-bold mb-3">پرداخت ناموفق بود ❌</h3>
+
+                <p class="text-muted mb-4">
+                    متأسفانه تراکنش انجام نشد. دوباره تلاش کنید.
+                </p>
+
+                <a href="{% url 'shop:product_list' %}"
+                   class="btn btn-warning text-white fw-bold px-4 py-2"
+                   style="border-radius: 8px;">
+                    بازگشت به صفحه اصلی
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

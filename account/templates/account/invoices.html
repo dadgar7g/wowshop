@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="card shadow-sm p-4" style="border-radius: 12px; direction: rtl;">
+        <h5 class="mb-3">سفارشات من</h5>
+
+        {% if invoices %}
+            <div class="row row-cols-1 row-cols-md-2 g-3">
+                {% for invoice in invoices %}
+                    <div class="col">
+
+                        <div class="card h-100 shadow-sm p-3" style="border-radius: 12px;">
+                            <p><strong>شماره فاکتور:</strong> {{ invoice.number|default:invoice.id }}</p>
+                            <p><strong>محصولات خریداری شده:</strong></p>
+
+                            <ul class="list-unstyled ms-3">
+                                {% for item in invoice.invoiceitem_set.all %}
+                                    <li>
+                                        <a href="{% url 'shop:product_detail' id=item.product.id %}"
+                                           class="text-decoration-none">
+                                            • {{ item.product.name }} ({{ item.count }} عدد)
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+
+                            <p><strong>ایدی بتل نت ثبت شده:</strong> {{ invoice.battle_tag }}</p>
+                            {% if invoice.discount %}<p><strong>تخفیف :</strong> {{ invoice.discount }}</p>{% endif %}
+                            <p><strong>تاریخ:</strong> {{ invoice.date|date:"Y-m-d H:i" }}</p>
+                            <p><strong>مجموع:</strong> {{ invoice.total }} تومان</p>
+                            <p><strong>وضعیت پرداخت:</strong>
+                                {% if invoice.payment_set.first %}
+                                    {{ invoice.payment_set.first.get_status_display }}
+                                {% else %}
+                                    ثبت نشده
+                                {% endif %}
+                            </p>
+                        </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-muted">فعلاً هیچ سفارش ثبت نکرده‌اید.</p>
+        {% endif %}
+    </div>
+{% endblock %}

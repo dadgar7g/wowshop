@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- معرفی سایت -->
+    <div class="card shadow-sm p-4 mb-4 text-end" style="border-radius:12px; direction: rtl;">
+        <h3 class="mb-3">به سایت ما خوش آمدید!</h3>
+        <p>در اینجا می‌توانید سفارشات در دسترس را مشاهده کرده، محصولات فروشگاه را ببینید و برای مربیگری ثبت نام کنید.</p>
+    </div>
+
+    <!-- اردرهای در دسترس -->
+    <div class="card shadow-sm p-4 mb-4 text-end" style="border-radius:12px; direction: rtl;">
+        <h5 class="mb-3">سفارشات در دسترس</h5>
+        <div class="row g-3 mb-3">
+            {% for order in orders %}
+                <div class="col-md-4">
+                    <a href="{% url 'core:order_detail' id=order.id %}" class="text-decoration-none">
+                        <div class="card h-100 text-end order-card">
+                            <div class="text-center mt-2">
+                                {% if order.faction == 'horde' %}
+                                    <img src="{% static 'images/horde.png' %}" class="img-fluid" style="max-height:80px;" alt="Horde">
+                                {% else %}
+                                    <img src="{% static 'images/alliance.png' %}" class="img-fluid" style="max-height:80px;" alt="Alliance">
+                                {% endif %}
+                            </div>
+                            <div class="card-body p-2" style="font-size:0.85rem;">
+                                <h6 class="card-title mb-1">{{ order.title }}</h6>
+                                <p class="mb-0"><strong>{{ order.amount }}</strong> : مقدار</p>
+                                <p class="mb-1"><strong>{{ order.rest }}</strong> : مقدار باقی مانده</p>
+                                <p class="mb-1"><strong>وضعیت: </strong>{{ order.get_status_display }}</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="text-center">
+            <a href="{% url 'core:orders' %}" class="btn btn-outline-primary btn-sm">نمایش همه سفارش‌ها</a>
+        </div>
+    </div>
+
+    <!-- محصولات فروشگاه -->
+    <div class="card shadow-sm p-4 mb-4 text-end" style="border-radius:12px; direction: rtl;">
+        <h5 class="mb-3">محصولات فروشگاه</h5>
+        <div class="row g-3 justify-content-end">
+            {% for product in products %}
+                <div class="col-md-3">
+                    <a href="{% url 'shop:product_detail' id=product.id %}" class="text-decoration-none">
+                        <div class="card h-100 text-end product-card">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+                            {% endif %}
+                            <div class="card-body p-2">
+                                <h6 class="card-title mb-1">{{ product.name }}</h6>
+                                <p class="mb-0"><strong>قیمت:</strong> {{ product.price }} تومان</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- توضیحات کوچیک -->
+    <div class="card shadow-sm p-4 mb-4 text-end" style="border-radius:12px; direction: rtl;">
+        <h5>توضیحات کوتاه</h5>
+        <p>اینجا می‌توانید به راحتی سفارشات خود را مدیریت کنید، محصولات را ببینید و برای ثبت نام مربیگری اقدام کنید.</p>
+        <a href="{% url 'core:coach_register' %}" class="btn btn-primary">ثبت اطلاعات مربیگری</a>
+    </div>
+
+</div>
+
+<!-- CSS سفارشی برای هاور -->
+<style>
+.order-card, .product-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+.order-card:hover, .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+</style>
+
+{% endblock %}

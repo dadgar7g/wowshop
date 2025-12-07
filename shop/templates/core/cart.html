@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 pt-4" dir="rtl">
+
+    <div class="row">
+
+        <!-- لیست آیتم‌های سبد خرید -->
+        <div class="col-md-8">
+
+            <div class="card shadow-sm mb-3">
+                <div class="card-header bg-warning text-white fw-bold">
+                    سبد خرید
+                </div>
+            </div>
+
+            {% if cart.items %}
+                {% for id, item in cart.items %}
+                    <div class="card shadow-sm mb-3 p-3 d-flex flex-row justify-content-between align-items-center cart-item" data-id="{{ id }}">
+
+                        <!-- بخش اطلاعات کالا -->
+                        <div style="flex: 2; text-align: right;">
+                            <h5 class="mb-1">{{ item.obj.name }}</h5>
+                            <p class="mb-1 text-muted">تعداد: {{ item.count }}</p>
+                            <p class="mb-1">قیمت واحد: <strong>{{ item.obj.price }} تومان</strong></p>
+                            <p class="mb-1">تخفیف: <strong>{{ item.obj.discount }}٪</strong></p>
+                        </div>
+
+                        <!-- قیمت کل -->
+                        <div style="flex: 1; text-align: center;">
+                            <p class="fw-bold mb-2">قیمت کل:</p>
+                            <p class="text-success fw-bold">{{ item.price }} تومان</p>
+                        </div>
+
+                        <!-- دکمه حذف -->
+                        <div style="flex: 0.3;">
+                            <a class="btn btn-outline-danger btn-sm cart-remove-link"
+                               href="{% url 'shop:cart_remove' id=id %}"
+                               data-id="{{ id }}">✕</a>
+                        </div>
+
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-info">سبد خرید شما خالی است.</div>
+            {% endif %}
+
+        </div>
+
+        <!-- بخش فاکتور -->
+        <div class="col-md-4">
+
+            <div class="card shadow-sm p-3" style="border-radius: 12px;">
+
+                <h5 class="mb-3">خلاصه سبد خرید</h5>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <span>مجموع سبد خرید:</span>
+                    <span class="fw-bold summary-total" id="total-price">{{ total }} تومان</span>
+                </div>
+
+                <hr>
+
+                <a href="{% url 'shop:checkout' %}"
+                   class="btn btn-success w-100 mt-2 py-2 fw-bold">
+                    پرداخت
+                </a>
+
+                <a href="{% url 'shop:cart_empty' %}"
+                   class="btn btn-outline-danger w-100 mt-2 py-2 cart-empty-link">
+                    پاک کردن سبد خرید
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<script>
+$(document).ready(function(){
+
+    // حذف آیتم از سبد خرید
+    $(document).on('click', '.cart-remove-link', function(e){
+        e.preventDefault();
+        let link = $(this);
+        let url = link.attr('href');
+
+        $.get(url, function(res){
+            // حذف کارت محصول
+            link.closest('.cart-item').remove();
+
+            // آپدیت قیمت کل
+            $('#total-price').text(res.total + " تومان");
+
+            // اگر سبد خالی شد، پیام نمایش بده
+            if(Object.keys(res.cart).length === 0){
+                $('.col-md-8').append('<div class="alert alert-info">سبد خرید شما خالی است.</div>');
+            }
+        });
+    });
+
+    // پاک کردن کل سبد خرید
+    $(document).on('click', '.cart-empty-link', function(e){
+        e.preventDefault();
+        let url = $(this).attr('href');
+
+        $.get(url, function(res){
+            // حذف همه آیتم‌ها
+            $('.cart-item').remove();
+
+            // آپدیت قیمت کل
+            $('#total-price').text('0 تومان');
+
+            // پیام سبد خالی
+            $('.col-md-8').append('<div class="alert alert-info">سبد خرید شما خالی است.</div>');
+        });
+    });
+
+});
+</script>
+
+{% endblock %}
+
+{#{% extends 'base.html' %}#}
+{##}
+{#{% block content %}#}
+{#<div class="container mt-5 pt-4" dir="rtl">#}
+{##}
+{#    <div class="row">#}
+{##}
+{#        <!-- لیست آیتم‌های سبد خرید -->#}
+{#        <div class="col-md-8">#}
+{##}
+{#            <div class="card shadow-sm mb-3">#}
+{#                <div class="card-header bg-warning text-white fw-bold">#}
+{#                    سبد خرید#}
+{#                </div>#}
+{#            </div>#}
+{##}
+{#            {% if cart.items %}#}
+{#                {% for id, item in cart.items %}#}
+{#                    <div class="card shadow-sm mb-3 p-3 d-flex flex-row justify-content-between align-items-center">#}
+{##}
+{#                        <!-- بخش اطلاعات کالا -->#}
+{#                        <div id style="flex: 2; text-align: right;">#}
+{#                            <h5 class="mb-1">{{ item.obj.name }}</h5>#}
+{##}
+{#                            <p class="mb-1 text-muted">تعداد: {{ item.count }}</p>#}
+{##}
+{#                            <p class="mb-1">#}
+{#                                قیمت واحد:#}
+{#                                <strong>{{ item.obj.price }} تومان</strong>#}
+{#                            </p>#}
+{##}
+{#                            <p class="mb-1">#}
+{#                                تخفیف:#}
+{#                                <strong>{{ item.obj.discount }}٪</strong>#}
+{#                            </p>#}
+{#                        </div>#}
+{##}
+{#                        <!-- قیمت کل -->#}
+{#                        <div style="flex: 1; text-align: center;">#}
+{#                            <p class="fw-bold mb-2">قیمت کل:</p>#}
+{#                            <p class="text-success fw-bold">{{ item.price }} تومان</p>#}
+{#                        </div>#}
+{##}
+{#                        <!-- دکمه حذف -->#}
+{#                        <div style="flex: 0.3;">#}
+{#                            <a class="btn btn-outline-danger btn-sm cart-remove-link"#}
+{#                               href="{% url 'shop:cart_remove' id=id %}"#}
+{#                               data-id="{{ id }}">✕</a>#}
+{#                        </div>#}
+{##}
+{#                    </div>#}
+{#                {% endfor %}#}
+{#            {% else %}#}
+{#                <div class="alert alert-info">سبد خرید شما خالی است.</div>#}
+{#            {% endif %}#}
+{##}
+{#        </div>#}
+{##}
+{#        <!-- بخش فاکتور -->#}
+{#        <div class="col-md-4">#}
+{##}
+{#            <div class="card shadow-sm p-3" style="border-radius: 12px;">#}
+{##}
+{#                <h5 class="mb-3">خلاصه سبد خرید</h5>#}
+{##}
+{#                <div class="d-flex justify-content-between mb-2">#}
+{#                    <span>مجموع سبد خرید:</span>#}
+{#                    <span class="fw-bold summary-total">{{ total }} تومان</span>#}
+{#                </div>#}
+{##}
+{#                <hr>#}
+{##}
+{#                <a href="{% url 'shop:checkout' %}"#}
+{#                   class="btn btn-success w-100 mt-2 py-2 fw-bold">#}
+{#                    پرداخت#}
+{#                </a>#}
+{##}
+{#                <a href="{% url 'shop:cart_empty' %}"#}
+{#                   class="btn btn-outline-danger w-100 mt-2 py-2 cart-empty-link">#}
+{#                    پاک کردن سبد خرید#}
+{#                </a>#}
+{##}
+{#            </div>#}
+{##}
+{#        </div>#}
+{##}
+{#    </div>#}
+{#</div>#}
+{##}
+{#<script>#}
+{#$('.cart-remove-link').click(function(e){#}
+{#    e.preventDefault();#}
+{##}
+{#    let link = $(this);#}
+{#    let target_link = link.attr('href');#}
+{##}
+{#    $.get(target_link, function(res){#}
+{#        link.closest('.card.shadow-sm.mb-3').remove();#}
+{#    });#}
+{##}
+{#    return false;#}
+{#});#}
+{#</script>#}
+{##}
+{##}
+{##}
+{##}
+{##}
+{#{% endblock %}#}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+
+    <!-- ستون راست -->
+    <div class="col-md-3">
+        <div class="card shadow-sm p-3" style="border-radius: 12px;">
+            <h6 class="mb-3 text-center">پنل کاربری</h6>
+            <ul class="list-group">
+                <a href="{% url 'account:dashboard' %}" class="list-group-item list-group-item-action text-end">داشبورد</a>
+                <a href="{% url 'account:profile_edit' %}" class="list-group-item list-group-item-action text-end">ویرایش اطلاعات</a>
+                <a href="{% url 'core:coach_edit' %}" class="list-group-item list-group-item-action text-end">ویرایش اطلاعات مربی</a>
+                <a href="{% url 'account:offers' %}" class="list-group-item list-group-item-action text-end active">آفرهای من</a>
+                <a href="{% url 'password_change' %}" class="list-group-item list-group-item-action text-end">تغییر رمز عبور</a>
+            </ul>
+        </div>
+    </div>
+
+    <!-- بخش اصلی -->
+    <div class="col-md-9">
+
+        <div class="card shadow-sm p-4" style="border-radius: 12px; direction: rtl;">
+            <h5 class="mb-3">آفرهای من</h5>
+
+            {% if offers %}
+                <div class="row row-cols-1 row-cols-md-2 g-3">
+                    {% for offer in offers %}
+                        <div class="col">
+                            <a href="{% url 'core:order_detail' offer.order.id %}" class="text-decoration-none">
+                                <div class="card h-100 shadow-sm p-3" style="border-radius: 12px;">
+                                    <p><strong>خریدار:</strong> {{ offer.order.buyer }}</p>
+                                    <p><strong>مقدار گلد:</strong> {{ offer.quantity }}</p>
+                                    <p><strong>وضعیت:</strong> {{ offer.get_status_display }}</p>
+                                    <p><strong>قیمت کل:</strong> {{ offer.total_price }}</p>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">هنوز هیچ آفر ثبت نکرده‌اید.</p>
+            {% endif %}
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

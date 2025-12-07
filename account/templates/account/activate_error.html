@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+
+    <div class="card shadow-lg p-5 text-center" style="max-width: 500px; border-radius: 15px; direction: rtl;">
+        <h2 class="mb-4 text-danger">خطا در فعال‌سازی حساب!</h2>
+
+        <p class="mb-3">
+            متأسفانه حساب شما فعال نشد.
+            ممکن است لینک فعال‌سازی منقضی شده یا اشتباه باشد.
+        </p>
+
+        <p class="mb-4">
+            لطفاً دوباره ایمیل فعال‌سازی را درخواست کنید یا با پشتیبانی تماس بگیرید.
+        </p>
+
+        <a href="{% url 'password_reset' %}" class="btn btn-warning px-4 py-2 me-2">
+            درخواست مجدد لینک فعال‌سازی
+        </a>
+        <a href="{% url 'login' %}" class="btn btn-primary px-4 py-2">
+            بازگشت به ورود
+        </a>
+    </div>
+
+</div>
+{% endblock %}

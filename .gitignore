@@ -1,0 +1,57 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+*.db
+
+# Virtual Environments
+venv/
+.env/
+ENV/
+env/
+.venv/
+
+# PyCharm
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Django
+*.log
+*.pot
+*.py[cod]
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+db.sqlite3
+media/
+staticfiles/
+node_modules/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Coverage
+.coverage
+htmlcov/
+.tox/
+.cache/
+
+# JetBrains
+*.iws
+*.iml
+*.ipr
+
+# Mac/Linux hidden files
+*.swp
+*.swo
+*.bak

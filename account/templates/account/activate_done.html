@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+
+    <div class="card shadow-lg p-5 text-center" style="max-width: 500px; border-radius: 15px; direction: rtl;">
+        <h2 class="mb-4 text-success">حساب شما فعال شد!</h2>
+
+        <p class="mb-3">
+            حساب کاربری شما با موفقیت فعال شد.
+        </p>
+        <p class="mb-4">
+            اکنون می‌توانید وارد سایت شوید.
+        </p>
+
+        <a href="{% url 'login' %}" class="btn btn-primary px-4 py-2">
+            ورود به حساب کاربری
+        </a>
+    </div>
+
+</div>
+{% endblock %}

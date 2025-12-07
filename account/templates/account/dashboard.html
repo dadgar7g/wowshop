@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="row">
+
+        <!-- ستون راست -->
+        <div class="col-md-3">
+            <div class="card shadow-sm p-3" style="border-radius: 12px;">
+                <h6 class="mb-3 text-center">پنل کاربری</h6>
+                <ul class="list-group">
+
+                    <a href="{% url 'account:dashboard' %}" class="list-group-item list-group-item-action text-end active">
+                        داشبورد
+                    </a>
+
+                    <a href="{% url 'account:profile_edit' %}" class="list-group-item list-group-item-action text-end">
+                        ویرایش اطلاعات
+                    </a>
+
+                    <a href="{% url 'account:bank_edit' %}" class="list-group-item list-group-item-action text-end">
+                        ثبت / ویرایش اطلاعات بانکی
+                    </a>
+
+                    <a href="{% url 'core:coach_edit' %}" class="list-group-item list-group-item-action text-end">
+                        ویرایش اطلاعات مربی
+                    </a>
+                    <a href="{% url 'account:my_invoices' %}" class="list-group-item list-group-item-action text-end">
+                        خریدهای شما
+                    </a>
+
+                    <a href="{% url 'account:offers' %}" class="list-group-item list-group-item-action text-end">
+                        آفرهای من
+                    </a>
+
+                    <a href="{% url 'password_change' %}" class="list-group-item list-group-item-action text-end">
+                        تغییر رمز عبور
+                    </a>
+                </ul>
+            </div>
+        </div>
+
+        <!-- بخش اصلی -->
+        <div class="col-md-9">
+
+            <!-- خوش آمدگویی -->
+            <div class="card shadow-sm p-4 mb-4" style="border-radius: 12px; direction: rtl;">
+                <h4>سلام {{ request.user.first_name|default:request.user.username }} 👋</h4>
+                <p class="text-muted">خوش اومدی به پنل کاربری</p>
+            </div>
+
+            <!-- اطلاعات کاربر -->
+            <div class="card shadow-sm p-4" style="border-radius: 12px; direction: rtl;">
+                <h5 class="mb-3">اطلاعات حساب</h5>
+
+                <p><strong>نام کاربری:</strong> {{ request.user.username|default:"-" }}</p>
+                <p><strong>نام :</strong> {{ request.user.first_name|default:"-" }}</p>
+                <p><strong>نام خانوادگی:</strong> {{ request.user.last_name|default:"-" }}</p>
+                <p><strong>ایمیل:</strong> {{ request.user.email|default:"-" }}</p>
+                <p><strong>شماره تلفن:</strong> {{ request.user.phone|default:"-" }}</p>
+                <p><strong>ایدی دیسکورد:</strong> {{ request.user.discord_id|default:"-" }}</p>
+                <a href="{% url 'account:profile_edit' %}" class="btn btn-primary mt-3">ویرایش اطلاعات</a>
+                <hr>
+                <h5 class="mb-3">اطلاعات بانکی</h5>
+                <p><strong>نام روی کارت:</strong> {{ request.user.bankaccount.full_name|default:"-" }}</p>
+                <p><strong>شماره کارت:</strong> {{ request.user.bankaccount.card_number|default:"-" }}</p>
+                <p><strong>شماره شبا:</strong> {{ request.user.bankaccount.shaba_number|default:"-" }}</p>
+                <a href="{% url 'account:bank_edit' %}" class="btn btn-primary mt-3">ویرایش اطلاعات بانکی</a>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}

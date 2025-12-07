@@ -1,0 +1,388 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <div class="container mt-4">
+
+        <div class="row g-3">
+            <!-- ستون توضیحات و فرم‌ها سمت چپ -->
+            <div class="col-md-8">
+                <div class="card h-100 p-3 text-end" style="direction: rtl;">
+
+                    <!-- توضیحات سفارش همیشه نمایش داده شود -->
+                    <h5 class="mb-3 text-center">توضیحات سفارش</h5>
+                    <p class="text-end">{{ order.description }}</p>
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if forloop.last %}
+                                <div class="alert alert-dismissible fade show
+                    {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}"
+                                     role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if active_offer %}
+                        {% if active_offer.status == 'Awaiting_payment' %}
+                            <p class="text-success text-center">اردر شما تایید شده، منتظر پرداخت بمانید</p>
+                        {% elif active_offer.status == 'review' %}
+                            <div class="card p-3 mt-2">
+                                <h5 class="mb-2 text-center">آپلود ویدیو</h5>
+                                {% if active_offer.proof %}
+                                    <p class="text-success text-center">در انتظار ادمین برای تایید</p>
+                                {% else %}
+                                    <!-- نمایش آخرین پیام فقط -->
+                                    <p class="mt-3"><strong>خریدار:</strong> {{ order.buyer }}</p>#}
+                                    <form method="post" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        <input type="file" name="video" class="form-control mb-2" accept="video/*">
+                                        <button type="submit" class="btn btn-success w-100">شروع آپلود</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    {% endif %}
+                    {% if order.status == "Done" and active_offer %}
+                        <div class="card p-3 mt-2">
+                            <p class="text-success text-center">سفارش به اتمام رسیده لطفا برای پیگیری به پروفایل خود
+                                مراجعه کنید</p>
+                        </div>
+                    {% elif order.status != "Done" %}
+                        <!-- شرط نمایش وضعیت active_offer -->
+
+
+                        <!-- فرم نهایی کردن فروش -->
+                        {% if not active_offer %}
+                            <form method="post" class="text-end">
+                                {% csrf_token %}
+                                <div class="mb-2">
+                                    <label for="gold_input" class="form-label">میزان گلدی که میخوای بدی:</label>
+                                    <input type="number" id="gold_input" name="gold_amount" class="form-control"
+                                           min="{{ order.min_reserve }}" max="{{ order.amount }}"
+                                           step="{{ order.min_reserve }}"
+                                           oninvalid="this.setCustomValidity('مقدار وارد شده معتبر نیست.')"
+                                           oninput="this.setCustomValidity('')">
+                                </div>
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        {% if message.tags == "error" %}
+                                            <div class="invalid-feedback d-block">{{ message }}</div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% endif %}
+                                <button type="submit" class="btn btn-primary w-100">نهایی کردن فروش</button>
+                            </form>
+                        {% endif %}
+
+                        <!-- آپلود ویدیو اگر active_offer وجود دارد و ویدیو هنوز آپلود نشده -->
+                        {% if active_offer and not active_offer.proof %}
+                            <div class="card p-3 mt-3">
+                                <h5 class="mb-2 text-center">آپلود ویدیو</h5>
+                                <p class="mt-3"><strong>خریدار:</strong> {{ order.buyer }}</p>
+                                <form method="post" enctype="multipart/form-data">
+                                    {% csrf_token %}
+                                    <input type="file" name="video" class="form-control mb-2" accept="video/*">
+                                    <button type="submit" class="btn btn-success w-100">شروع آپلود</button>
+                                </form>
+                            </div>
+                        {% endif %}
+
+                    {% endif %}
+
+                </div>
+            </div>
+
+            <!-- ستون اطلاعات سفارش سمت راست -->
+            <div class="col-md-4">
+                <div class="card h-100 p-3 text-center">
+
+                    {% if order.faction == 'horde' %}
+                        <img src="{% static 'images/horde.png' %}" class="img-fluid mb-3" style="max-height:100px;"
+                             alt="Horde">
+                    {% else %}
+                        <img src="{% static 'images/alliance.png' %}" class="img-fluid mb-3" style="max-height:100px;"
+                             alt="Alliance">
+                    {% endif %}
+
+                    <h5 class="mb-3">اطلاعات سفارش</h5>
+
+                    <h6 class="card-title mb-1">{{ order.title }}</h6>
+
+                    <p class="mb-0">
+                        <strong>{% with order.expansion.all|first as exp %}{{ exp.name }}{% endwith %}</strong> :
+                        اکسپنشن
+                    </p>
+
+                    <p class="mb-0"><strong>{{ order.realm.name }}</strong> : ریلم</p>
+                    <p class="mb-1"><strong>{{ order.region }}</strong> : ریجن</p>
+                    <p class="mb-1"><strong>{{ order.amount }}</strong> : مقدار گلد</p>
+                    <p class="mb-1"><strong>{{ order.rest }}</strong> : مقدار گلد باقی مانده</p>
+                    <p class="mb-1"><strong>{{ order.min_reserve }}</strong> : حداقل رزرو</p>
+                    <p class="mb-1"><strong>{{ order.price_per_1k }}</strong> : قیمت هر k</p>
+
+                    <p class="mb-1"><strong>{{ order.get_status_display }}</strong> : وضعیت</p>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+
+
+
+
+
+
+
+{#{% extends 'base.html' %}#}
+{#{% load static %}#}
+{##}
+{#{% block content %}#}
+{#<div class="container mt-4">#}
+{#    <div class="row g-3">#}
+{#        <!-- ستون توضیحات و فرم‌ها سمت چپ -->#}
+{#        <div class="col-md-8">#}
+{#            <div class="card h-100 p-3 text-end" style="direction: rtl;">#}
+{#                <!-- شرط نمایش وضعیت -->#}
+{#                {% if active_offer %}#}
+{#                    {% if active_offer.status == 'Awaiting_payment' %}#}
+{#                        <p class="text-success text-center">اردر شما تایید شده، منتظر پرداخت بمانید</p>#}
+{#                    {% elif active_offer.status == 'review' %}#}
+{#                        <div class="card p-3 mt-2">#}
+{#                            <h5 class="mb-2 text-center">آپلود ویدیو</h5>#}
+{#                            {% if active_offer.proof %}#}
+{#                                <p class="text-success text-center">در انتظار ادمین برای تایید</p>#}
+{#                            {% else %}#}
+{#                                <form method="post" enctype="multipart/form-data">#}
+{#                                    {% csrf_token %}#}
+{#                                    <input type="file" name="video" class="form-control mb-2" accept="video/*">#}
+{#                                    <button type="submit" class="btn btn-success w-100">شروع آپلود</button>#}
+{#                                </form>#}
+{#                            {% endif %}#}
+{#                        </div>#}
+{#                    {% endif %}#}
+{#                {% endif %}#}
+{##}
+{#                <!-- نمایش توضیحات سفارش -->#}
+{#                <h5 class="mb-3 text-center">توضیحات سفارش</h5>#}
+{#                <p class="text-end">{{ order.description }}</p>#}
+{##}
+{#                <!-- فرم نهایی کردن فروش -->#}
+{#                {% if not active_offer %}#}
+{#                    <form method="post" class="text-end">#}
+{#                        {% csrf_token %}#}
+{#                        <div class="mb-2">#}
+{#                            <label for="gold_input" class="form-label">میزان گلدی که میخوای بدی:</label>#}
+{#                            <input type="number" id="gold_input" name="gold_amount" class="form-control"#}
+{#                                   min="{{ order.min_reserve }}" max="{{ order.amount }}"#}
+{#                                   step="{{ order.min_reserve }}"#}
+{#                                   oninvalid="this.setCustomValidity('مقدار وارد شده معتبر نیست.')"#}
+{#                                   oninput="this.setCustomValidity('')">#}
+{#                        </div>#}
+{#                        {% if messages %}#}
+{#                            {% for message in messages %}#}
+{#                                {% if message.tags == "error" %}#}
+{#                                    <div class="invalid-feedback d-block">{{ message }}</div>#}
+{#                                {% endif %}#}
+{#                            {% endfor %}#}
+{#                        {% endif %}#}
+{#                        <button type="submit" class="btn btn-primary w-100">نهایی کردن فروش</button>#}
+{#                    </form>#}
+{#                {% endif %}#}
+{##}
+{#                <!-- اگر اردر فعال هست و ویدیو باید آپلود شود -->#}
+{#                {% if active_offer and not active_offer.proof %}#}
+{#                    <div class="card p-3 mt-3">#}
+{#                        <h5 class="mb-2 text-center">آپلود ویدیو</h5>#}
+{#                        <form method="post" enctype="multipart/form-data">#}
+{#                            {% csrf_token %}#}
+{#                            <input type="file" name="video" class="form-control mb-2" accept="video/*">#}
+{#                            <button type="submit" class="btn btn-success w-100">شروع آپلود</button>#}
+{#                        </form>#}
+{#                    </div>#}
+{#                {% endif %}#}
+{#            </div>#}
+{#        </div>#}
+{##}
+{#        <!-- ستون اطلاعات سفارش سمت راست -->#}
+{#        <div class="col-md-4">#}
+{#            <div class="card h-100 p-3 text-center">#}
+{#                {% if order.faction == 'horde' %}#}
+{#                    <img src="{% static 'images/horde.png' %}" class="img-fluid mb-3" style="max-height:100px;" alt="Horde">#}
+{#                {% else %}#}
+{#                    <img src="{% static 'images/alliance.png' %}" class="img-fluid mb-3" style="max-height:100px;" alt="Alliance">#}
+{#                {% endif %}#}
+{##}
+{#                <h5 class="mb-3">اطلاعات سفارش</h5>#}
+{##}
+{#                <h6 class="card-title mb-1">{{ order.title }}</h6>#}
+{##}
+{#                <p class="mb-0">#}
+{#                    <strong>{% with order.expansion.all|first as exp %}{{ exp.name }}{% endwith %}</strong> : اکسپنشن#}
+{#                </p>#}
+{##}
+{#                    <p class="mb-0"><strong>{{ order.realm.name }}</strong> : ریلم</p>#}
+{#                    <p class="mb-1"><strong>{{ order.region }}</strong> : ریجن</p>#}
+{#                    <p class="mb-1"><strong>{{ order.amount }}</strong> : مقدار گلد</p>#}
+{#                    <p class="mb-1"><strong>{{ order.rest }}</strong> :مقدار گلد باقی مانده</p>#}
+{#                    <p class="mb-1"><strong>{{ order.min_reserve }}</strong> : حداقل رزرو</p>#}
+{#                    <p class="mb-1"><strong>{{ order.price_per_1k }}</strong> : قیمت هر k</p>#}
+{##}
+{#                <p class="mb-1"><strong>{{ order.get_status_display }}</strong> : وضعیت</p>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+{#{% endblock %}#}
+{##}
+
+
+{#{% extends 'base.html' %}#}
+{#{% load static %}#}
+{##}
+{#{% block content %}#}
+{#    <div class="container mt-4">#}
+{#        <div class="row g-3">#}
+{#            {% if active_offer.status == 'Awaiting_payment' %}#}
+{#                        <p class="text-success"> اردر شما تایید شده منتظر پرداخت بمانید </p>#}
+{#            {% elif active_offer.status == 'review' %}#}
+{#                <div class="card p-3 mt-2">#}
+{#                    <h5 class="mb-2">آپلود ویدیو</h5>#}
+{##}
+{#                    {% if active_offer.proof %}#}
+{#                        <p class="text-success"> در انتظار ادمین برای تایید </p>#}
+{#                    {% else %}#}
+{#                        <!-- فرم آپلود -->#}
+{#                        <form method="post" enctype="multipart/form-data">#}
+{#                            {% csrf_token %}#}
+{#                            <input type="file" name="video" class="form-control mb-2" accept="video/*">#}
+{#                            <button type="submit" class="btn btn-success">شروع آپلود</button>#}
+{#                        </form>#}
+{#                    {% endif %}#}
+{##}
+{#                </div>#}
+{#            {% elif order.status == "Done" %}#}
+{#                <div class="col-md-8">#}
+{#                    <div class="card h-100 p-3">#}
+{#                        <h5 class="mb-3">اردر تکمیل شده لطفا اردر دیگری را انتخاب کنید یا منتظر اردر بعدی باشید</h5>#}
+{#                    </div>#}
+{#                </div>#}
+{#            {% elif order.status == "cansel" %}#}
+{#                <div class="col-md-8">#}
+{#                    <div class="card h-100 p-3">#}
+{#                        <h5 class="mb-3">اردر توسط خریدار لغو شده است</h5>#}
+{#                    </div>#}
+{#                </div>#}
+{#            {% elif order.status == "pending" %}#}
+{#                <div class="col-md-8">#}
+{#                    <div class="card h-100 p-3">#}
+{#                        <h5 class="mb-3">مشکلی پیش آمده است لطفا تا بررسی توسط ادمین صبر کنید</h5>#}
+{#                    </div>#}
+{#                </div>#}
+{#            {% else %}#}
+{#                <!-- ستون توضیحات و نهایی کردن سمت چپ -->#}
+{#                <div class="col-md-8">#}
+{#                    <div class="card h-100 p-3">#}
+{##}
+{#                        <h5 class="mb-3">توضیحات سفارش</h5>#}
+{#                        <p>{{ order.description }}</p>#}
+{##}
+{##}
+{#                        {% if not active_offer %}#}
+{#                            <form method="post">#}
+{#                                {% csrf_token %}#}
+{#                                <div class="mb-2">#}
+{#                                    <label for="gold_input" class="form-label">میزان گلدی که میخوای بدی:</label>#}
+{#                                    <input type="number" id="gold_input" name="gold_amount" class="form-control"#}
+{#                                           min="{{ order.min_reserve }}" max="{{ order.amount }}"#}
+{#                                           step="{{ order.min_reserve }}"#}
+{#                                           oninvalid="this.setCustomValidity('مقدار وارد شده معتبر نیست.')"#}
+{#                                           oninput="this.setCustomValidity('')"#}
+{#                                    >#}
+{#                                </div>#}
+{#                                {% if messages %}#}
+{#                                    {% for message in messages %}#}
+{#                                        {% if message.tags == "error" %}#}
+{#                                            <div class="invalid-feedback d-block">#}
+{#                                                {{ message }}#}
+{#                                            </div>#}
+{#                                        {% endif %}#}
+{#                                    {% endfor %}#}
+{#                                {% endif %}#}
+{#                                <button type="submit" class="btn btn-primary">نهایی کردن فروش</button>#}
+{#                            </form>#}
+{##}
+{#                        {% else %}#}
+{##}
+{##}
+{#                            <p class="mt-3"><strong>خریدار:</strong> {{ order.buyer }}</p>#}
+{##}
+{#                            <div class="card p-3 mt-2">#}
+{#                                <h5 class="mb-2">آپلود ویدیو</h5>#}
+{##}
+{#                                {% if active_offer.proof %}#}
+{#                                    <p class="text-success"> در انتظار ادمین برای تایید </p>#}
+{#                                {% else %}#}
+{#                                    <!-- فرم آپلود -->#}
+{#                                    <form method="post" enctype="multipart/form-data">#}
+{#                                        {% csrf_token %}#}
+{#                                        <input type="file" name="video" class="form-control mb-2" accept="video/*">#}
+{#                                        <button type="submit" class="btn btn-success">شروع آپلود</button>#}
+{#                                    </form>#}
+{#                                {% endif %}#}
+{##}
+{#                            </div>#}
+{##}
+{#                        {% endif %}#}
+{#                    </div>#}
+{#                </div>#}
+{#            {% endif %}#}
+{##}
+{##}
+{#            <!-- ستون اطلاعات سفارش سمت راست -->#}
+{#            <div class="col-md-4">#}
+{#                <div class="card h-100 p-3 text-center">#}
+{##}
+{#                    {% if order.faction == 'horde' %}#}
+{#                        <img src="{% static 'images/horde.png' %}" class="img-fluid mb-3" style="max-height:100px;"#}
+{#                             alt="Horde">#}
+{#                    {% else %}#}
+{#                        <img src="{% static 'images/alliance.png' %}" class="img-fluid mb-3" style="max-height:100px;"#}
+{#                             alt="Alliance">#}
+{#                    {% endif %}#}
+{##}
+{#                    <h5 class="mb-3">اطلاعات سفارش</h5>#}
+{##}
+{#                    <h6 class="card-title mb-1">{{ order.title }}</h6>#}
+{##}
+{#                    <p class="mb-0">#}
+{#                        <strong>#}
+{#                            {% with order.expansion.all|first as exp %}#}
+{#                                {{ exp.name }}#}
+{#                            {% endwith %}#}
+{#                        </strong>#}
+{#                        : اکسپنشن#}
+{#                    </p>#}
+{##}
+{#                    <p class="mb-0"><strong>{{ order.realm.name }}</strong> : ریلم</p>#}
+{##}
+{#                    <p class="mb-1"><strong>{{ order.region }}</strong> : ریجن</p>#}
+{#                    <p class="mb-1"><strong>{{ order.amount }}</strong> : مقدار گلد</p>#}
+{#                    <p class="mb-1"><strong>{{ order.rest }}</strong> :مقدار گلد باقی مانده</p>#}
+{#                    <p class="mb-1"><strong>{{ order.min_reserve }}</strong> : حداقل رزرو</p>#}
+{#                    <p class="mb-1"><strong>{{ order.price_per_1k }}</strong> : قیمت هر k</p>#}
+{##}
+{#                    <p class="mb-1">#}
+{#                        <strong>{{ order.get_status_display }}</strong> : وضعیت#}
+{#                    </p>#}
+{##}
+{#                </div>#}
+{#            </div>#}
+{##}
+{#        </div>#}
+{#    </div>#}
+{#{% endblock %}#}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5 pt-5" dir="rtl">
+
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+
+            <div class="card shadow-sm p-4 text-center" style="border-radius: 12px;">
+
+                <h3 class="text-danger mb-3 fw-bold">
+                    سبد خرید شما خالی است
+                </h3>
+
+                <p class="text-muted mb-4">
+                    برای ادامه خرید به صفحه محصولات بازگردید
+                </p>
+
+                <a href="{% url 'shop:product_list' %}"
+                   class="btn btn-warning text-white fw-bold px-4 py-2"
+                   style="border-radius: 8px;">
+                    بازگشت به صفحه محصولات
+                </a>
+
+            </div>
+
+        </div>
+    </div>
+
+</div>
+{% endblock %}

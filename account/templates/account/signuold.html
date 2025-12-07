@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load form_filters %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+    <!-- نمایش آخرین پیام فقط -->
+    {% if messages %}
+        {% for message in messages %}
+            {% if forloop.last %}
+                <div class="alert alert-dismissible fade show
+                    {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}"
+                     role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+    <div class="card shadow-lg p-4" style="width: 400px; border-radius: 15px;">
+        <h4 class="text-center mb-4">ثبت‌نام</h4>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="mb-3">
+                <label class="form-label d-block text-end">نام کاربری</label>
+                {{ form.username|add_class:"form-control" }}
+                {{ form.username.errors }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label d-block text-end">نام</label>
+                {{ form.first_name|add_class:"form-control" }}
+                {{ form.first_name.errors }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label d-block text-end">نام خانوادگی</label>
+                {{ form.last_name|add_class:"form-control" }}
+                {{ form.last_name.errors }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label d-block text-end">ایمیل</label>
+                {{ form.email|add_class:"form-control" }}
+                {{ form.email.errors }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label d-block text-end">شماره تلفن</label>
+                {{ form.phone|add_class:"form-control" }}
+                {{ form.phone.errors }}
+            </div>
+
+            <div class="mb-3 position-relative">
+    <label class="form-label d-block text-end">رمز عبور</label>
+    <div class="input-group">
+        {{ form.password1|add_class:"form-control" }}
+        <button type="button" class="btn btn-outline-secondary toggle-password">
+            👁
+        </button>
+    </div>
+    {{ form.password1.errors }}
+</div>
+
+<div class="mb-3 position-relative">
+    <label class="form-label d-block text-end">تکرار رمز عبور</label>
+    <div class="input-group">
+        {{ form.password2|add_class:"form-control" }}
+        <button type="button" class="btn btn-outline-secondary toggle-password">
+            👁
+        </button>
+    </div>
+    {{ form.password2.errors }}
+</div>
+
+            <button type="submit" class="btn btn-primary w-100 mt-3">
+                ایجاد حساب کاربری
+            </button>
+        </form>
+
+        <div class="text-center mt-3">
+            <span>حساب دارید؟</span>
+            <a href="{% url 'login' %}" class="text-decoration-none fw-bold">ورود</a>
+        </div>
+
+    </div>
+
+</div>
+    <script>
+document.querySelectorAll(".toggle-password").forEach(btn => {
+    btn.addEventListener("click", function () {
+        let input = this.previousElementSibling;
+        if (input.type === "password") {
+            input.type = "text";
+            this.innerHTML = "🙈";  // آیکون چشم بسته
+        } else {
+            input.type = "password";
+            this.innerHTML = "👁";  // آیکون چشم
+        }
+    });
+});
+</script>
+
+{% endblock %}
