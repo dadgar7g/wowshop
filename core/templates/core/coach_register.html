@@ -1,50 +1,215 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="container mt-4" dir="rtl" style="text-align: right;">
-        <!-- نمایش آخرین پیام فقط -->
-    {% if messages %}
-        {% for message in messages %}
-            {% if forloop.last %}
-                <div class="alert alert-dismissible fade show
+    <div class="container mt-4 pt-4" dir="rtl" style="text-align: right;">
+
+        <!-- نمایش فقط آخرین پیام -->
+        {% if messages %}
+            {% for message in messages %}
+                {% if forloop.last %}
+                    <div class="alert alert-dismissible fade show
                     {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}"
-                     role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endif %}
-        {% endfor %}
-    {% endif %}
-        <div class="card shadow-sm">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">{% if edit %}ویرایش اطلاعات مربی{% else %}ثبت اطلاعات مربی{% endif %}</h5>
-            </div>
+                         role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
 
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
+        <div class="row">
 
-                    <div class="row g-3">
-                        {% for field in form %}
-                            <div class="col-md-6">
-                                <label class="form-label">{{ field.label }}</label>
-                                {{ field }}
-                                {% if field.errors %}
-                                    <div class="text-danger small">
-                                        {{ field.errors|striptags }}
-                                    </div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
+            <!-- فرم اصلی (سمت راست) -->
+            <div class="{% if edit %}col-md-9{% else %}col-md-12{% endif %} mb-4">
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            {% if edit %}ویرایش اطلاعات مربی{% else %}ثبت اطلاعات مربی{% endif %}
+                        </h5>
                     </div>
 
-                    <button class="btn btn-primary mt-3 px-4">
-                        {% if edit %}ذخیره تغییرات{% else %}ثبت{% endif %}
-                    </button>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
 
-                </form>
+                            <div class="row g-3">
+                                {% for field in form %}
+                                    <div class="col-md-6">
+                                        <label class="form-label">{{ field.label }}</label>
+                                        {{ field }}
+                                        {% if field.errors %}
+                                            <div class="text-danger small">
+                                                {{ field.errors|striptags }}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <button class="btn btn-primary mt-3 px-4">
+                                {% if edit %}ذخیره تغییرات{% else %}ثبت{% endif %}
+                            </button>
+
+                        </form>
+                    </div>
+                </div>
+
             </div>
-        </div>
 
+            <!-- پنل کاربری (سمت چپ) -->
+            {% if edit %}
+                <div class="col-md-3">
+                    <div class="card shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                        <h6 class="mb-0 text-center py-3"
+                            style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+                            پنل کاربری
+                        </h6>
+
+                        <ul class="list-group list-group-flush" style="margin:0; padding:0;">
+                            <a href="{% url 'account:dashboard' %}"
+                               class="list-group-item list-group-item-action text-end "
+                               style="padding-right: 12px;">
+                                داشبورد
+                            </a>
+
+                            <a href="{% url 'account:profile_edit' %}"
+                               class="list-group-item list-group-item-action text-end"
+                               style="padding-right: 12px;">
+                                ویرایش اطلاعات
+                            </a>
+
+                            <a href="{% url 'account:bank_edit' %}"
+                               class="list-group-item list-group-item-action text-end"
+                               style="padding-right: 12px;">
+                                ثبت / ویرایش اطلاعات بانکی
+                            </a>
+
+                            <a href="{% url 'core:coach_edit' %}"
+                               class="list-group-item list-group-item-action text-end active"
+                               style="padding-right: 12px;">
+                                ویرایش اطلاعات مربی
+                            </a>
+
+                            <a href="{% url 'account:my_invoices' %}"
+                               class="list-group-item list-group-item-action text-end"
+                               style="padding-right: 12px;">
+                                خریدهای شما
+                            </a>
+
+                            <a href="{% url 'account:offers' %}"
+                               class="list-group-item list-group-item-action text-end"
+                               style="padding-right: 12px;">
+                                آفرهای من
+                            </a>
+
+                            <a href="{% url 'password_change' %}"
+                               class="list-group-item list-group-item-action text-end"
+                               style="padding-right: 12px;">
+                                تغییر رمز عبور
+                            </a>
+                        </ul>
+                    </div>
+                </div>
+
+            {% endif %}
+
+        </div>
     </div>
 {% endblock %}
+
+
+
+
+
+
+
+
+
+
+{#{% extends "base.html" %}#}
+{##}
+{#{% block content %}#}
+{#    <div class="container mt-4 pt-4" dir="rtl" style="text-align: right;">#}
+{#        <!-- نمایش آخرین پیام فقط -->#}
+{#    {% if messages %}#}
+{#        {% for message in messages %}#}
+{#            {% if forloop.last %}#}
+{#                <div class="alert alert-dismissible fade show#}
+{#                    {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}"#}
+{#                     role="alert">#}
+{#                    {{ message }}#}
+{#                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>#}
+{#                </div>#}
+{#            {% endif %}#}
+{#        {% endfor %}#}
+{#    {% endif %}#}
+{#    {% if edit %}#}
+{#         <div class="col-md-3 ">#}
+{#            <div class="card shadow-sm p-3" style="border-radius: 12px;">#}
+{#                <h6 class="mb-3 text-center">پنل کاربری</h6>#}
+{#                <ul class="list-group">#}
+{##}
+{#                    <a href="{% url 'account:dashboard' %}" class="list-group-item list-group-item-action text-end">#}
+{#                        داشبورد#}
+{#                    </a>#}
+{##}
+{#                    <a href="{% url 'account:profile_edit' %}" class="list-group-item list-group-item-action text-end">#}
+{#                        ویرایش اطلاعات#}
+{#                    </a>#}
+{##}
+{#                    <a href="{% url 'account:bank_edit' %}" class="list-group-item list-group-item-action text-end">#}
+{#                        ثبت / ویرایش اطلاعات بانکی#}
+{#                    </a>#}
+{##}
+{#                    <a href="{% url 'core:coach_edit' %}" class="list-group-item list-group-item-action text-end active">#}
+{#                        ویرایش اطلاعات مربی#}
+{#                    </a>#}
+{#                    <a href="{% url 'account:my_invoices' %}" class="list-group-item list-group-item-action text-end">#}
+{#                        خریدهای شما#}
+{#                    </a>#}
+{##}
+{#                    <a href="{% url 'account:offers' %}" class="list-group-item list-group-item-action text-end">#}
+{#                        آفرهای من#}
+{#                    </a>#}
+{##}
+{#                    <a href="{% url 'password_change' %}" class="list-group-item list-group-item-action text-end">#}
+{#                        تغییر رمز عبور#}
+{#                    </a>#}
+{#                </ul>#}
+{#            </div>#}
+{#        </div>#}
+{#    {% endif %}#}
+{#        <div class="card shadow-sm">#}
+{#            <div class="card-header bg-primary text-white">#}
+{#                <h5 class="mb-0">{% if edit %}ویرایش اطلاعات مربی{% else %}ثبت اطلاعات مربی{% endif %}</h5>#}
+{#            </div>#}
+{##}
+{#            <div class="card-body">#}
+{#                <form method="post">#}
+{#                    {% csrf_token %}#}
+{##}
+{#                    <div class="row g-3">#}
+{#                        {% for field in form %}#}
+{#                            <div class="col-md-6">#}
+{#                                <label class="form-label">{{ field.label }}</label>#}
+{#                                {{ field }}#}
+{#                                {% if field.errors %}#}
+{#                                    <div class="text-danger small">#}
+{#                                        {{ field.errors|striptags }}#}
+{#                                    </div>#}
+{#                                {% endif %}#}
+{#                            </div>#}
+{#                        {% endfor %}#}
+{#                    </div>#}
+{##}
+{#                    <button class="btn btn-primary mt-3 px-4">#}
+{#                        {% if edit %}ذخیره تغییرات{% else %}ثبت{% endif %}#}
+{#                    </button>#}
+{##}
+{#                </form>#}
+{#            </div>#}
+{#        </div>#}
+{##}
+{#    </div>#}
+{#{% endblock %}#}

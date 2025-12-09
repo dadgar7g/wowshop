@@ -42,52 +42,41 @@
     </style>
 
     <div class="row">
-        {% for product in products %}
-            <div class="col-md-4 mb-4">
-                <div class="card shop-product-card">
-
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" class="shop-product-img" alt="">
-                    {% else %}
-                        <img src="https://via.placeholder.com/300x260" class="shop-product-img" alt="">
-                    {% endif %}
-
-                    <div class="card-body">
-                        <h5 class="card-title text-center"><b>{{ product.name }}</b></h5>
-
-                        <p class="text-muted" style="font-size:14px;">
-                            قیمت: <b>{{ product.price }} تومان</b>
-                        </p>
-
-                        {% if product.discount > 0 %}
-                            <span class="shop-discount">تخفیف {{ product.discount }}%</span>
-                        {% endif %}
-
-                        <hr>
-
-                        <p class="card-text" style="font-size:14px;">
-                            {% autoescape off %}
-                                {{ product.description|truncatewords:20 }}
-                            {% endautoescape %}
-                        </p>
-
-                        <div class="d-flex justify-content-between mt-3">
-                            <a href="{% url 'shop:product_detail' id=product.id %}"
-                               class="btn btn-outline-primary btn-sm shop-btn">
-                                جزئیات
-                            </a>
-
-                            <a href="{% url 'shop:cart_add' product.id %}"
-                               data-id="{{ product.id }}"
-                               class="btn btn-success btn-sm shop-btn add-to-cart-link">
-                                افزودن به سبد
-                            </a>
-                        </div>
-                    </div>
-
+        {% for product in page_obj %}
+    <div class="col-md-4 mb-4">
+        <div class="card shop-product-card">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" class="shop-product-img" alt="">
+            {% else %}
+                <img src="https://via.placeholder.com/300x260" class="shop-product-img" alt="">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title text-center"><b>{{ product.name }}</b></h5>
+                <p class="text-muted" style="font-size:14px;">
+                    قیمت: <b>{{ product.price }} تومان</b>
+                </p>
+                {% if product.discount > 0 %}
+                    <span class="shop-discount">تخفیف {{ product.discount }}%</span>
+                {% endif %}
+                <hr>
+                <p class="card-text" style="font-size:14px;">
+                    {{ product.description|truncatewords:20 }}
+                </p>
+                <div class="d-flex justify-content-between mt-3">
+                    <a href="{% url 'shop:product_detail' id=product.id %}"
+                       class="btn btn-outline-primary btn-sm shop-btn">
+                        جزئیات
+                    </a>
+                    <a href="{% url 'shop:cart_add' product.id %}"
+                       data-id="{{ product.id }}"
+                       class="btn btn-success btn-sm shop-btn add-to-cart-link">
+                        افزودن به سبد
+                    </a>
                 </div>
             </div>
-        {% endfor %}
+        </div>
+    </div>
+{% endfor %}
     </div>
 
 </div>  <!-- container -->

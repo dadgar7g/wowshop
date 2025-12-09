@@ -1,47 +1,132 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="card shadow-sm p-4" style="border-radius: 12px; direction: rtl;">
-        <h5 class="mb-3">سفارشات من</h5>
+<div class="container mt-4 pt-4" dir="rtl" style="text-align: right;">
 
-        {% if invoices %}
-            <div class="row row-cols-1 row-cols-md-2 g-3">
-                {% for invoice in invoices %}
-                    <div class="col">
+    <div class="row">
 
-                        <div class="card h-100 shadow-sm p-3" style="border-radius: 12px;">
-                            <p><strong>شماره فاکتور:</strong> {{ invoice.number|default:invoice.id }}</p>
-                            <p><strong>محصولات خریداری شده:</strong></p>
 
-                            <ul class="list-unstyled ms-3">
-                                {% for item in invoice.invoiceitem_set.all %}
-                                    <li>
-                                        <a href="{% url 'shop:product_detail' id=item.product.id %}"
-                                           class="text-decoration-none">
-                                            • {{ item.product.name }} ({{ item.count }} عدد)
-                                        </a>
-                                    </li>
-                                {% endfor %}
-                            </ul>
 
-                            <p><strong>ایدی بتل نت ثبت شده:</strong> {{ invoice.battle_tag }}</p>
-                            {% if invoice.discount %}<p><strong>تخفیف :</strong> {{ invoice.discount }}</p>{% endif %}
-                            <p><strong>تاریخ:</strong> {{ invoice.date|date:"Y-m-d H:i" }}</p>
-                            <p><strong>مجموع:</strong> {{ invoice.total }} تومان</p>
-                            <p><strong>وضعیت پرداخت:</strong>
-                                {% if invoice.payment_set.first %}
-                                    {{ invoice.payment_set.first.get_status_display }}
-                                {% else %}
-                                    ثبت نشده
-                                {% endif %}
-                            </p>
+        <!-- سفارشات (سمت راست) -->
+        <div class="col-md-9">
+
+            <h5 class="mb-3">سفارشات من</h5>
+
+            {% if invoices %}
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    {% for invoice in invoices %}
+                        <div class="col">
+                            <div class="card h-100 shadow-sm p-3" style="border-radius: 12px; transition: transform 0.2s;">
+                                <p><strong>شماره فاکتور:</strong> {{ invoice.number|default:invoice.id }}</p>
+                                <p><strong>محصولات خریداری شده:</strong></p>
+                                <ul class="list-unstyled ms-3">
+                                    {% for item in invoice.invoiceitem_set.all %}
+                                        <li>
+                                            <a href="{% url 'shop:product_detail' id=item.product.id %}" class="text-decoration-none">
+                                                • {{ item.product.name }} ({{ item.count }} عدد)
+                                            </a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+
+                                <p><strong>ایدی بتل نت ثبت شده:</strong> {{ invoice.battle_tag }}</p>
+                                {% if invoice.discount %}<p><strong>تخفیف :</strong> {{ invoice.discount }}</p>{% endif %}
+                                <p><strong>تاریخ:</strong> {{ invoice.date|date:"Y-m-d H:i" }}</p>
+                                <p><strong>مجموع:</strong> {{ invoice.total }} تومان</p>
+                                <p><strong>وضعیت پرداخت:</strong>
+                                    {% if invoice.payment_set.first %}
+                                        {{ invoice.payment_set.first.get_status_display }}
+                                    {% else %}
+                                        ثبت نشده
+                                    {% endif %}
+                                </p>
+                            </div>
                         </div>
-                        </a>
-                    </div>
-                {% endfor %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-muted">فعلاً هیچ سفارش ثبت نکرده‌اید.</p>
+            {% endif %}
+
+        </div>
+        <!-- پنل کاربری (سمت چپ) -->
+        <div class="col-md-3 mb-4">
+            <div class="card shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                <h6 class="mb-0 text-center py-3" style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6;">
+                    پنل کاربری
+                </h6>
+                <ul class="list-group list-group-flush" style="margin:0; padding:0;">
+                    <a href="{% url 'account:dashboard' %}" class="list-group-item list-group-item-action text-end " style="padding-right:12px;">داشبورد</a>
+                    <a href="{% url 'account:profile_edit' %}" class="list-group-item list-group-item-action text-end" style="padding-right:12px;">ویرایش اطلاعات</a>
+                    <a href="{% url 'account:bank_edit' %}" class="list-group-item list-group-item-action text-end" style="padding-right:12px;">ثبت / ویرایش اطلاعات بانکی</a>
+                    <a href="{% url 'core:coach_edit' %}" class="list-group-item list-group-item-action text-end" style="padding-right:12px;">ویرایش اطلاعات مربی</a>
+                    <a href="{% url 'account:my_invoices' %}" class="list-group-item list-group-item-action text-end active" style="padding-right:12px;">خریدهای شما</a>
+                    <a href="{% url 'account:offers' %}" class="list-group-item list-group-item-action text-end" style="padding-right:12px;">آفرهای من</a>
+                    <a href="{% url 'password_change' %}" class="list-group-item list-group-item-action text-end" style="padding-right:12px;">تغییر رمز عبور</a>
+                </ul>
             </div>
-        {% else %}
-            <p class="text-muted">فعلاً هیچ سفارش ثبت نکرده‌اید.</p>
-        {% endif %}
+        </div>
+
     </div>
+</div>
+
+<!-- Hover Effect برای کارت‌ها -->
+{#<style>#}
+{#.card:hover {#}
+{#    transform: translateY(-5px);#}
+{#    box-shadow: 0 6px 20px rgba(0,0,0,0.15);#}
+{#}#}
+{#</style>#}
 {% endblock %}
+
+
+
+
+
+{#{% extends "base.html" %}#}
+{##}
+{#{% block content %}#}
+{#    <div class="card shadow-sm p-4" style="border-radius: 12px; direction: rtl;">#}
+{#        <h5 class="mb-3">سفارشات من</h5>#}
+{##}
+{#        {% if invoices %}#}
+{#            <div class="row row-cols-1 row-cols-md-2 g-3">#}
+{#                {% for invoice in invoices %}#}
+{#                    <div class="col">#}
+{##}
+{#                        <div class="card h-100 shadow-sm p-3" style="border-radius: 12px;">#}
+{#                            <p><strong>شماره فاکتور:</strong> {{ invoice.number|default:invoice.id }}</p>#}
+{#                            <p><strong>محصولات خریداری شده:</strong></p>#}
+{##}
+{#                            <ul class="list-unstyled ms-3">#}
+{#                                {% for item in invoice.invoiceitem_set.all %}#}
+{#                                    <li>#}
+{#                                        <a href="{% url 'shop:product_detail' id=item.product.id %}"#}
+{#                                           class="text-decoration-none">#}
+{#                                            • {{ item.product.name }} ({{ item.count }} عدد)#}
+{#                                        </a>#}
+{#                                    </li>#}
+{#                                {% endfor %}#}
+{#                            </ul>#}
+{##}
+{#                            <p><strong>ایدی بتل نت ثبت شده:</strong> {{ invoice.battle_tag }}</p>#}
+{#                            {% if invoice.discount %}<p><strong>تخفیف :</strong> {{ invoice.discount }}</p>{% endif %}#}
+{#                            <p><strong>تاریخ:</strong> {{ invoice.date|date:"Y-m-d H:i" }}</p>#}
+{#                            <p><strong>مجموع:</strong> {{ invoice.total }} تومان</p>#}
+{#                            <p><strong>وضعیت پرداخت:</strong>#}
+{#                                {% if invoice.payment_set.first %}#}
+{#                                    {{ invoice.payment_set.first.get_status_display }}#}
+{#                                {% else %}#}
+{#                                    ثبت نشده#}
+{#                                {% endif %}#}
+{#                            </p>#}
+{#                        </div>#}
+{#                        </a>#}
+{#                    </div>#}
+{#                {% endfor %}#}
+{#            </div>#}
+{#        {% else %}#}
+{#            <p class="text-muted">فعلاً هیچ سفارش ثبت نکرده‌اید.</p>#}
+{#        {% endif %}#}
+{#    </div>#}
+{#{% endblock %}#}
