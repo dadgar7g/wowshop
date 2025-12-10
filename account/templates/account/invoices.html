@@ -34,8 +34,8 @@
                                 <p><strong>تاریخ:</strong> {{ invoice.date|date:"Y-m-d H:i" }}</p>
                                 <p><strong>مجموع:</strong> {{ invoice.total }} تومان</p>
                                 <p><strong>وضعیت پرداخت:</strong>
-                                    {% if invoice.payment_set.first %}
-                                        {{ invoice.payment_set.first.get_status_display }}
+                                    {% if invoice.payment %}
+                                        {{ invoice.payment.get_status_display }}
                                     {% else %}
                                         ثبت نشده
                                     {% endif %}

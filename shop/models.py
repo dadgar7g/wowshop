@@ -141,9 +141,9 @@ class Payment(models.Model):
     STATUS_PENDING = 'pending'
     STATUS_DONE = 'done'
     STATUS_ERROR = 'error'
-    STATUS_CHOICES = ((STATUS_PENDING, 'Pending'),
-                      (STATUS_ERROR, 'Error'),
-                      (STATUS_DONE, 'Done'))
+    STATUS_CHOICES = ((STATUS_PENDING, 'در انتظار پرداخت'),
+                      (STATUS_ERROR, 'پرداخت ناموفق'),
+                      (STATUS_DONE, 'پرداخت موفق'))
 
     invoice = models.OneToOneField(Invoice, on_delete=models.PROTECT)
     total = models.IntegerField()
