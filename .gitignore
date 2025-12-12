@@ -28,7 +28,6 @@ env/
 *.egg-info/
 dist/
 build/
-db.sqlite3
 media/
 staticfiles/
 node_modules/
