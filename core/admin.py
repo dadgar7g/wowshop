@@ -94,8 +94,9 @@ class FastSellAdmin(admin.ModelAdmin):
 # -------------------------------------------------------------------------------------------------
 @admin.register(models.Coach)
 class CoachAdmin(admin.ModelAdmin):
-    list_display = ['user', 'show_expansions', 'show_methods', 'timeplay']
-    list_filter = ['expansions', 'methods']
+    list_display = ['user', 'user__discord_id', 'show_expansions', 'show_methods', 'timeplay', 'enable']
+    list_editable = ['enable']
+    list_filter = ['expansions', 'methods', 'enable']
     search_fields = ['user__username']
     inlines = [CommentInline]
 

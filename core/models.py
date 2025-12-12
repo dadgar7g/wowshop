@@ -123,6 +123,7 @@ class Coach(models.Model):
     methods = models.ManyToManyField(Method)
     description = models.TextField()
     timeplay = models.PositiveIntegerField()
+    enable = models.BooleanField(default=False)
 
 
 

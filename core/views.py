@@ -185,6 +185,9 @@ class CoachDetailView(View):
     def get(self, request, user):
         try:
             coach = models.Coach.objects.get(user__username=user)
+            if coach.enable == False:
+                messages.error(request,"مربی مورد نظر یافت نشد لطفا از میان لیست مربیان مربی خود را پیدا کنید")
+                return redirect("core:coach_list")
         except models.Coach.DoesNotExist:
             messages.error(request, "مربی یافت نشد.")
             return redirect("core:coach_list")

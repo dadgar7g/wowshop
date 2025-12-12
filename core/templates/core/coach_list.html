@@ -3,12 +3,25 @@
 
 {% block content %}
 <div class="container mt-4" dir="rtl">
-
+    <!-- نمایش فقط آخرین پیام -->
+        {% if messages %}
+            {% for message in messages %}
+                {% if forloop.last %}
+                    <div class="alert alert-dismissible fade show
+                    {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}"
+                         role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
   <h3 class="mb-4 text-end">لیست مربیان</h3>
 
   <div class="row g-4">
 
     {% for coach in coaches %}
+     {% if coach.enable == True %}
       <div class="col-md-4">
         <div class="card h-100 shadow-sm border-1">
 
@@ -53,6 +66,7 @@
 
         </div>
       </div>
+      {% endif %}
     {% endfor %}
 
   </div>
