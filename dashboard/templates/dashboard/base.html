@@ -75,7 +75,7 @@
             <!-- Orders -->
             <a href="{% url 'dashboard:order_list' %}" class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
                 <i data-lucide="shopping-cart" class="w-5 h-5"></i>
-                <span>اردرها</span>
+                <span>سفارشات</span>
             </a>
 
             <!-- Offers -->
@@ -96,11 +96,26 @@
                 <span>فاکتورها</span>
             </a>
 
-            <!-- Comments -->
-            <a href="{% url 'dashboard:comment_list' %}" class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                <i data-lucide="message-square" class="w-5 h-5"></i>
-                <span>کامنت‌ها</span>
-            </a>
+            <!-- Comments Dropdown -->
+            <div x-data="{ open: false }">
+                <button @click="open = !open" class="w-full flex items-center justify-between gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="message-square" class="w-5 h-5"></i>
+                        <span>کامنت‌ها</span>
+                    </div>
+                    <i data-lucide="chevron-down" class="w-4 h-4" :class="{ 'rotate-180': open }"></i>
+                </button>
+                <div x-show="open" x-transition class="mt-1 mr-8 space-y-1">
+                    <a href="{% url 'dashboard:shop_comment_list' %}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i>
+                        <span>کامنت‌های محصولات</span>
+                    </a>
+                    <a href="{% url 'dashboard:coach_comment_list' %}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">
+                        <i data-lucide="graduation-cap" class="w-4 h-4"></i>
+                        <span>کامنت‌های کوچ‌ها</span>
+                    </a>
+                </div>
+            </div>
 
             <!-- Coaches -->
             <a href="{% url 'dashboard:coach_list' %}" class="flex items-center gap-3 px-4 py-3 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-600 transition-colors">

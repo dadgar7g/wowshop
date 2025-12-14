@@ -34,8 +34,10 @@ urlpatterns = [
     path('products/<int:pk>/delete/', views.product_delete, name='product_delete'),
 
     # Comments
-    path('comments/', views.comment_list, name='comment_list'),
-    path('comments/<int:pk>/toggle/', views.comment_toggle, name='comment_toggle'),
+    path('comments/shop/', views.shop_comment_list, name='shop_comment_list'),
+    path('comments/shop/<int:pk>/toggle/', views.shop_comment_toggle, name='shop_comment_toggle'),
+    path('comments/coach/', views.coach_comment_list, name='coach_comment_list'),
+    path('comments/coach/<int:pk>/toggle/', views.coach_comment_toggle, name='coach_comment_toggle'),
 
     # Coaches
     path('coaches/', views.coach_list, name='coach_list'),

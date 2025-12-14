@@ -1,0 +1,156 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}کامنت‌های محصولات - پنل مدیریت{% endblock %}
+{% block page_title %}کامنت‌های محصولات{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">کامنت‌های محصولات</h2>
+            <p class="text-gray-600 mt-1">مدیریت و بررسی نظرات محصولات فروشگاه</p>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Search -->
+            <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">جستجو</label>
+                <input 
+                    type="text" 
+                    name="search" 
+                    value="{{ search }}"
+                    placeholder="جستجو در متن، نام کاربر یا نام محصول..."
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+            </div>
+            
+            <!-- Status Filter -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">وضعیت</label>
+                <select 
+                    name="status"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                    <option value="">همه</option>
+                    <option value="enabled" {% if status_filter == 'enabled' %}selected{% endif %}>تایید شده</option>
+                    <option value="disabled" {% if status_filter == 'disabled' %}selected{% endif %}>در انتظار تایید</option>
+                </select>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="md:col-span-3 flex gap-2">
+                <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                    <span>اعمال فیلتر</span>
+                </button>
+                {% if search or status_filter %}
+                <a href="{% url 'dashboard:shop_comment_list' %}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    <span>پاک کردن</span>
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+    
+    <!-- Comments List -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        {% if comments %}
+        <div class="divide-y divide-gray-200">
+            {% for comment in comments %}
+            <div class="p-6 hover:bg-gray-50 transition-colors">
+                <div class="flex items-start gap-4">
+                    <!-- Avatar -->
+                    <div class="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                        {{ comment.user.username|slice:":1"|upper }}
+                    </div>
+                    
+                    <div class="flex-1 min-w-0">
+                        <!-- Header -->
+                        <div class="flex items-start justify-between mb-2">
+                            <div>
+                                <h4 class="font-semibold text-gray-900">{{ comment.user.username }}</h4>
+                                <p class="text-sm text-gray-600">
+                                    برای محصول: 
+                                    <a href="{% url 'dashboard:product_detail' comment.product.pk %}" class="text-blue-600 hover:text-blue-700 font-medium">
+                                        {{ comment.product.name }}
+                                    </a>
+                                </p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <!-- Status Badge -->
+                                {% if comment.enable %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i data-lucide="check-circle" class="w-3 h-3 ml-1"></i>
+                                    تایید شده
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <i data-lucide="clock" class="w-3 h-3 ml-1"></i>
+                                    در انتظار تایید
+                                </span>
+                                {% endif %}
+                                
+                                <span class="text-sm text-gray-500">{{ comment.created_at|date:"Y/m/d H:i" }}</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Comment Text -->
+                        <p class="text-gray-700 mb-3">{{ comment.text }}</p>
+                        
+                        <!-- Actions -->
+                        <div class="flex items-center gap-2">
+                            <form method="POST" action="{% url 'dashboard:shop_comment_toggle' comment.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm rounded-lg transition-colors
+                                    {% if comment.enable %}bg-red-50 text-red-600 hover:bg-red-100
+                                    {% else %}bg-green-50 text-green-600 hover:bg-green-100{% endif %}">
+                                    {% if comment.enable %}
+                                    <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                    <span>رد کردن</span>
+                                    {% else %}
+                                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                    <span>تایید کردن</span>
+                                    {% endif %}
+                                </button>
+                            </form>
+                            
+                            <a href="{% url 'dashboard:user_detail' comment.user.pk %}" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+                                <i data-lucide="user" class="w-4 h-4"></i>
+                                <span>مشاهده کاربر</span>
+                            </a>
+                            
+                            <a href="{% url 'dashboard:product_detail' comment.product.pk %}" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100 transition-colors">
+                                <i data-lucide="package" class="w-4 h-4"></i>
+                                <span>مشاهده محصول</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="px-6 py-12 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                <i data-lucide="message-square" class="w-8 h-8 text-gray-400"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-1">کامنتی یافت نشد</h3>
+            <p class="text-gray-600">هیچ کامنتی با این فیلترها وجود ندارد.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

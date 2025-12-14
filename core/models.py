@@ -131,6 +131,7 @@ class FastSell(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="کاربر")
     text = models.TextField("متن پیام")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاریخ ارسال")
+    is_read = models.BooleanField(default=False)
 
     def __str__(self):
         return f"پیام {self.user.username} در {self.created_at.strftime('%Y-%m-%d %H:%M')}"

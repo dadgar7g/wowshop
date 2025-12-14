@@ -612,3 +612,86 @@ def invoice_detail(request, pk):
         'payment': payment,
     }
     return render(request, 'dashboard/invoices/detail.html', context)
+
+
+# ============ COMMENTS ============
+@login_required
+@user_passes_test(is_admin)
+def shop_comment_list(request):
+    # کامنت‌های فروشگاه
+    comments = ShopComment.objects.select_related('user', 'product').order_by('-created_at')
+
+    # جستجو
+    search = request.GET.get('search', '')
+    if search:
+        comments = comments.filter(
+            Q(text__icontains=search) |
+            Q(user__username__icontains=search) |
+            Q(product__name__icontains=search)
+        )
+
+    # فیلتر وضعیت
+    status_filter = request.GET.get('status', '')
+    if status_filter == 'enabled':
+        comments = comments.filter(enable=True)
+    elif status_filter == 'disabled':
+        comments = comments.filter(enable=False)
+
+    context = {
+        'comments': comments,
+        'search': search,
+        'status_filter': status_filter,
+    }
+    return render(request, 'dashboard/comments/shop_list.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def shop_comment_toggle(request, pk):
+    comment = get_object_or_404(ShopComment, pk=pk)
+    comment.enable = not comment.enable
+    comment.save()
+
+    messages.success(request, f'وضعیت کامنت به {"تایید شده" if comment.enable else "رد شده"} تغییر کرد.')
+    return redirect('dashboard:shop_comment_list')
+
+
+@login_required
+@user_passes_test(is_admin)
+def coach_comment_list(request):
+    # کامنت‌های کوچ
+    comments = Comment.objects.select_related('user', 'coach__user').order_by('-created_at')
+
+    # جستجو
+    search = request.GET.get('search', '')
+    if search:
+        comments = comments.filter(
+            Q(text__icontains=search) |
+            Q(user__username__icontains=search) |
+            Q(coach__user__username__icontains=search)
+        )
+
+    # فیلتر وضعیت
+    status_filter = request.GET.get('status', '')
+    if status_filter == 'enabled':
+        comments = comments.filter(enable=True)
+    elif status_filter == 'disabled':
+        comments = comments.filter(enable=False)
+
+    context = {
+        'comments': comments,
+        'search': search,
+        'status_filter': status_filter,
+    }
+    return render(request, 'dashboard/comments/coach_list.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def coach_comment_toggle(request, pk):
+    comment = get_object_or_404(Comment, pk=pk)
+    comment.enable = not comment.enable
+    comment.save()
+
+    messages.success(request, f'وضعیت کامنت به {"تایید شده" if comment.enable else "رد شده"} تغییر کرد.')
+    return redirect('dashboard:coach_comment_list')
