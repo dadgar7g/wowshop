@@ -1,0 +1,515 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}ویرایش کاربر - {{ user_obj.username }}{% endblock %}
+{% block page_title %}ویرایش کاربر{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Back Button -->
+    <div>
+        <a href="{% url 'dashboard:user_detail' user_obj.pk %}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            <span>بازگشت به جزئیات کاربر</span>
+        </a>
+    </div>
+    
+    <!-- Edit Form -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
+            <h3 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                <i data-lucide="edit" class="w-5 h-5 text-blue-600"></i>
+                ویرایش اطلاعات کاربر: {{ user_obj.username }}
+            </h3>
+        </div>
+        
+        <form method="POST" class="p-6">
+            {% csrf_token %}
+            
+            <!-- Basic Information -->
+            <div class="mb-8">
+                <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="user" class="w-5 h-5 text-gray-600"></i>
+                    اطلاعات پایه
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            نام کاربری <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="text" 
+                            name="username" 
+                            value="{{ user_obj.username }}"
+                            required
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                            ایمیل <span class="text-red-500">*</span>
+                        </label>
+                        <input 
+                            type="email" 
+                            name="email" 
+                            value="{{ user_obj.email }}"
+                            required
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">نام</label>
+                        <input 
+                            type="text" 
+                            name="first_name" 
+                            value="{{ user_obj.first_name }}"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">نام خانوادگی</label>
+                        <input 
+                            type="text" 
+                            name="last_name" 
+                            value="{{ user_obj.last_name }}"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="mb-8">
+                <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="phone" class="w-5 h-5 text-gray-600"></i>
+                    اطلاعات تماس
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">شماره تلفن</label>
+                        <input 
+                            type="text" 
+                            name="phone" 
+                            value="{{ user_obj.phone }}"
+                            placeholder="09123456789"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Discord ID</label>
+                        <input 
+                            type="text" 
+                            name="discord_id" 
+                            value="{{ user_obj.discord_id }}"
+                            placeholder="username#1234"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bank Information -->
+            <div class="mb-8">
+                <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="credit-card" class="w-5 h-5 text-gray-600"></i>
+                    اطلاعات بانکی
+                </h4>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">نام روی کارت</label>
+                        <input 
+                            type="text" 
+                            name="bank_full_name" 
+                            value="{{ bank_account.full_name|default:'' }}"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">شماره کارت</label>
+                        <input 
+                            type="text" 
+                            name="bank_card_number" 
+                            value="{{ bank_account.card_number|default:'' }}"
+                            placeholder="1234567891234567"
+                            maxlength="16"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono"
+                        >
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">شماره شبا</label>
+                        <input 
+                            type="text" 
+                            name="bank_shaba_number" 
+                            value="{{ bank_account.shaba_number|default:'' }}"
+                            placeholder="IR123456789012345678901234"
+                            maxlength="26"
+                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono"
+                        >
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Password Change -->
+            <div class="mb-8">
+                <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="lock" class="w-5 h-5 text-gray-600"></i>
+                    تغییر رمز عبور
+                </h4>
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5"></i>
+                        <div class="text-sm text-yellow-800">
+                            <p class="font-medium mb-1">توجه:</p>
+                            <p>اگر رمز عبور جدید وارد کنید، رمز فعلی کاربر تغییر خواهد کرد. اگر می‌خواهید رمز عبور را تغییر ندهید، این فیلد را خالی بگذارید.</p>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">رمز عبور جدید</label>
+                    <input 
+                        type="password" 
+                        name="new_password" 
+                        placeholder="خالی بگذارید اگر نمی‌خواهید تغییر دهید"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                    <p class="text-sm text-gray-500 mt-1">حداقل 8 کاراکتر</p>
+                </div>
+            </div>
+            
+            <!-- Coach Information (Only if user has applied for coaching) -->
+            {% if coach %}
+            <div class="mb-8">
+                <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="graduation-cap" class="w-5 h-5 text-gray-600"></i>
+                    اطلاعات کوچینگ
+                </h4>
+
+                <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-6 mb-6">
+                    <div class="flex items-start gap-4">
+                        <div class="p-3 bg-indigo-100 rounded-lg">
+                            <i data-lucide="info" class="w-6 h-6 text-indigo-600"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h5 class="font-semibold text-gray-900 mb-1">این کاربر درخواست کوچینگ داده است</h5>
+                            <p class="text-sm text-gray-700">کاربر فرم کوچینگ را پر کرده است. شما می‌توانید اطلاعات را بررسی کنید و در صورت تایید، آن را فعال نمایید.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coach Details (Read-only) -->
+                <div class="space-y-6 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">توضیحات کوچ</label>
+                        <div class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900">
+                            {{ coach.description|default:"توضیحاتی وارد نشده است." }}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">زمان بازی (ساعت)</label>
+                            <div class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 font-semibold">
+                                {{ coach.timeplay|default:0 }} ساعت
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">تعداد کامنت‌ها</label>
+                            <div class="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-900 font-semibold">
+                                {{ coach.comments.count }} کامنت
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Expansions</label>
+                        <div class="flex flex-wrap gap-2">
+                            {% for expansion in coach.expansions.all %}
+                            <span class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-800 rounded-lg text-sm font-medium">
+                                {{ expansion.name }}
+                            </span>
+                            {% empty %}
+                            <span class="text-sm text-gray-500">هیچ Expansion انتخاب نشده است.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Methods</label>
+                        <div class="flex flex-wrap gap-2">
+                            {% for method in coach.methods.all %}
+                            <span class="inline-flex items-center px-3 py-1.5 bg-purple-100 text-purple-800 rounded-lg text-sm font-medium">
+                                {{ method.name }}
+                            </span>
+                            {% empty %}
+                            <span class="text-sm text-gray-500">هیچ Method انتخاب نشده است.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enable Coach Toggle -->
+                <div class="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <input
+                        type="checkbox"
+                        id="coach_enable"
+                        name="coach_enable"
+                        {% if coach.enable %}checked{% endif %}
+                        class="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"
+                    >
+                    <label for="coach_enable" class="flex-1 cursor-pointer">
+                        <span class="font-medium text-gray-900">تایید و فعال‌سازی کوچ</span>
+                        <p class="text-sm text-gray-600">با فعال کردن این گزینه، پروفایل کوچ در سایت نمایش داده می‌شود و قابل رزرو خواهد بود.</p>
+                    </label>
+                </div>
+            </div>
+            {% endif %}
+
+{#            <!-- Coach Information -->#}
+{#            <div class="mb-8" x-data="{ isCoach: {{ coach|yesno:'true,false' }} }">#}
+{#                <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">#}
+{#                    <i data-lucide="graduation-cap" class="w-5 h-5 text-gray-600"></i>#}
+{#                    اطلاعات کوچینگ#}
+{#                </h4>#}
+{##}
+{#                <!-- Enable Coach -->#}
+{#                <div class="flex items-center gap-3 p-4 bg-indigo-50 border border-indigo-200 rounded-lg mb-4">#}
+{#                    <input#}
+{#                        type="checkbox"#}
+{#                        id="is_coach"#}
+{#                        name="is_coach"#}
+{#                        {% if coach %}checked{% endif %}#}
+{#                        @change="isCoach = $el.checked"#}
+{#                        class="w-5 h-5 text-indigo-600 rounded focus:ring-2 focus:ring-indigo-500"#}
+{#                    >#}
+{#                    <label for="is_coach" class="flex-1 cursor-pointer">#}
+{#                        <span class="font-medium text-gray-900">این کاربر یک کوچ است</span>#}
+{#                        <p class="text-sm text-gray-600">فعال کردن امکانات و اطلاعات کوچینگ</p>#}
+{#                    </label>#}
+{#                </div>#}
+{##}
+{#                <!-- Coach Details (Show only if is_coach is checked) -->#}
+{#                <div x-show="isCoach" x-transition class="space-y-6">#}
+{#                    <div>#}
+{#                        <label class="block text-sm font-medium text-gray-700 mb-2">توضیحات کوچ</label>#}
+{#                        <textarea#}
+{#                            name="coach_description"#}
+{#                            rows="4"#}
+{#                            placeholder="درباره تخصص و تجربه کوچینگ..."#}
+{#                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"#}
+{#                        >{{ coach.description|default:'' }}</textarea>#}
+{#                    </div>#}
+{##}
+{#                    <div>#}
+{#                        <label class="block text-sm font-medium text-gray-700 mb-2">زمان بازی (ساعت)</label>#}
+{#                        <input#}
+{#                            type="number"#}
+{#                            name="coach_timeplay"#}
+{#                            value="{{ coach.timeplay|default:0 }}"#}
+{#                            min="0"#}
+{#                            placeholder="مثال: 5000"#}
+{#                            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"#}
+{#                        >#}
+{#                    </div>#}
+{##}
+{#                    <div>#}
+{#                        <label class="block text-sm font-medium text-gray-700 mb-2">Expansions</label>#}
+{#                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">#}
+{#                            {% for expansion in expansions %}#}
+{#                            <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">#}
+{#                                <input#}
+{#                                    type="checkbox"#}
+{#                                    name="coach_expansions"#}
+{#                                    value="{{ expansion.id }}"#}
+{#                                    {% if coach and expansion in coach.expansions.all %}checked{% endif %}#}
+{#                                    class="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"#}
+{#                                >#}
+{#                                <span class="text-sm text-gray-900">{{ expansion.name }}</span>#}
+{#                            </label>#}
+{#                            {% endfor %}#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
+{#                    <div>#}
+{#                        <label class="block text-sm font-medium text-gray-700 mb-2">Methods</label>#}
+{#                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">#}
+{#                            {% for method in methods %}#}
+{#                            <label class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors">#}
+{#                                <input#}
+{#                                    type="checkbox"#}
+{#                                    name="coach_methods"#}
+{#                                    value="{{ method.id }}"#}
+{#                                    {% if coach and method in coach.methods.all %}checked{% endif %}#}
+{#                                    class="w-4 h-4 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"#}
+{#                                >#}
+{#                                <span class="text-sm text-gray-900">{{ method.name }}</span>#}
+{#                            </label>#}
+{#                            {% endfor %}#}
+{#                        </div>#}
+{#                    </div>#}
+{##}
+{#                    <div class="flex items-center gap-3 p-4 bg-green-50 border border-green-200 rounded-lg">#}
+{#                        <input#}
+{#                            type="checkbox"#}
+{#                            id="coach_enable"#}
+{#                            name="coach_enable"#}
+{#                            {% if coach and coach.enable %}checked{% endif %}#}
+{#                            class="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"#}
+{#                        >#}
+{#                        <label for="coach_enable" class="flex-1 cursor-pointer">#}
+{#                            <span class="font-medium text-gray-900">کوچ فعال است</span>#}
+{#                            <p class="text-sm text-gray-600">نمایش عمومی پروفایل کوچ در سایت</p>#}
+{#                        </label>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+
+            <!-- Permissions (Only for Superusers) -->
+            {% if request.user.is_superuser %}
+            <div class="mb-8">
+                <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="shield" class="w-5 h-5 text-gray-600"></i>
+                    دسترسی‌ها و وضعیت
+                </h4>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                        <input
+                            type="checkbox"
+                            id="is_active"
+                            name="is_active"
+                            {% if user_obj.is_active %}checked{% endif %}
+                            class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                        >
+                        <label for="is_active" class="flex-1 cursor-pointer">
+                            <span class="font-medium text-gray-900">فعال</span>
+                            <p class="text-sm text-gray-600">کاربر می‌تواند وارد سیستم شود</p>
+                        </label>
+                    </div>
+
+                    <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                        <input
+                            type="checkbox"
+                            id="is_staff"
+                            name="is_staff"
+                            {% if user_obj.is_staff %}checked{% endif %}
+                            class="w-5 h-5 text-purple-600 rounded focus:ring-2 focus:ring-purple-500"
+                        >
+                        <label for="is_staff" class="flex-1 cursor-pointer">
+                            <span class="font-medium text-gray-900">دسترسی ادمین</span>
+                            <p class="text-sm text-gray-600">کاربر می‌تواند به پنل مدیریت دسترسی داشته باشد</p>
+                        </label>
+                    </div>
+                    
+                    <div class="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                        <input 
+                            type="checkbox" 
+                            id="is_superuser" 
+                            name="is_superuser"
+                            {% if user_obj.is_superuser %}checked{% endif %}
+                            class="w-5 h-5 text-red-600 rounded focus:ring-2 focus:ring-red-500"
+                        >
+                        <label for="is_superuser" class="flex-1 cursor-pointer">
+                            <span class="font-medium text-gray-900">سوپر ادمین</span>
+                            <p class="text-sm text-gray-600">دسترسی کامل به تمام بخش‌های سیستم (خطرناک!)</p>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="mb-8">
+                <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="shield" class="w-5 h-5 text-gray-600"></i>
+                    وضعیت
+                </h4>
+                <div class="space-y-4">
+                    <div class="flex items-center gap-3 p-4 bg-gray-50 rounded-lg">
+                        <input 
+                            type="checkbox" 
+                            id="is_active" 
+                            name="is_active"
+                            {% if user_obj.is_active %}checked{% endif %}
+                            class="w-5 h-5 text-blue-600 rounded focus:ring-2 focus:ring-blue-500"
+                        >
+                        <label for="is_active" class="flex-1 cursor-pointer">
+                            <span class="font-medium text-gray-900">فعال</span>
+                            <p class="text-sm text-gray-600">کاربر می‌تواند وارد سیستم شود</p>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-3 pt-6 border-t border-gray-200">
+                <button 
+                    type="submit"
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+                >
+                    <i data-lucide="save" class="w-5 h-5"></i>
+                    <span>ذخیره تغییرات</span>
+                </button>
+                
+                <a 
+                    href="{% url 'dashboard:user_detail' user_obj.pk %}"
+                    class="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                >
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                    <span>انصراف</span>
+                </a>
+            </div>
+        </form>
+    </div>
+    
+    <!-- User Info Card (Read-only) -->
+    <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl shadow-sm border border-gray-200 p-6">
+        <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <i data-lucide="info" class="w-5 h-5 text-gray-600"></i>
+            اطلاعات سیستمی
+        </h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="flex items-center gap-2">
+                <span class="text-gray-600">شناسه کاربر:</span>
+                <span class="font-mono font-medium text-gray-900">{{ user_obj.id }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-gray-600">تاریخ عضویت:</span>
+                <span class="font-medium text-gray-900">{{ user_obj.date_joined|date:"Y/m/d H:i" }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-gray-600">آخرین ورود:</span>
+                <span class="font-medium text-gray-900">{{ user_obj.last_login|date:"Y/m/d H:i"|default:"هرگز" }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-gray-600">آخرین ایمیل فعال‌سازی:</span>
+                <span class="font-medium text-gray-900">{{ user_obj.last_activation_email_sent|date:"Y/m/d H:i"|default:"ارسال نشده" }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+        
+        // Confirm before making superuser
+        const superuserCheckbox = document.getElementById('is_superuser');
+        if (superuserCheckbox) {
+            superuserCheckbox.addEventListener('change', function(e) {
+                if (this.checked) {
+                    if (!confirm('آیا مطمئن هستید که می‌خواهید این کاربر را سوپر ادمین کنید؟ این دسترسی کامل به تمام سیستم را می‌دهد!')) {
+                        e.preventDefault();
+                        this.checked = false;
+                    }
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

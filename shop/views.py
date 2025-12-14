@@ -54,11 +54,26 @@ def remove_from_cart(cart, id):
 class ListProducts(View):
     def get(self, request):
         obj = models.Product.objects.all().order_by('-create_date')
+
+        # فیلتر بر اساس دسته‌بندی
+        category = request.GET.get('category')
+        if category:
+            obj = obj.filter(category_id=category)
+
+        # Pagination
         paginator = Paginator(obj, 3)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
-        return render(request, 'core/product_list.html', {'page_obj': page_obj,
-                                                                                'products': obj})
+
+        # ارسال دسته‌بندی‌ها به قالب
+        categories = models.Category.objects.all()
+
+        return render(request, 'core/product_list.html', {
+            'page_obj': page_obj,
+            'products': obj,
+            'categories': categories,
+            'selected_category': category
+        })
 
 
 
@@ -139,7 +154,7 @@ class ShowCartView(View):
 #     def get(self, request):
 #         form = forms.InvoiceForm()
 #         cart = get_cart(request)
-#         objects = models.Product.objects.filter(id__in=list(cart.keys()))
+#         objects = models.Product.objects.filter(id__in=list.html(cart.keys()))
 #         cart_objects = {}
 #         for id, count in cart.items():
 #             obj = objects.get(id=id)
@@ -160,7 +175,7 @@ class ShowCartView(View):
 #             cart = get_cart(request)
 #             invoice.total = get_cart_total_price(cart)
 #             invoice.save()
-#             items = models.Product.objects.filter(id__in=list(cart.keys()))
+#             items = models.Product.objects.filter(id__in=list.html(cart.keys()))
 #             item_objects = []
 #             for item_id, item_count in cart.items():
 #                 obj = items.get(id=item_id)

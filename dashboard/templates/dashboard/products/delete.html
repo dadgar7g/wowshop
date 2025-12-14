@@ -1,0 +1,127 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}حذف {{ product.name }} - پنل مدیریت{% endblock %}
+{% block page_title %}حذف محصول{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto space-y-6">
+    <!-- Back Button -->
+    <div>
+        <a href="{% url 'dashboard:product_detail' product.pk %}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            <span>بازگشت به جزئیات محصول</span>
+        </a>
+    </div>
+    
+    <!-- Delete Confirmation Card -->
+    <div class="bg-white rounded-xl shadow-sm border border-red-200 overflow-hidden">
+        <div class="px-6 py-4 bg-red-50 border-b border-red-200">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-red-100 rounded-lg">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 text-red-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-red-900">تایید حذف محصول</h3>
+                    <p class="text-sm text-red-700">این عملیات قابل بازگشت نیست!</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-6">
+            <!-- Product Info -->
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="flex items-start gap-4">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-20 h-20 object-cover rounded-lg">
+                    {% else %}
+                    <div class="w-20 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
+                        <i data-lucide="image" class="w-8 h-8 text-gray-400"></i>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-gray-900 text-lg mb-1">{{ product.name }}</h4>
+                        <p class="text-sm text-gray-600 mb-2">{{ product.category.name }}</p>
+                        <div class="flex items-center gap-4 text-sm">
+                            <span class="text-gray-600">قیمت: <strong class="text-gray-900">{{ product.price|floatformat:0 }} تومان</strong></span>
+                            <span class="text-gray-600">موجودی: <strong class="text-gray-900">{{ product.count }}</strong></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Warning Message -->
+            <div class="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5"></i>
+                    <div class="text-sm text-yellow-800">
+                        <p class="font-medium mb-1">توجه:</p>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>این محصول به صورت soft delete حذف می‌شود</li>
+                            <li>محصول از فروشگاه حذف خواهد شد</li>
+                            <li>اطلاعات محصول در دیتابیس باقی می‌ماند</li>
+                            <li>تمام کامنت‌های مرتبط حفظ می‌شوند</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            {% if product.comments.count > 0 %}
+            <div class="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div class="flex items-center gap-3">
+                    <i data-lucide="info" class="w-5 h-5 text-blue-600"></i>
+                    <div class="text-sm text-blue-800">
+                        <p>این محصول <strong>{{ product.comments.count }}</strong> نظر دارد که حفظ خواهند شد.</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Confirmation Form -->
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                
+                <div class="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+                    <input 
+                        type="checkbox" 
+                        id="confirm" 
+                        required
+                        class="w-5 h-5 text-red-600 rounded focus:ring-2 focus:ring-red-500 mt-0.5"
+                    >
+                    <label for="confirm" class="flex-1 cursor-pointer text-sm text-red-900">
+                        <strong>تایید می‌کنم</strong> که می‌خواهم این محصول را حذف کنم و از عواقب آن آگاهم.
+                    </label>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center gap-3 pt-4">
+                    <button 
+                        type="submit"
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                    >
+                        <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        <span>حذف محصول</span>
+                    </button>
+                    
+                    <a 
+                        href="{% url 'dashboard:product_detail' product.pk %}"
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+                    >
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                        <span>انصراف</span>
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

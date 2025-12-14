@@ -1,0 +1,211 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}{{ product.name }} - جزئیات محصول{% endblock %}
+{% block page_title %}جزئیات محصول{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Back Button -->
+    <div>
+        <a href="{% url 'dashboard:product_list' %}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors">
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            <span>بازگشت به لیست محصولات</span>
+        </a>
+    </div>
+    
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Product Header -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="relative h-80 bg-gray-100">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full flex items-center justify-center">
+                        <i data-lucide="image" class="w-24 h-24 text-gray-300"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="p-6">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex-1">
+                            <h1 class="text-2xl font-bold text-gray-900 mb-2">{{ product.name }}</h1>
+                            <p class="text-gray-600">{{ product.category.name }}</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <a href="{% url 'dashboard:product_edit' product.pk %}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                                <i data-lucide="edit" class="w-4 h-4"></i>
+                                <span>ویرایش</span>
+                            </a>
+                            <a href="{% url 'dashboard:product_delete' product.pk %}" class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                <span>حذف</span>
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Status Badges -->
+                    <div class="flex gap-2 mb-4">
+                        {% if product.enabled %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                            <i data-lucide="check-circle" class="w-4 h-4 ml-1"></i>
+                            فعال
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                            <i data-lucide="x-circle" class="w-4 h-4 ml-1"></i>
+                            غیرفعال
+                        </span>
+                        {% endif %}
+                        
+                        {% if product.count == 0 %}
+                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
+                            <i data-lucide="alert-triangle" class="w-4 h-4 ml-1"></i>
+                            ناموجود
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Description -->
+                    <div class="prose max-w-none">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">توضیحات</h3>
+                        <p class="text-gray-700 whitespace-pre-wrap">{{ product.description }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Comments Section -->
+            {% if product.comments.all %}
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="message-square" class="w-5 h-5 text-gray-600"></i>
+                    نظرات ({{ product.comments.count }})
+                </h3>
+                <div class="space-y-4">
+                    {% for comment in product.comments.all|slice:":5" %}
+                    <div class="flex gap-3 pb-4 {% if not forloop.last %}border-b border-gray-200{% endif %}">
+                        <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold">
+                            {{ comment.user.username|slice:":1"|upper }}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-1">
+                                <h4 class="font-medium text-gray-900">{{ comment.user.username }}</h4>
+                                <span class="text-xs text-gray-500">{{ comment.created_at|date:"Y/m/d" }}</span>
+                            </div>
+                            <p class="text-gray-700 text-sm">{{ comment.text }}</p>
+                            {% if comment.enable %}
+                            <span class="inline-flex items-center mt-2 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                تایید شده
+                            </span>
+                            {% else %}
+                            <span class="inline-flex items-center mt-2 px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                در انتظار تایید
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="space-y-6">
+            <!-- Price Card -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="dollar-sign" class="w-5 h-5 text-gray-600"></i>
+                    قیمت و موجودی
+                </h3>
+                <div class="space-y-4">
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">قیمت اصلی</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ product.price|floatformat:0 }} تومان</p>
+                    </div>
+                    
+                    {% if product.discount > 0 %}
+                    <div>
+                        <p class="text-sm text-gray-600 mb-1">تخفیف</p>
+                        <p class="text-xl font-bold text-red-600">{{ product.discount }}%</p>
+                    </div>
+                    
+                    <div class="pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1">قیمت نهایی</p>
+                        <p class="text-2xl font-bold text-green-600">
+                            {% widthratio product.price 1 1 %}
+                            تومان
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="pt-4 border-t border-gray-200">
+                        <p class="text-sm text-gray-600 mb-1">موجودی انبار</p>
+                        <p class="text-2xl font-bold {% if product.count == 0 %}text-red-600{% else %}text-gray-900{% endif %}">
+                            {{ product.count }} عدد
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Meta Info -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="info" class="w-5 h-5 text-gray-600"></i>
+                    اطلاعات سیستمی
+                </h3>
+                <div class="space-y-3 text-sm">
+                    <div>
+                        <span class="text-gray-600">شناسه:</span>
+                        <span class="font-mono font-medium text-gray-900">#{{ product.id }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">Slug:</span>
+                        <span class="font-mono font-medium text-gray-900">{{ product.slug }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">UUID:</span>
+                        <span class="font-mono font-medium text-gray-900">{{ product.uuid|slice:":8" }}...</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">تاریخ ایجاد:</span>
+                        <span class="font-medium text-gray-900">{{ product.create_date|date:"Y/m/d H:i" }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">آخرین ویرایش:</span>
+                        <span class="font-medium text-gray-900">{{ product.modified_date|date:"Y/m/d H:i" }}</span>
+                    </div>
+                    <div>
+                        <span class="text-gray-600">ایجاد توسط:</span>
+                        <span class="font-medium text-gray-900">{{ product.user.username }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Category Info -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="folder" class="w-5 h-5 text-gray-600"></i>
+                    دسته‌بندی
+                </h3>
+                <div class="space-y-2">
+                    <p class="font-medium text-gray-900">{{ product.category.name }}</p>
+                    {% if product.category.parent %}
+                    <p class="text-sm text-gray-600">زیرمجموعه: {{ product.category.parent.name }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

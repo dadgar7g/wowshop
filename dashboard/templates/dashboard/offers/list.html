@@ -1,0 +1,155 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}پیشنهادات - پنل مدیریت{% endblock %}
+{% block page_title %}مدیریت پیشنهادات{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">پیشنهادات</h2>
+            <p class="text-gray-600 mt-1">مدیریت و بررسی تمام پیشنهادات</p>
+        </div>
+    </div>
+    
+    <!-- Filters -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <form method="GET" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Status Filter -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">وضعیت</label>
+                <select 
+                    name="status"
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                    <option value="">همه</option>
+                    {% for value, label in status_choices %}
+                        <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <!-- Submit Button -->
+            <div class="flex items-end gap-2">
+                <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                    <span>اعمال فیلتر</span>
+                </button>
+                {% if status_filter or seller %}
+                <a href="{% url 'dashboard:offer_list' %}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    <span>پاک کردن</span>
+                </a>
+                {% endif %}
+            </div>
+        </form>
+        
+        <!-- Active Filters -->
+        {% if seller %}
+        <div class="mt-4 pt-4 border-t border-gray-200">
+            <p class="text-sm text-gray-600 mb-2">فیلتر فعال:</p>
+            <div class="flex flex-wrap gap-2">
+                <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-800 rounded-lg text-sm">
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                    فروشنده: {{ seller.username }}
+                    <a href="{% url 'dashboard:offer_list' %}" class="hover:text-blue-900">
+                        <i data-lucide="x" class="w-3 h-3"></i>
+                    </a>
+                </span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Offers Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        {% if offers %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">فروشنده</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">سفارش</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">مقدار</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">قیمت/1K</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">مبلغ کل</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">وضعیت</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">تاریخ</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for offer in offers %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-purple-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                    {{ offer.seller.username|slice:":1"|upper }}
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">{{ offer.seller.username }}</p>
+                                    <p class="text-xs text-gray-500">{{ offer.seller.email }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div>
+                                <p class="font-medium text-gray-900">{{ offer.order.title|truncatewords:5 }}</p>
+                                <p class="text-xs text-gray-500">{{ offer.order.buyer }}</p>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-sm font-semibold text-gray-900">{{ offer.quantity|floatformat:0 }}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-sm text-gray-900">{{ offer.price_per_1k|floatformat:0 }}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-sm font-bold text-gray-900">{{ offer.total_price|floatformat:0 }} تومان</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                                {% if offer.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                {% elif offer.status == 'review' %}bg-blue-100 text-blue-800
+                                {% elif offer.status == 'Awaiting_payment' %}bg-orange-100 text-orange-800
+                                {% elif offer.status == 'paid' %}bg-green-100 text-green-800
+                                {% else %}bg-red-100 text-red-800{% endif %}">
+                                {{ offer.get_status_display }}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <span class="text-sm text-gray-600">{{ offer.created_at|date:"Y/m/d H:i" }}</span>
+                        </td>
+                        <td class="px-6 py-4">
+                            <a href="{% url 'dashboard:offer_detail' offer.pk %}" 
+                               class="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                                <span>مشاهده</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="px-6 py-12 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                <i data-lucide="inbox" class="w-8 h-8 text-gray-400"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-1">پیشنهادی یافت نشد</h3>
+            <p class="text-gray-600">هیچ پیشنهادی با این فیلترها وجود ندارد.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

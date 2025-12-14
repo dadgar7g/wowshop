@@ -1,0 +1,136 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}محصولات - پنل مدیریت{% endblock %}
+{% block page_title %}مدیریت محصولات{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">محصولات</h2>
+            <p class="text-gray-600 mt-1">مدیریت محصولات فروشگاه</p>
+        </div>
+        <a href="{% url 'dashboard:product_create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i data-lucide="plus" class="w-5 h-5"></i>
+            <span>افزودن محصول جدید</span>
+        </a>
+    </div>
+    
+    <!-- Search -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
+        <form method="GET" class="flex gap-3">
+            <div class="flex-1">
+                <input 
+                    type="text" 
+                    name="search" 
+                    value="{{ search }}"
+                    placeholder="جستجو بر اساس نام محصول..."
+                    class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+            </div>
+            <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-2">
+                <i data-lucide="search" class="w-4 h-4"></i>
+                <span>جستجو</span>
+            </button>
+            {% if search %}
+            <a href="{% url 'dashboard:product_list' %}" class="px-4 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors inline-flex items-center">
+                <i data-lucide="x" class="w-4 h-4"></i>
+            </a>
+            {% endif %}
+        </form>
+    </div>
+    
+    <!-- Products Grid -->
+    {% if products %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {% for product in products %}
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+            <!-- Product Image -->
+            <div class="relative h-48 bg-gray-100">
+                {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                {% else %}
+                <div class="w-full h-full flex items-center justify-center">
+                    <i data-lucide="image" class="w-16 h-16 text-gray-300"></i>
+                </div>
+                {% endif %}
+                
+                <!-- Status Badge -->
+                {% if not product.enabled %}
+                <span class="absolute top-2 right-2 px-2 py-1 bg-red-500 text-white text-xs font-medium rounded-full">
+                    غیرفعال
+                </span>
+                {% endif %}
+                
+                <!-- Stock Badge -->
+                {% if product.count == 0 %}
+                <span class="absolute top-2 left-2 px-2 py-1 bg-yellow-500 text-white text-xs font-medium rounded-full">
+                    ناموجود
+                </span>
+                {% endif %}
+            </div>
+            
+            <!-- Product Info -->
+            <div class="p-4">
+                <h3 class="font-semibold text-gray-900 mb-1 truncate">{{ product.name }}</h3>
+                <p class="text-sm text-gray-600 mb-3">{{ product.category.name }}</p>
+                
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        {% if product.discount > 0 %}
+                        <div class="flex items-center gap-2">
+                            <span class="text-lg font-bold text-green-600">{{ product.price|floatformat:0 }}</span>
+                            <span class="text-sm text-gray-400 line-through">{{ product.price|floatformat:0 }}</span>
+                        </div>
+                        <span class="text-xs text-green-600">{{ product.discount }}% تخفیف</span>
+                        {% else %}
+                        <span class="text-lg font-bold text-gray-900">{{ product.price|floatformat:0 }}</span>
+                        {% endif %}
+                        <p class="text-xs text-gray-500">تومان</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-gray-900">{{ product.count }}</p>
+                        <p class="text-xs text-gray-500">موجودی</p>
+                    </div>
+                </div>
+                
+                <div class="flex gap-2">
+                    <a href="{% url 'dashboard:product_detail' product.pk %}" 
+                       class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
+                        <i data-lucide="eye" class="w-4 h-4"></i>
+                        <span>مشاهده</span>
+                    </a>
+                    <a href="{% url 'dashboard:product_edit' product.pk %}" 
+                       class="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 text-sm bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors">
+                        <i data-lucide="edit" class="w-4 h-4"></i>
+                        <span>ویرایش</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+            <i data-lucide="package" class="w-8 h-8 text-gray-400"></i>
+        </div>
+        <h3 class="text-lg font-medium text-gray-900 mb-1">محصولی یافت نشد</h3>
+        <p class="text-gray-600 mb-4">هیچ محصولی با این معیارها وجود ندارد.</p>
+        <a href="{% url 'dashboard:product_create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <i data-lucide="plus" class="w-5 h-5"></i>
+            <span>افزودن اولین محصول</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

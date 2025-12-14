@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% extends 'dashboard/base.html' %}
+
+{% block title %}داشبورد - پنل مدیریت{% endblock %}
+{% block page_title %}داشبورد{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <!-- Total Users -->
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+            <div class="p-3 bg-white bg-opacity-20 rounded-lg">
+                <i data-lucide="users" class="w-6 h-6"></i>
+            </div>
+            <span class="text-sm bg-white bg-opacity-20 px-3 py-1 rounded-full">+{{ new_users_this_month }} این ماه</span>
+        </div>
+        <h3 class="text-3xl font-bold mb-1">{{ total_users }}</h3>
+        <p class="text-blue-100">کل کاربران</p>
+    </div>
+    
+    <!-- Total Orders -->
+    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+            <div class="p-3 bg-white bg-opacity-20 rounded-lg">
+                <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+            </div>
+            <span class="text-sm bg-white bg-opacity-20 px-3 py-1 rounded-full">+{{ new_orders_this_month }} این ماه</span>
+        </div>
+        <h3 class="text-3xl font-bold mb-1">{{ total_orders }}</h3>
+        <p class="text-purple-100">کل سفارشات</p>
+    </div>
+    
+    <!-- Total Products -->
+    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+            <div class="p-3 bg-white bg-opacity-20 rounded-lg">
+                <i data-lucide="package" class="w-6 h-6"></i>
+            </div>
+        </div>
+        <h3 class="text-3xl font-bold mb-1">{{ total_products }}</h3>
+        <p class="text-green-100">کل محصولات</p>
+    </div>
+    
+    <!-- Pending Offers -->
+    <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white shadow-lg">
+        <div class="flex items-center justify-between mb-4">
+            <div class="p-3 bg-white bg-opacity-20 rounded-lg">
+                <i data-lucide="clock" class="w-6 h-6"></i>
+            </div>
+            {% if pending_offers > 0 %}
+            <span class="text-sm bg-white bg-opacity-20 px-3 py-1 rounded-full animate-pulse">نیاز به بررسی</span>
+            {% endif %}
+        </div>
+        <h3 class="text-3xl font-bold mb-1">{{ pending_offers }}</h3>
+        <p class="text-orange-100">پیشنهادات در انتظار</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <!-- Recent Orders -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <i data-lucide="shopping-cart" class="w-5 h-5 text-gray-600"></i>
+                آخرین سفارشات
+            </h3>
+            <a href="{% url 'dashboard:order_list' %}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">مشاهده همه</a>
+        </div>
+        
+        <div class="divide-y divide-gray-100">
+            {% if recent_orders %}
+                {% for order in recent_orders %}
+                <a href="{% url 'dashboard:order_detail' order.pk %}" class="block px-6 py-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center justify-between mb-2">
+                        <h4 class="font-medium text-gray-900">{{ order.title }}</h4>
+                        <span class="text-xs px-2 py-1 rounded-full 
+                            {% if order.status == 'available' %}bg-green-100 text-green-700
+                            {% elif order.status == 'Done' %}bg-gray-100 text-gray-700
+                            {% elif order.status == 'cansel' %}bg-red-100 text-red-700
+                            {% else %}bg-yellow-100 text-yellow-700{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-4 text-sm text-gray-600">
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="user" class="w-4 h-4"></i>
+                            {{ order.buyer }}
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="coins" class="w-4 h-4"></i>
+                            {{ order.amount|floatformat:0 }}
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                            {{ order.created_at|date:"Y/m/d" }}
+                        </span>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="px-6 py-8 text-center text-gray-500">
+                    <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-2 text-gray-400"></i>
+                    <p>سفارشی وجود ندارد</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Recent Offers -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                <i data-lucide="file-text" class="w-5 h-5 text-gray-600"></i>
+                آخرین پیشنهادات
+            </h3>
+            <a href="{% url 'dashboard:offer_list' %}" class="text-sm text-blue-600 hover:text-blue-700 font-medium">مشاهده همه</a>
+        </div>
+        
+        <div class="divide-y divide-gray-100">
+            {% if recent_offers %}
+                {% for offer in recent_offers %}
+                <a href="{% url 'dashboard:offer_detail' offer.pk %}" class="block px-6 py-4 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-center justify-between mb-2">
+                        <div>
+                            <h4 class="font-medium text-gray-900">{{ offer.seller.username }}</h4>
+                            <p class="text-sm text-gray-600">{{ offer.order.title }}</p>
+                        </div>
+                        <span class="text-xs px-2 py-1 rounded-full 
+                            {% if offer.status == 'pending' %}bg-yellow-100 text-yellow-700
+                            {% elif offer.status == 'review' %}bg-blue-100 text-blue-700
+                            {% elif offer.status == 'paid' %}bg-green-100 text-green-700
+                            {% else %}bg-gray-100 text-gray-700{% endif %}">
+                            {{ offer.get_status_display }}
+                        </span>
+                    </div>
+                    <div class="flex items-center gap-4 text-sm text-gray-600">
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="package" class="w-4 h-4"></i>
+                            {{ offer.quantity|floatformat:0 }}
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="dollar-sign" class="w-4 h-4"></i>
+                            {{ offer.total_price|floatformat:0 }}
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                            {{ offer.created_at|date:"Y/m/d" }}
+                        </span>
+                    </div>
+                </a>
+                {% endfor %}
+            {% else %}
+                <div class="px-6 py-8 text-center text-gray-500">
+                    <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-2 text-gray-400"></i>
+                    <p>پیشنهادی وجود ندارد</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Re-initialize icons after page load
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}</title>
+</head>
+<body>
+
+</body>
+</html>

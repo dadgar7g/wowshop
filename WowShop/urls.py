@@ -1,7 +1,7 @@
 """
 URL configuration for WowShop project.
 
-The `urlpatterns` list routes URLs to views. For more information please see:
+The `urlpatterns` list.html routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/5.2/topics/http/urls/
 Examples:
 Function views
@@ -28,6 +28,7 @@ urlpatterns = [
     # path('', include('core.urls', namespace='core')),
     path('', include('core.urls', namespace='core')),
     path('shop/', include('shop.urls', namespace='shop')),
+    path('dashboard/', include('dashboard.urls')),
 
 ]
 
