@@ -1,0 +1,157 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}فروش فوری - پنل مدیریت{% endblock %}
+{% block page_title %}مدیریت فروش فوریها{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-900">فروش فوریها</h2>
+            <p class="text-gray-600 mt-1">مدیریت و بررسی تمام فروش فوریها</p>
+        </div>
+    </div>
+
+    <!-- Filters & Search -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <form method="GET" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Search -->
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">جستجو</label>
+                    <input
+                        type="text"
+                        name="search"
+                        value="{{ search }}"
+                        placeholder="جستجو بر اساس نام کاربری"
+                        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    >
+                </div>
+
+
+
+                <!-- Payment Status -->
+                <div>
+    <label class="block text-sm font-medium text-gray-700 mb-2">وضعیت</label>
+    <select
+        name="is_read"
+        class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+    >
+        <option value="" {% if not is_read %}selected{% endif %}>همه</option>
+
+        <option value="unread" {% if is_read == 'unread' %}selected{% endif %}>دیده نشده</option>
+
+        <option value="read" {% if is_read == 'read' %}selected{% endif %}>دیده شده</option>
+
+    </select>
+</div>
+
+{% if search or is_read %}
+<a href="{% url 'dashboard:fastsell_list' %}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+    <i data-lucide="x" class="w-4 h-4"></i>
+    <span>پاک کردن فیلترها</span>
+</a>
+{% endif %}
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex items-center gap-2">
+                <button type="submit" class="inline-flex items-center gap-2 px-6 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    <i data-lucide="search" class="w-4 h-4"></i>
+                    <span>اعمال فیلتر</span>
+                </button>
+                {% if search or is_read %}
+                <a href="{% url 'dashboard:coach_list' %}" class="inline-flex items-center gap-2 px-4 py-2.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    <span>پاک کردن فیلترها</span>
+                </a>
+                {% endif %}
+            </div>
+        </form>
+    </div>
+
+    <!-- Invoices Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        {% if fastsells %}
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                    <tr>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">شماره </th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">کاربر</th>
+                        <th class="px-6 py-4 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">وضعیت</th>
+
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    {% for fastsell in fastsells %}
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-2">
+                                <div class="p-2 bg-blue-100 rounded-lg">
+                                    <i data-lucide="receipt" class="w-4 h-4 text-blue-600"></i>
+                                </div>
+                                <span class="font-mono font-semibold text-gray-900">#{{ fastsell.id|default:fastsell.id }}</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center gap-3">
+                                <div class="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                    {{ fastsell.user.username|slice:":1"|upper }}
+                                </div>
+                                <div>
+                                    <p class="font-medium text-gray-900">{{ fastsell.user.username }}</p>
+                                    <p class="text-xs text-gray-500">{{ fastsell.user.email }}</p>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-4">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
+                        {% if fastsell.is_read %}
+                        bg-green-100 text-green-800
+                        {% else %}
+                        bg-red-100 text-red-800
+                        {% endif %}">
+
+                        {% if fastsell.is_read %}
+                         ✅ خوانده شده
+                        {% else %}
+                            ❌ خوانده نشده
+                         {% endif %}
+                    </span>
+                    </td>
+
+                        <td class="px-6 py-4">
+                            <a href="{% url 'dashboard:fastsell_detail' fastsell.pk %}"
+                               class="inline-flex items-center gap-2 px-3 py-1.5 text-sm bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                                <span>مشاهده</span>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="px-6 py-12 text-center">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+                <i data-lucide="inbox" class="w-8 h-8 text-gray-400"></i>
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-1">فاکتوری یافت نشد</h3>
+            <p class="text-gray-600">هیچ فاکتوری با این فیلترها وجود ندارد.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+    });
+</script>
+{% endblock %}

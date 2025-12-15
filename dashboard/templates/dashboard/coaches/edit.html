@@ -1,0 +1,196 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}ویرایش کوچ - پنل مدیریت{% endblock %}
+{% block page_title %}ویرایش کوچ{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <!-- Header -->
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">ویرایش کوچ</h2>
+            <p class="text-sm text-gray-500 mt-1">ویرایش اطلاعات کوچ {{ coach.user.username }}</p>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" class="p-6">
+            {% csrf_token %}
+            
+            <div class="space-y-6">
+                <!-- User Info (Read-only) -->
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                            {{ coach.user.username|slice:":2"|upper }}
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">کاربر:</p>
+                            <p class="font-medium text-gray-900">{{ coach.user.username }}</p>
+                            <p class="text-xs text-gray-500">{{ coach.user.email }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                        توضیحات
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        rows="5"
+                        required
+                        placeholder="توضیحات کوچ، تجربیات و مهارت‌ها..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >{{ coach.description }}</textarea>
+                </div>
+
+                <!-- Time Play -->
+                <div>
+                    <label for="timeplay" class="block text-sm font-medium text-gray-700 mb-2">
+                        ساعات بازی
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <input 
+                            type="number" 
+                            id="timeplay" 
+                            name="timeplay" 
+                            min="0"
+                            value="{{ coach.timeplay }}"
+                            required
+                            placeholder="مثال: 5000"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        >
+                        <div class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+                            ساعت
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-1">تعداد ساعات تجربه بازی کوچ</p>
+                </div>
+
+                <!-- Expansions -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        Expansions
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {% for expansion in expansions %}
+                            <label class="flex items-center gap-2 px-4 py-3 border border-gray-200 rounded-lg hover:bg-blue-50 hover:border-blue-300 cursor-pointer transition-colors {% if expansion in coach.expansions.all %}bg-blue-50 border-blue-300{% endif %}">
+                                <input 
+                                    type="checkbox" 
+                                    name="expansions" 
+                                    value="{{ expansion.id }}"
+                                    {% if expansion in coach.expansions.all %}checked{% endif %}
+                                    class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                >
+                                <span class="text-sm text-gray-700">{{ expansion.name }}</span>
+                            </label>
+                        {% empty %}
+                            <p class="col-span-full text-sm text-gray-500">هیچ Expansion یافت نشد</p>
+                        {% endfor %}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">
+                        انتخاب شده: <span class="font-semibold">{{ coach.expansions.count }}</span> مورد
+                    </p>
+                </div>
+
+                <!-- Methods -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-3">
+                        Methods
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        {% for method in methods %}
+                            <label class="flex items-center gap-2 px-4 py-3 border border-gray-200 rounded-lg hover:bg-purple-50 hover:border-purple-300 cursor-pointer transition-colors {% if method in coach.methods.all %}bg-purple-50 border-purple-300{% endif %}">
+                                <input 
+                                    type="checkbox" 
+                                    name="methods" 
+                                    value="{{ method.id }}"
+                                    {% if method in coach.methods.all %}checked{% endif %}
+                                    class="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                                >
+                                <span class="text-sm text-gray-700">{{ method.name }}</span>
+                            </label>
+                        {% empty %}
+                            <p class="col-span-full text-sm text-gray-500">هیچ Method یافت نشد</p>
+                        {% endfor %}
+                    </div>
+                    <p class="text-xs text-gray-500 mt-2">
+                        انتخاب شده: <span class="font-semibold">{{ coach.methods.count }}</span> مورد
+                    </p>
+                </div>
+
+                <!-- Enable Status -->
+                <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <input 
+                            type="checkbox" 
+                            name="enable"
+                            {% if coach.enable %}checked{% endif %}
+                            class="w-5 h-5 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                        >
+                        <div>
+                            <span class="text-sm font-medium text-gray-900">وضعیت فعال</span>
+                            <p class="text-xs text-gray-500 mt-1">
+                                {% if coach.enable %}
+                                    کوچ فعال است و در سایت نمایش داده می‌شود
+                                {% else %}
+                                    کوچ غیرفعال است و در سایت نمایش داده نمی‌شود
+                                {% endif %}
+                            </p>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Current Stats -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex items-start gap-3">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"></i>
+                        <div class="text-sm text-blue-800 flex-1">
+                            <p class="font-medium mb-2">آمار فعلی کوچ:</p>
+                            <div class="grid grid-cols-3 gap-4">
+                                <div>
+                                    <p class="text-xs text-blue-600">تعداد کامنت‌ها</p>
+                                    <p class="text-lg font-bold text-blue-900">{{ coach.comments.count }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-blue-600">Expansions</p>
+                                    <p class="text-lg font-bold text-blue-900">{{ coach.expansions.count }}</p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-blue-600">Methods</p>
+                                    <p class="text-lg font-bold text-blue-900">{{ coach.methods.count }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex items-center gap-3 mt-8 pt-6 border-t border-gray-200">
+                <button 
+                    type="submit" 
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                >
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>ذخیره تغییرات</span>
+                </button>
+                
+                <a 
+                    href="{% url 'dashboard:coach_detail' coach.id %}" 
+                    class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+                >
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    <span>انصراف</span>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

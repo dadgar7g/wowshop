@@ -1,0 +1,73 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}ویرایش Expansion - پنل مدیریت{% endblock %}
+{% block page_title %}ویرایش Expansion{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <!-- Header -->
+        <div class="p-6 border-b border-gray-200">
+            <h2 class="text-xl font-semibold text-gray-800">ویرایش Expansion</h2>
+            <p class="text-sm text-gray-500 mt-1">ویرایش اطلاعات Expansion</p>
+        </div>
+
+        <!-- Form -->
+        <form method="POST" class="p-6">
+            {% csrf_token %}
+
+            <div class="space-y-6">
+                <!-- ID (readonly) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        شناسه
+                    </label>
+                    <input
+                        type="text"
+                        value="#{{ expansion.id }}"
+                        disabled
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500"
+                    >
+                </div>
+
+                <!-- Name -->
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
+                        نام Expansion
+                        <span class="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value="{{ expansion.name }}"
+                        required
+                        placeholder="مثال: The War Within"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                    <p class="text-xs text-gray-500 mt-1">نام Expansion باید منحصر به فرد باشد</p>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex items-center gap-3 mt-8 pt-6 border-t border-gray-200">
+                <button
+                    type="submit"
+                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                >
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    <span>ذخیره تغییرات</span>
+                </button>
+
+                <a
+                    href="{% url 'dashboard:expansion_list' %}"
+                    class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors flex items-center gap-2"
+                >
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    <span>انصراف</span>
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

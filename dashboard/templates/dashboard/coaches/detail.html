@@ -1,0 +1,210 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}جزئیات کوچ - پنل مدیریت{% endblock %}
+{% block page_title %}جزئیات کوچ{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <!-- Header Actions -->
+    <div class="flex items-center justify-between">
+        <a href="{% url 'dashboard:coach_list' %}" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900">
+            <i data-lucide="arrow-right" class="w-5 h-5"></i>
+            <span>بازگشت به لیست</span>
+        </a>
+        
+        <div class="flex items-center gap-2">
+            <form method="POST" action="{% url 'dashboard:coach_toggle' coach.id %}" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="px-4 py-2 {% if coach.enable %}bg-red-100 text-red-700 hover:bg-red-200{% else %}bg-green-100 text-green-700 hover:bg-green-200{% endif %} rounded-lg transition-colors flex items-center gap-2">
+                    <i data-lucide="{% if coach.enable %}x-circle{% else %}check-circle{% endif %}" class="w-4 h-4"></i>
+                    <span>{% if coach.enable %}غیرفعال کردن{% else %}فعال کردن{% endif %}</span>
+                </button>
+            </form>
+            
+            <a href="{% url 'dashboard:coach_edit' coach.id %}" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                <i data-lucide="edit" class="w-4 h-4"></i>
+                <span>ویرایش</span>
+            </a>
+            
+            <a href="{% url 'dashboard:coach_delete' coach.id %}" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors flex items-center gap-2">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                <span>حذف</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Info Card -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-purple-50">
+            <div class="flex items-center gap-6">
+                <div class="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-3xl shadow-lg">
+                    {{ coach.user.username|slice:":2"|upper }}
+                </div>
+                <div class="flex-1">
+                    <h2 class="text-2xl font-bold text-gray-900">{{ coach.user.username }}</h2>
+                    <p class="text-gray-600 mt-1">{{ coach.user.email }}</p>
+                    <div class="flex items-center gap-3 mt-2">
+                        {% if coach.enable %}
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm font-semibold">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                                فعال
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-sm font-semibold">
+                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                                غیرفعال
+                            </span>
+                        {% endif %}
+                        
+                        <span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                            <i data-lucide="clock" class="w-4 h-4"></i>
+                            {{ coach.timeplay }} ساعت بازی
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-6 bg-gray-50">
+            <div class="bg-white rounded-lg p-4 border border-gray-200">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 bg-blue-100 rounded-lg">
+                        <i data-lucide="layers" class="w-6 h-6 text-blue-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Expansions</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ coach.expansions.count }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg p-4 border border-gray-200">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 bg-purple-100 rounded-lg">
+                        <i data-lucide="zap" class="w-6 h-6 text-purple-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">Methods</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ coach.methods.count }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg p-4 border border-gray-200">
+                <div class="flex items-center gap-3">
+                    <div class="p-3 bg-green-100 rounded-lg">
+                        <i data-lucide="message-square" class="w-6 h-6 text-green-600"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500">کامنت‌ها</p>
+                        <p class="text-2xl font-bold text-gray-900">{{ total_comments }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                <i data-lucide="file-text" class="w-5 h-5"></i>
+                توضیحات
+            </h3>
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <p class="text-gray-700 leading-relaxed whitespace-pre-wrap">{{ coach.description }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Expansions & Methods -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Expansions -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="layers" class="w-5 h-5 text-blue-600"></i>
+                Expansions
+            </h3>
+            <div class="flex flex-wrap gap-2">
+                {% for expansion in coach.expansions.all %}
+                    <span class="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg">
+                        <i data-lucide="layers" class="w-4 h-4"></i>
+                        {{ expansion.name }}
+                    </span>
+                {% empty %}
+                    <p class="text-gray-500 text-sm">هیچ Expansion انتخاب نشده</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Methods -->
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+            <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="zap" class="w-5 h-5 text-purple-600"></i>
+                Methods
+            </h3>
+            <div class="flex flex-wrap gap-2">
+                {% for method in coach.methods.all %}
+                    <span class="inline-flex items-center gap-2 px-4 py-2 bg-purple-100 text-purple-700 rounded-lg">
+                        <i data-lucide="zap" class="w-4 h-4"></i>
+                        {{ method.name }}
+                    </span>
+                {% empty %}
+                    <p class="text-gray-500 text-sm">هیچ Method انتخاب نشده</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Recent Comments -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                    <i data-lucide="message-square" class="w-5 h-5"></i>
+                    آخرین کامنت‌ها
+                </h3>
+                <a href="{% url 'dashboard:coach_comment_list' %}?coach={{ coach.id }}" class="text-sm text-blue-600 hover:text-blue-700">
+                    مشاهده همه
+                </a>
+            </div>
+        </div>
+
+        <div class="divide-y divide-gray-200">
+            {% for comment in comments %}
+                <div class="p-6 hover:bg-gray-50 transition-colors">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-semibold flex-shrink-0">
+                            {{ comment.user.username|slice:":1"|upper }}
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <div>
+                                    <p class="font-medium text-gray-900">{{ comment.user.username }}</p>
+                                    <p class="text-xs text-gray-500">{{ comment.created_at|date:"Y/m/d H:i" }}</p>
+                                </div>
+                                {% if comment.enable %}
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-green-100 text-green-700 rounded text-xs">
+                                        <i data-lucide="check" class="w-3 h-3"></i>
+                                        تایید شده
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-yellow-100 text-yellow-700 rounded text-xs">
+                                        <i data-lucide="clock" class="w-3 h-3"></i>
+                                        در انتظار تایید
+                                    </span>
+                                {% endif %}
+                            </div>
+                            <p class="text-gray-700">{{ comment.text }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <div class="p-8 text-center">
+                    <i data-lucide="message-square" class="w-12 h-12 text-gray-400 mx-auto mb-3"></i>
+                    <p class="text-gray-500">هنوز کامنتی ثبت نشده است</p>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

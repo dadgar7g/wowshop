@@ -4,8 +4,9 @@ from django.contrib import messages
 from django.db.models import Sum, Count, Q
 from django.http import JsonResponse
 from django.utils import timezone
+from django.urls import reverse
 from datetime import timedelta
-
+from django.views.decorators.http import require_POST
 from account.models import User
 from core.models import Order, Offer, Comment, Coach, FastSell, BuyGold, Expansion, Realm, Method
 from shop.models import Product, Category, Invoice, InvoiceItem, ShopComment, Payment
@@ -502,24 +503,201 @@ def comment_toggle(request, pk):
 
 
 # ============ COACHES ============
+# ============ COACHES ============
 @login_required
 @user_passes_test(is_admin)
 def coach_list(request):
-    coaches = Coach.objects.select_related('user').prefetch_related('expansions', 'methods')
+    coaches = Coach.objects.select_related('user').prefetch_related('expansions', 'methods').order_by('-id')
 
-    context = {'coaches': coaches}
+    # جستجو
+    search = request.GET.get('search', '')
+    if search:
+        coaches = coaches.filter(
+            Q(user__username__icontains=search) |
+            Q(user__email__icontains=search) |
+            Q(description__icontains=search)
+        )
+
+    # فیلتر وضعیت
+    status_filter = request.GET.get('status', '')
+    if status_filter == 'enabled':
+        coaches = coaches.filter(enable=True)
+    elif status_filter == 'disabled':
+        coaches = coaches.filter(enable=False)
+
+    context = {
+        'coaches': coaches,
+        'search': search,
+        'status_filter': status_filter,
+    }
     return render(request, 'dashboard/coaches/list.html', context)
 
 
 @login_required
 @user_passes_test(is_admin)
-def coach_toggle(request, pk):
-    coach = get_object_or_404(Coach, pk=pk)
-    coach.enable = not coach.enable
-    coach.save()
+def coach_detail(request, pk):
+    coach = get_object_or_404(
+        Coach.objects.select_related('user').prefetch_related('expansions', 'methods', 'comments'),
+        pk=pk
+    )
 
-    messages.success(request, 'وضعیت کوچ تغییر کرد.')
+    # دریافت کامنت‌های کوچ
+    comments = Comment.objects.filter(coach=coach).select_related('user').order_by('-created_at')[:10]
+
+    # آمار کوچ
+    total_comments = Comment.objects.filter(coach=coach).count()
+    approved_comments = Comment.objects.filter(coach=coach, enable=True).count()
+
+    context = {
+        'coach': coach,
+        'comments': comments,
+        'total_comments': total_comments,
+        'approved_comments': approved_comments,
+    }
+    return render(request, 'dashboard/coaches/detail.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def coach_create(request):
+    if request.method == 'POST':
+        user_id = request.POST.get('user')
+        description = request.POST.get('description', '').strip()
+        timeplay = request.POST.get('timeplay', 0)
+        enable = request.POST.get('enable') == 'on'
+        expansions = request.POST.getlist('expansions')
+        methods = request.POST.getlist('methods')
+
+        if not user_id:
+            messages.error(request, 'انتخاب کاربر الزامی است.')
+        elif not description:
+            messages.error(request, 'توضیحات الزامی است.')
+        else:
+            try:
+                user = User.objects.get(id=user_id)
+
+                # بررسی که قبلاً کوچ نباشه
+                if Coach.objects.filter(user=user).exists():
+                    messages.error(request, 'این کاربر قبلاً به عنوان کوچ ثبت شده است.')
+                else:
+                    # ایجاد کوچ
+                    coach = Coach.objects.create(
+                        user=user,
+                        description=description,
+                        timeplay=int(timeplay) if timeplay else 0,
+                        enable=enable
+                    )
+
+                    # اضافه کردن Expansions و Methods
+                    if expansions:
+                        coach.expansions.set(expansions)
+                    if methods:
+                        coach.methods.set(methods)
+
+                    messages.success(request, 'کوچ با موفقیت ایجاد شد.')
+                    return redirect('dashboard:coach_detail', pk=coach.id)
+
+            except User.DoesNotExist:
+                messages.error(request, 'کاربر یافت نشد.')
+
+    # کاربرانی که هنوز کوچ نیستند
+    coach_user_ids = Coach.objects.values_list('user_id', flat=True)
+    available_users = User.objects.exclude(id__in=coach_user_ids).order_by('username')
+
+    expansions = Expansion.objects.all()
+    methods = Method.objects.all()
+
+    context = {
+        'available_users': available_users,
+        'expansions': expansions,
+        'methods': methods,
+    }
+    return render(request, 'dashboard/coaches/create.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def coach_edit(request, pk):
+    coach = get_object_or_404(Coach.objects.select_related('user').prefetch_related('expansions', 'methods'), pk=pk)
+
+    if request.method == 'POST':
+        description = request.POST.get('description', '').strip()
+        timeplay = request.POST.get('timeplay', 0)
+        enable = request.POST.get('enable') == 'on'
+        expansions = request.POST.getlist('expansions')
+        methods = request.POST.getlist('methods')
+
+        if not description:
+            messages.error(request, 'توضیحات الزامی است.')
+        else:
+            # ویرایش کوچ
+            coach.description = description
+            coach.timeplay = int(timeplay) if timeplay else 0
+            coach.enable = enable
+            coach.save()
+
+            # به‌روزرسانی Expansions و Methods
+            coach.expansions.set(expansions)
+            coach.methods.set(methods)
+
+            messages.success(request, 'اطلاعات کوچ با موفقیت به‌روزرسانی شد.')
+            return redirect('dashboard:coach_detail', pk=pk)
+
+    expansions = Expansion.objects.all()
+    methods = Method.objects.all()
+
+    context = {
+        'coach': coach,
+        'expansions': expansions,
+        'methods': methods,
+    }
+    return render(request, 'dashboard/coaches/edit.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def coach_delete(request, pk):
+    coach = get_object_or_404(Coach, pk=pk)
+
+    if request.method == 'POST':
+        # بررسی کامنت‌ها
+        comments_count = Comment.objects.filter(coach=coach).count()
+
+        # حذف کوچ (کامنت‌ها با CASCADE حذف میشن)
+        coach_username = coach.user.username
+        coach.delete()
+
+        messages.success(request, f'کوچ {coach_username} با موفقیت حذف شد.')
+        return redirect('dashboard:coach_list')
+
+    # شمارش کامنت‌ها
+    comments_count = Comment.objects.filter(coach=coach).count()
+
+    context = {
+        'coach': coach,
+        'comments_count': comments_count,
+    }
+    return render(request, 'dashboard/coaches/delete.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def coach_toggle(request, pk):
+    """تغییر وضعیت فعال/غیرفعال کوچ"""
+    if request.method == 'POST':
+        coach = get_object_or_404(Coach, pk=pk)
+        coach.enable = not coach.enable
+        coach.save()
+
+        status = 'فعال' if coach.enable else 'غیرفعال'
+        messages.success(request, f'وضعیت کوچ به {status} تغییر کرد.')
+
+        return redirect('dashboard:coach_detail', pk=pk)
+
     return redirect('dashboard:coach_list')
+
+
+# این رو به آخر فایل views.py اضافه کن:
 
 
 # ============ INVOICES ============
@@ -614,6 +792,86 @@ def invoice_detail(request, pk):
     return render(request, 'dashboard/invoices/detail.html', context)
 
 
+#============= Fastsell ===========
+@login_required
+@user_passes_test(is_admin)
+def fastsell_list(request):
+    # 1. دریافت پارامترهای فیلتر از درخواست GET
+    search = request.GET.get('search', '').strip() # از .strip() برای حذف فاصله‌های اضافی استفاده کنید
+    is_read_filter = request.GET.get('is_read') # نام متغیر را تغییر دادیم تا با نام فیلد درگیری نداشته باشد
+
+    # شروع کوئری
+    fastSells = FastSell.objects.all().order_by('-created_at') # بهتر است ترتیب نمایش را مشخص کنید
+
+    # 2. اعمال فیلتر جستجوی کلی (Search)
+    if search:
+        # فرض بر این است که مدل FastSell دارای فیلد 'number' است
+        fastSells = fastSells.filter(
+            Q(user__username__icontains=search) |
+            Q(user__email__icontains=search) |
+            Q(id__icontains=search)  | # جستجو بر اساس ID
+            Q(text__icontains=search) # اضافه کردن جستجو در متن پیام
+        )
+
+
+    # 5. اعمال فیلتر وضعیت خوانده شدن (is_read)
+    if is_read_filter:
+        # تبدیل مقدار رشته‌ای به بولی برای فیلتر دیتابیس
+        if is_read_filter == 'read':
+            fastSells = fastSells.filter(is_read=True)
+        elif is_read_filter == 'unread':
+            fastSells = fastSells.filter(is_read=False)
+
+
+    # 6. ارسال پارامترها به Context برای حفظ وضعیت فیلترها در فرم
+    context = {
+        'fastsells': fastSells,
+        'search': search,
+        'is_read': is_read_filter, # ارسال متغیر فیلتر جدید
+    }
+    return render(request, 'dashboard/fastsell/list.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def fastsell_detail(request, pk):
+    """نمایش جزئیات یک پیام FastSell و علامت زدن آن به عنوان خوانده شده."""
+
+    fastsell = get_object_or_404(FastSell.objects.select_related('user'), pk=pk)
+
+    # # *** منطق کلیدی: علامت زدن به عنوان خوانده شده هنگام مشاهده ***
+    # if not fastsell.is_read:
+    #     fastsell.is_read = True
+    #     fastsell.save()
+    # # **********************************************
+
+    context = {
+        'fastsell': fastsell,
+    }
+    return render(request, 'dashboard/fastsell/detail.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+
+@require_POST  # تضمین می کند که این View فقط با متد POST اجرا شود
+def fastsell_toggle_read(request, pk):
+    """تغییر وضعیت is_read (دیده شده/دیده نشده) برای یک پیام FastSell."""
+
+    fastsell = get_object_or_404(FastSell, pk=pk)
+
+    # تغییر وضعیت is_read به مقدار مخالف فعلی
+    fastsell.is_read = not fastsell.is_read
+    fastsell.save()
+
+    # افزودن پیام موفقیت (اختیاری)
+    # messages.success(request, f"وضعیت پیام #{pk} با موفقیت به {'خوانده شده' if fastsell.is_read else 'خوانده نشده'} تغییر یافت.")
+
+    # بازگشت به صفحه جزئیات
+    return redirect(reverse('dashboard:fastsell_detail', kwargs={'pk': pk}))
+
+
+
 # ============ COMMENTS ============
 @login_required
 @user_passes_test(is_admin)
@@ -695,3 +953,401 @@ def coach_comment_toggle(request, pk):
 
     messages.success(request, f'وضعیت کامنت به {"تایید شده" if comment.enable else "رد شده"} تغییر کرد.')
     return redirect('dashboard:coach_comment_list')
+
+
+# این رو به آخر فایل views.py اضافه کن:
+
+# ============ EXPANSIONS ============
+@login_required
+@user_passes_test(is_admin)
+def expansion_list(request):
+    expansions = Expansion.objects.all().order_by('name')
+
+    # جستجو
+    search = request.GET.get('search', '')
+    if search:
+        expansions = expansions.filter(name__icontains=search)
+
+    context = {
+        'expansions': expansions,
+        'search': search,
+    }
+    return render(request, 'dashboard/expansions/list.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def expansion_create(request):
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+
+        if not name:
+            messages.error(request, 'نام Expansion الزامی است.')
+        elif Expansion.objects.filter(name=name).exists():
+            messages.error(request, 'این Expansion قبلاً ثبت شده است.')
+        else:
+            Expansion.objects.create(name=name)
+            messages.success(request, 'Expansion با موفقیت ایجاد شد.')
+            return redirect('dashboard:expansion_list')
+
+    return render(request, 'dashboard/expansions/create.html')
+
+
+@login_required
+@user_passes_test(is_admin)
+def expansion_edit(request, pk):
+    expansion = get_object_or_404(Expansion, pk=pk)
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+
+        if not name:
+            messages.error(request, 'نام Expansion الزامی است.')
+        elif Expansion.objects.filter(name=name).exclude(pk=pk).exists():
+            messages.error(request, 'این Expansion قبلاً ثبت شده است.')
+        else:
+            expansion.name = name
+            expansion.save()
+            messages.success(request, 'Expansion با موفقیت ویرایش شد.')
+            return redirect('dashboard:expansion_list')
+
+    context = {'expansion': expansion}
+    return render(request, 'dashboard/expansions/edit.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def expansion_delete(request, pk):
+    expansion = get_object_or_404(Expansion, pk=pk)
+
+    if request.method == 'POST':
+        # بررسی اینکه آیا استفاده شده یا نه
+        if Order.objects.filter(expansion=expansion).exists():
+            messages.error(request, 'این Expansion در سفارشات استفاده شده و نمی‌توان حذف کرد.')
+        elif Coach.objects.filter(expansions=expansion).exists():
+            messages.error(request, 'این Expansion در کوچ‌ها استفاده شده و نمی‌توان حذف کرد.')
+        else:
+            expansion.delete()
+            messages.success(request, 'Expansion با موفقیت حذف شد.')
+            return redirect('dashboard:expansion_list')
+
+    context = {'expansion': expansion}
+    return render(request, 'dashboard/expansions/delete.html', context)
+
+
+# ============ REALMS ============
+@login_required
+@user_passes_test(is_admin)
+def realm_list(request):
+    realms = Realm.objects.all().order_by('name')
+
+    # جستجو
+    search = request.GET.get('search', '')
+    if search:
+        realms = realms.filter(name__icontains=search)
+
+    context = {
+        'realms': realms,
+        'search': search,
+    }
+    return render(request, 'dashboard/realms/list.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def realm_create(request):
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+
+        if not name:
+            messages.error(request, 'نام Realm الزامی است.')
+        elif Realm.objects.filter(name=name).exists():
+            messages.error(request, 'این Realm قبلاً ثبت شده است.')
+        else:
+            Realm.objects.create(name=name)
+            messages.success(request, 'Realm با موفقیت ایجاد شد.')
+            return redirect('dashboard:realm_list')
+
+    return render(request, 'dashboard/realms/create.html')
+    return render(request, 'dashboard/realms/create.html')
+
+
+@login_required
+@user_passes_test(is_admin)
+def realm_edit(request, pk):
+    realm = get_object_or_404(Realm, pk=pk)
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+
+        if not name:
+            messages.error(request, 'نام Realm الزامی است.')
+        elif Realm.objects.filter(name=name).exclude(pk=pk).exists():
+            messages.error(request, 'این Realm قبلاً ثبت شده است.')
+        else:
+            realm.name = name
+            realm.save()
+            messages.success(request, 'Realm با موفقیت ویرایش شد.')
+            return redirect('dashboard:realm_list')
+
+    context = {'realm': realm}
+    return render(request, 'dashboard/realms/edit.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def realm_delete(request, pk):
+    realm = get_object_or_404(Realm, pk=pk)
+
+    if request.method == 'POST':
+        # بررسی اینکه آیا استفاده شده یا نه
+        if Order.objects.filter(realm=realm).exists():
+            messages.error(request, 'این Realm در سفارشات استفاده شده و نمی‌توان حذف کرد.')
+        else:
+            realm.delete()
+            messages.success(request, 'Realm با موفقیت حذف شد.')
+            return redirect('dashboard:realm_list')
+
+    context = {'realm': realm}
+    return render(request, 'dashboard/realms/delete.html', context)
+
+
+# ============ METHODS ============
+@login_required
+@user_passes_test(is_admin)
+def method_list(request):
+    methods = Method.objects.all().order_by('name')
+
+    # جستجو
+    search = request.GET.get('search', '')
+    if search:
+        methods = methods.filter(name__icontains=search)
+
+    context = {
+        'methods': methods,
+        'search': search,
+    }
+    return render(request, 'dashboard/methods/list.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def method_create(request):
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+
+        if not name:
+            messages.error(request, 'نام Method الزامی است.')
+        elif Method.objects.filter(name=name).exists():
+            messages.error(request, 'این Method قبلاً ثبت شده است.')
+        else:
+            Method.objects.create(name=name)
+            messages.success(request, 'Method با موفقیت ایجاد شد.')
+            return redirect('dashboard:method_list')
+
+    return render(request, 'dashboard/methods/create.html')
+
+
+@login_required
+@user_passes_test(is_admin)
+def method_edit(request, pk):
+    method = get_object_or_404(Method, pk=pk)
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+
+        if not name:
+            messages.error(request, 'نام Method الزامی است.')
+        elif Method.objects.filter(name=name).exclude(pk=pk).exists():
+            messages.error(request, 'این Method قبلاً ثبت شده است.')
+        else:
+            method.name = name
+            method.save()
+            messages.success(request, 'Method با موفقیت ویرایش شد.')
+            return redirect('dashboard:method_list')
+
+    context = {'method': method}
+    return render(request, 'dashboard/methods/edit.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def method_delete(request, pk):
+    method = get_object_or_404(Method, pk=pk)
+
+    if request.method == 'POST':
+        # بررسی اینکه آیا استفاده شده یا نه
+        if Coach.objects.filter(methods=method).exists():
+            messages.error(request, 'این Method در کوچ‌ها استفاده شده و نمی‌توان حذف کرد.')
+        else:
+            method.delete()
+            messages.success(request, 'Method با موفقیت حذف شد.')
+            return redirect('dashboard:method_list')
+
+    context = {'method': method}
+    return render(request, 'dashboard/methods/delete.html', context)
+
+
+# ============ CATEGORIES ============
+@login_required
+@user_passes_test(is_admin)
+def category_list(request):
+    # دریافت تمام دسته‌بندی‌ها
+    categories = Category.objects.filter(deleted=False).select_related('parent', 'user').order_by('name')
+
+    # جستجو
+    search = request.GET.get('search', '')
+    if search:
+        categories = categories.filter(name__icontains=search)
+
+    # فیلتر بر اساس Parent (فقط دسته‌های اصلی یا فقط زیردسته‌ها)
+    filter_type = request.GET.get('filter', '')
+    if filter_type == 'parent':
+        categories = categories.filter(parent__isnull=True)
+    elif filter_type == 'child':
+        categories = categories.filter(parent__isnull=False)
+
+    context = {
+        'categories': categories,
+        'search': search,
+        'filter_type': filter_type,
+    }
+    return render(request, 'dashboard/categories/list.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def category_create(request):
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        parent_id = request.POST.get('parent', None)
+
+        if not name:
+            messages.error(request, 'نام دسته‌بندی الزامی است.')
+        else:
+            # بررسی تکراری بودن
+            if Category.objects.filter(name=name, deleted=False).exists():
+                messages.error(request, 'این دسته‌بندی قبلاً ثبت شده است.')
+            else:
+                # ایجاد دسته‌بندی
+                parent = None
+                if parent_id:
+                    try:
+                        parent = Category.objects.get(id=parent_id, deleted=False)
+                    except Category.DoesNotExist:
+                        messages.error(request, 'دسته‌بندی والد یافت نشد.')
+                        return render(request, 'dashboard/categories/create.html', {
+                            'parents': Category.objects.filter(parent__isnull=True, deleted=False)
+                        })
+
+                Category.objects.create(
+                    name=name,
+                    parent=parent,
+                    user=request.user
+                )
+                messages.success(request, 'دسته‌بندی با موفقیت ایجاد شد.')
+                return redirect('dashboard:category_list')
+
+    # دسته‌بندی‌های اصلی برای انتخاب به عنوان Parent
+    parents = Category.objects.filter(parent__isnull=True, deleted=False).order_by('name')
+
+    context = {'parents': parents}
+    return render(request, 'dashboard/categories/create.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def category_edit(request, pk):
+    category = get_object_or_404(Category, pk=pk, deleted=False)
+
+    if request.method == 'POST':
+        name = request.POST.get('name', '').strip()
+        parent_id = request.POST.get('parent', None)
+
+        if not name:
+            messages.error(request, 'نام دسته‌بندی الزامی است.')
+        else:
+            # بررسی تکراری بودن
+            if Category.objects.filter(name=name, deleted=False).exclude(pk=pk).exists():
+                messages.error(request, 'این دسته‌بندی قبلاً ثبت شده است.')
+            else:
+                # ویرایش دسته‌بندی
+                parent = None
+                if parent_id:
+                    try:
+                        parent = Category.objects.get(id=parent_id, deleted=False)
+
+                        # جلوگیری از انتخاب خودش یا فرزندانش به عنوان Parent
+                        if parent.id == category.id:
+                            messages.error(request, 'نمی‌توانید دسته‌بندی را به عنوان والد خودش انتخاب کنید.')
+                            parents = Category.objects.filter(parent__isnull=True, deleted=False).exclude(pk=pk)
+                            return render(request, 'dashboard/categories/edit.html', {
+                                'category': category,
+                                'parents': parents
+                            })
+
+                        # بررسی که parent از فرزندان category نباشه
+                        if parent.parent and parent.parent.id == category.id:
+                            messages.error(request, 'نمی‌توانید فرزند دسته‌بندی را به عنوان والد آن انتخاب کنید.')
+                            parents = Category.objects.filter(parent__isnull=True, deleted=False).exclude(pk=pk)
+                            return render(request, 'dashboard/categories/edit.html', {
+                                'category': category,
+                                'parents': parents
+                            })
+
+                    except Category.DoesNotExist:
+                        messages.error(request, 'دسته‌بندی والد یافت نشد.')
+                        parents = Category.objects.filter(parent__isnull=True, deleted=False).exclude(pk=pk)
+                        return render(request, 'dashboard/categories/edit.html', {
+                            'category': category,
+                            'parents': parents
+                        })
+
+                category.name = name
+                category.parent = parent
+                category.save()
+
+                messages.success(request, 'دسته‌بندی با موفقیت ویرایش شد.')
+                return redirect('dashboard:category_list')
+
+    # دسته‌بندی‌های اصلی برای انتخاب به عنوان Parent (به جز خودش)
+    parents = Category.objects.filter(parent__isnull=True, deleted=False).exclude(pk=pk).order_by('name')
+
+    context = {
+        'category': category,
+        'parents': parents
+    }
+    return render(request, 'dashboard/categories/edit.html', context)
+
+
+@login_required
+@user_passes_test(is_admin)
+def category_delete(request, pk):
+    category = get_object_or_404(Category, pk=pk, deleted=False)
+
+    if request.method == 'POST':
+        # بررسی اینکه آیا محصولی دارد یا نه
+        if Product.objects.filter(category=category, deleted=False).exists():
+            messages.error(request, 'این دسته‌بندی دارای محصول است و نمی‌توان حذف کرد.')
+        # بررسی اینکه آیا زیردسته دارد یا نه
+        elif Category.objects.filter(parent=category, deleted=False).exists():
+            messages.error(request, 'این دسته‌بندی دارای زیردسته است و نمی‌توان حذف کرد.')
+        else:
+            # Soft Delete
+            category.deleted = True
+            category.deleted_date = timezone.now()
+            category.save()
+
+            messages.success(request, 'دسته‌بندی با موفقیت حذف شد.')
+            return redirect('dashboard:category_list')
+
+    # شمارش محصولات و زیردسته‌ها
+    products_count = Product.objects.filter(category=category, deleted=False).count()
+    children_count = Category.objects.filter(parent=category, deleted=False).count()
+
+    context = {
+        'category': category,
+        'products_count': products_count,
+        'children_count': children_count,
+    }
+    return render(request, 'dashboard/categories/delete.html', context)

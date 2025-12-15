@@ -1,0 +1,173 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}لیست کوچ‌ها - پنل مدیریت{% endblock %}
+{% block page_title %}مدیریت کوچ‌ها{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <!-- Header -->
+    <div class="p-6 border-b border-gray-200">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800">مدیریت کوچ‌ها</h2>
+                <p class="text-sm text-gray-500 mt-1">مدیریت و ویرایش کوچ‌های بازی</p>
+            </div>
+            
+            <a href="{% url 'dashboard:coach_create' %}" class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+                <span>افزودن کوچ جدید</span>
+            </a>
+        </div>
+
+        <!-- Search & Filter -->
+        <form method="GET" class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+            <!-- Search -->
+            <div class="md:col-span-2 relative">
+                <input 
+                    type="text" 
+                    name="search" 
+                    value="{{ search }}"
+                    placeholder="جستجو در نام، ایمیل یا توضیحات..." 
+                    class="w-full px-4 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                <i data-lucide="search" class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+            </div>
+
+            <!-- Status Filter -->
+            <select 
+                name="status" 
+                onchange="this.form.submit()"
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            >
+                <option value="">همه کوچ‌ها</option>
+                <option value="enabled" {% if status_filter == 'enabled' %}selected{% endif %}>فقط فعال‌ها</option>
+                <option value="disabled" {% if status_filter == 'disabled' %}selected{% endif %}>فقط غیرفعال‌ها</option>
+            </select>
+        </form>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">کوچ</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Expansions</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Methods</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Time Play</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">وضعیت</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">عملیات</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for coach in coaches %}
+                <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                                {{ coach.user.username|slice:":2"|upper }}
+                            </div>
+                            <div>
+                                <p class="text-sm font-medium text-gray-900">{{ coach.user.username }}</p>
+                                <p class="text-xs text-gray-500">{{ coach.user.email }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex flex-wrap gap-1">
+                            {% for expansion in coach.expansions.all|slice:":3" %}
+                                <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">
+                                    {{ expansion.name }}
+                                </span>
+                            {% empty %}
+                                <span class="text-xs text-gray-400">-</span>
+                            {% endfor %}
+                            {% if coach.expansions.count > 3 %}
+                                <span class="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
+                                    +{{ coach.expansions.count|add:"-3" }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex flex-wrap gap-1">
+                            {% for method in coach.methods.all|slice:":2" %}
+                                <span class="inline-flex items-center px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs">
+                                    {{ method.name }}
+                                </span>
+                            {% empty %}
+                                <span class="text-xs text-gray-400">-</span>
+                            {% endfor %}
+                            {% if coach.methods.count > 2 %}
+                                <span class="inline-flex items-center px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
+                                    +{{ coach.methods.count|add:"-2" }}
+                                </span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                            <i data-lucide="clock" class="w-3 h-3"></i>
+                            {{ coach.timeplay }}h
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-center">
+                        {% if coach.enable %}
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                                <i data-lucide="check-circle" class="w-3 h-3"></i>
+                                فعال
+                            </span>
+                        {% else %}
+                            <span class="inline-flex items-center gap-1 px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-semibold">
+                                <i data-lucide="x-circle" class="w-3 h-3"></i>
+                                غیرفعال
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center justify-center gap-2">
+                            <a href="{% url 'dashboard:coach_detail' coach.id %}" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="مشاهده">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                            </a>
+                            <a href="{% url 'dashboard:coach_edit' coach.id %}" class="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors" title="ویرایش">
+                                <i data-lucide="edit" class="w-4 h-4"></i>
+                            </a>
+                            <a href="{% url 'dashboard:coach_delete' coach.id %}" class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="حذف">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-8 text-center">
+                        <div class="flex flex-col items-center gap-2">
+                            <i data-lucide="user-x" class="w-12 h-12 text-gray-400"></i>
+                            <p class="text-gray-500">هیچ کوچی یافت نشد</p>
+                            <a href="{% url 'dashboard:coach_create' %}" class="text-blue-600 hover:text-blue-700">
+                                اولین کوچ را اضافه کنید
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Footer -->
+    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+        <div class="flex items-center justify-between text-sm">
+            <span class="text-gray-600">
+                کل: <span class="font-semibold">{{ coaches.count }}</span> کوچ
+            </span>
+            <div class="flex items-center gap-4">
+                <span class="flex items-center gap-1 text-green-600">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    فعال: {{ coaches|length }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
