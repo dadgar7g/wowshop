@@ -2,118 +2,621 @@
 
 {% block content %}
 <div class="container my-5">
-    <h3 class="text-center mb-4">Total Products: {{ products|length }}</h3>
 
-    <style>
-        .shop-product-card { border-radius:15px; overflow:hidden; transition:0.3s; box-shadow:0 3px 10px rgba(0,0,0,0.1); background:#fff; }
-        .shop-product-card:hover { transform:translateY(-5px); box-shadow:0 6px 20px rgba(0,0,0,0.15); }
-        .shop-product-img { height:260px; object-fit:cover; border-bottom:1px solid #eee; }
-        .shop-btn { border-radius:10px; padding:4px 15px; transition:0.2s; }
-        .shop-btn:hover { opacity:0.85; }
-        .shop-discount { background:#ff4444; color:white; padding:3px 8px; border-radius:12px; font-size:12px; }
-    </style>
-
-    <!-- فرم فیلتر دسته‌بندی زیبا و راست‌چین -->
-<div class="card p-3 mb-4 shadow-sm text-end">
-    <form method="get" class="row g-2 align-items-center justify-content-end">
-        <!-- فیلتر دسته‌بندی -->
-        <div class="col-auto">
-            <label class="form-label fw-bold">دسته‌بندی</label>
-            <select name="category" class="form-select form-select-sm">
-                <option value="">همه دسته‌ها</option>
-                {% for c in categories %}
-                    <option value="{{ c.id }}"
-                        {% if selected_category == c.id|stringformat:"s" %} selected {% endif %}>
-                        {{ c.name }}
-                    </option>
-                {% endfor %}
-            </select>
+    <!-- هدر فروشگاه -->
+    <div class="shop-header text-center mb-5">
+        <h1 class="shop-title">🛍️ فروشگاه محصولات</h1>
+        <p class="shop-subtitle">بهترین محصولات با قیمت مناسب</p>
+        <div class="shop-stats">
+            <span class="stat-badge">{{ products|length }} محصول موجود</span>
         </div>
+    </div>
 
-        <!-- دکمه‌ها -->
-        <div class="col-auto d-flex gap-2 mt-2 mt-md-0">
-            <button type="submit" class="btn btn-primary btn-sm">اعمال فیلتر</button>
-            <a href="{% url 'shop:product_list' %}" class="btn btn-outline-secondary btn-sm">ریست</a>
-        </div>
-    </form>
-</div>
+    <!-- فرم فیلتر -->
+    <div class="filter-card mb-4">
+        <form method="get" class="filter-form">
+            <div class="filter-group">
+                <label class="filter-label">🏷️ دسته‌بندی</label>
+                <select name="category" class="filter-select">
+                    <option value="">همه دسته‌ها</option>
+                    {% for c in categories %}
+                        <option value="{{ c.id }}"
+                            {% if selected_category == c.id|stringformat:"s" %} selected {% endif %}>
+                            {{ c.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-filter-apply">
+                    ✓ اعمال فیلتر
+                </button>
+                <a href="{% url 'shop:product_list' %}" class="btn btn-filter-reset">
+                    ↻ ریست
+                </a>
+            </div>
+        </form>
+    </div>
 
     <!-- لیست محصولات -->
-    <div class="row">
+    <div class="row g-4">
         {% for product in page_obj %}
-            <div class="col-md-4 mb-4">
-                <div class="card shop-product-card">
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" class="shop-product-img" alt="">
-                    {% else %}
-                        <img src="https://via.placeholder.com/300x260" class="shop-product-img" alt="">
-                    {% endif %}
-                    <div class="card-body">
-                        <h5 class="card-title text-center"><b>{{ product.name }}</b></h5>
-                        <p class="text-muted" style="font-size:14px;">
-                            قیمت: <b>{{ product.price }} تومان</b>
-                        </p>
-                        {% if product.discount > 0 %}
-                            <span class="shop-discount">تخفیف {{ product.discount }}%</span>
+            <div class="col-md-4">
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        {% if product.image %}
+                            <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
+                        {% else %}
+                            <div class="product-placeholder">
+                                <span class="placeholder-icon">📦</span>
+                            </div>
                         {% endif %}
-                        <hr>
-                        <p class="card-text" style="font-size:14px;">
-                            {{ product.description|truncatewords:20 }}
-                        </p>
-                        <div class="d-flex justify-content-between mt-3">
-                            <a href="{% url 'shop:product_detail' id=product.id %}" class="btn btn-outline-primary btn-sm shop-btn">
-                                جزئیات
+
+                        {% if product.discount > 0 %}
+                            <div class="product-discount-badge">
+                                {{ product.discount }}% تخفیف
+                            </div>
+                        {% endif %}
+
+                        <div class="product-overlay">
+                            <a href="{% url 'shop:product_detail' id=product.id %}" class="overlay-btn">
+                                مشاهده جزئیات
                             </a>
-                            <a href="{% url 'shop:cart_add' product.id %}" data-id="{{ product.id }}" class="btn btn-success btn-sm shop-btn add-to-cart-link">
-                                افزودن به سبد
+                        </div>
+                    </div>
+
+                    <div class="product-body">
+                        <h5 class="product-name">{{ product.name }}</h5>
+
+                        <div class="product-price-section">
+                            {% if product.discount > 0 %}
+                                <div class="price-original">{{ product.price }} تومان</div>
+                                <div class="price-discounted">
+                                    {{ product.price|floatformat:0 }} تومان
+                                </div>
+                            {% else %}
+                                <div class="price-current">
+                                    {{ product.price }} <span class="price-unit">تومان</span>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <p class="product-description">
+                            {{ product.description|truncatewords:15 }}
+                        </p>
+
+                        <div class="product-actions">
+                            <a href="{% url 'shop:product_detail' id=product.id %}"
+                               class="btn btn-product-detail">
+                                📄 جزئیات
+                            </a>
+                            <a href="{% url 'shop:cart_add' product.id %}"
+                               data-id="{{ product.id }}"
+                               class="btn btn-product-cart add-to-cart-link">
+                                🛒 افزودن
                             </a>
                         </div>
                     </div>
                 </div>
             </div>
+        {% empty %}
+            <div class="col-12">
+                <div class="empty-state">
+                    <div class="empty-icon">📭</div>
+                    <h3 class="empty-title">محصولی یافت نشد</h3>
+                    <p class="empty-text">در حال حاضر محصولی در این دسته‌بندی موجود نیست</p>
+                    <a href="{% url 'shop:product_list' %}" class="btn btn-empty-action">
+                        مشاهده همه محصولات
+                    </a>
+                </div>
+            </div>
         {% endfor %}
     </div>
+
+    <!-- Pagination -->
+    {% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination-wrapper">
+            <nav class="pagination-nav">
+                <ul class="pagination-list">
+                    {% if page_obj.has_previous %}
+                        <li class="pagination-item">
+                            <a class="pagination-link"
+                               href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">
+                                ← قبلی
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="pagination-item active">
+                                <span class="pagination-link">{{ num }}</span>
+                            </li>
+                        {% else %}
+                            <li class="pagination-item">
+                                <a class="pagination-link"
+                                   href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="pagination-item">
+                            <a class="pagination-link"
+                               href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">
+                                بعدی →
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
+
 </div>
 
-<!-- Pagination -->
-<div class="d-flex justify-content-center mt-3">
-    <nav aria-label="Page navigation">
-        <ul class="pagination">
-            {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">&laquo;</a>
-                </li>
-            {% endif %}
+<style>
+/* هدر فروشگاه */
+.shop-header {
+    padding: 30px 0;
+}
 
-            {% for num in page_obj.paginator.page_range %}
-                {% if page_obj.number == num %}
-                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                {% else %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}">{{ num }}</a>
-                    </li>
-                {% endif %}
-            {% endfor %}
+.shop-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
 
-            {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}">&raquo;</a>
-                </li>
-            {% endif %}
-        </ul>
-    </nav>
-</div>
+.shop-subtitle {
+    color: #718096;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.shop-stats {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.stat-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* فیلتر */
+.filter-card {
+    background: white;
+    border-radius: 15px;
+    padding: 25px 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+.filter-form {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: #2d3748;
+    white-space: nowrap;
+    margin: 0;
+}
+
+.filter-select {
+    flex: 1;
+    max-width: 300px;
+    padding: 10px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-weight: 500;
+    color: #2d3748;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-filter-apply {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-filter-apply:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-filter-reset {
+    background: #f7fafc;
+    color: #718096;
+    border: 2px solid #e2e8f0;
+    padding: 10px 25px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-filter-reset:hover {
+    background: #edf2f7;
+    color: #4a5568;
+    transform: translateY(-2px);
+}
+
+/* کارت محصول */
+.product-card {
+    background: white;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+}
+
+.product-image-wrapper {
+    position: relative;
+    height: 260px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-image {
+    transform: scale(1.1);
+}
+
+.product-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.placeholder-icon {
+    font-size: 5rem;
+    opacity: 0.2;
+}
+
+.product-discount-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+    z-index: 2;
+}
+
+.product-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(102, 126, 234, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.product-card:hover .product-overlay {
+    opacity: 1;
+}
+
+.overlay-btn {
+    color: white;
+    font-weight: 700;
+    padding: 12px 30px;
+    border: 2px solid white;
+    border-radius: 25px;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.overlay-btn:hover {
+    background: white;
+    color: #667eea;
+    transform: scale(1.05);
+}
+
+.product-body {
+    padding: 25px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-name {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 15px;
+    min-height: 56px;
+}
+
+.product-price-section {
+    margin-bottom: 15px;
+}
+
+.price-current {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #667eea;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.price-unit {
+    font-size: 0.9rem;
+    color: #718096;
+}
+
+.price-original {
+    font-size: 0.9rem;
+    color: #cbd5e0;
+    text-decoration: line-through;
+}
+
+.price-discounted {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #f5576c;
+}
+
+.product-description {
+    color: #718096;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    flex: 1;
+}
+
+.product-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.btn-product-detail {
+    background: #f7fafc;
+    color: #667eea;
+    border: 2px solid #e2e8f0;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.btn-product-detail:hover {
+    background: #edf2f7;
+    border-color: #667eea;
+    transform: translateY(-2px);
+}
+
+.btn-product-cart {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    font-size: 0.9rem;
+}
+
+.btn-product-cart:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(72, 187, 120, 0.4);
+}
+
+/* حالت خالی */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+}
+
+.empty-icon {
+    font-size: 5rem;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+.empty-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.empty-text {
+    color: #718096;
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+
+.btn-empty-action {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-empty-action:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+/* Pagination */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.pagination-nav {
+    background: white;
+    border-radius: 15px;
+    padding: 15px 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+.pagination-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 8px;
+    align-items: center;
+}
+
+.pagination-item {
+    display: inline-block;
+}
+
+.pagination-link {
+    display: block;
+    padding: 10px 16px;
+    color: #4a5568;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.pagination-link:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+.pagination-item.active .pagination-link {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+}
+
+/* ریسپانسیو */
+@media (max-width: 768px) {
+    .shop-title {
+        font-size: 2rem;
+    }
+
+    .filter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-group {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-select {
+        max-width: 100%;
+    }
+
+    .filter-actions {
+        width: 100%;
+    }
+
+    .btn-filter-apply,
+    .btn-filter-reset {
+        flex: 1;
+    }
+}
+</style>
 
 <!-- Add to cart script -->
 <script>
     $('.add-to-cart-link').click(function(e){
         e.preventDefault();
         let target_link = $(this).attr('href');
+        let btn = $(this);
+        let originalText = btn.html();
+
+        btn.html('⏳ در حال افزودن...');
+        btn.css('pointer-events', 'none');
+
         $.get(target_link, function(res){
             let item_count = Object.keys(res).length;
             $('#cart-count').html(item_count);
+
+            btn.html('✓ اضافه شد!');
+            btn.css('background', 'linear-gradient(135deg, #48bb78 0%, #38a169 100%)');
+
+            setTimeout(function(){
+                btn.html(originalText);
+                btn.css('pointer-events', 'auto');
+            }, 1500);
         });
+
         return false;
     });
 </script>

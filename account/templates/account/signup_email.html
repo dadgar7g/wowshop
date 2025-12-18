@@ -2,73 +2,345 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>تایید ایمیل</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تایید ایمیل - safewow</title>
     <style>
-        body {
-            font-family: Tahoma, Arial, sans-serif;
-            background-color: #f5f5f5;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
-        .email-container {
+
+        body {
+            font-family: Tahoma, Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+            margin: 0;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .email-wrapper {
             max-width: 600px;
-            margin: 30px auto;
-            background-color: #ffffff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+            margin: 0 auto;
         }
-        h2 {
-            color: #0d6efd;
+
+        .email-container {
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        /* Header */
+        .email-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
             text-align: center;
         }
-        p {
-            font-size: 16px;
-            line-height: 1.6;
-            color: #333333;
+
+        .logo {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+
+        .brand-name {
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .header-subtitle {
+            color: rgba(255,255,255,0.9);
+            font-size: 1rem;
+        }
+
+        /* Content */
+        .email-content {
+            padding: 40px 30px;
+        }
+
+        .greeting {
+            font-size: 1.5rem;
+            color: #2d3748;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .welcome-icon {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .message {
+            font-size: 1rem;
+            color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 20px;
             text-align: right;
         }
-        a.button {
+
+        .info-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            border-right: 4px solid #667eea;
+        }
+
+        .info-box p {
+            margin: 0;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        /* Button */
+        .button-container {
+            text-align: center;
+            margin: 35px 0;
+        }
+
+        .verify-button {
             display: inline-block;
-            margin-top: 20px;
-            padding: 12px 25px;
-            background-color: #0d6efd;
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #ffffff !important;
             text-decoration: none;
-            border-radius: 5px;
+            border-radius: 12px;
             font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .verify-button:hover {
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+        }
+
+        /* Steps */
+        .steps-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+            border-radius: 12px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+
+        .steps-title {
+            font-size: 1.1rem;
+            color: #2d3748;
+            font-weight: bold;
+            margin-bottom: 15px;
             text-align: center;
         }
-        a.button:hover {
-            background-color: #0b5ed7;
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 10px;
         }
-        .footer {
-            margin-top: 30px;
-            font-size: 12px;
-            color: #777777;
+
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .step-number {
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            color: #2d3748;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        /* Warning */
+        .warning-box {
+            background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 25px 0;
+            border-right: 4px solid #ffc107;
+        }
+
+        .warning-box p {
+            margin: 0;
+            color: #4a5568;
+            text-align: right;
+        }
+
+        /* Footer */
+        .email-footer {
+            background: #f7fafc;
+            padding: 30px;
             text-align: center;
+        }
+
+        .footer-links {
+            margin-bottom: 20px;
+        }
+
+        .footer-link {
+            color: #667eea;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: 600;
+        }
+
+        .footer-link:hover {
+            text-decoration: underline;
+        }
+
+        .copyright {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-top: 15px;
+        }
+
+        .social-icons {
+            margin: 20px 0;
+        }
+
+        .social-icon {
+            display: inline-block;
+            margin: 0 8px;
+            font-size: 1.5rem;
+        }
+
+        /* Responsive */
+        @media only screen and (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .email-content {
+                padding: 30px 20px;
+            }
+
+            .email-header {
+                padding: 30px 20px;
+            }
+
+            .brand-name {
+                font-size: 1.5rem;
+            }
+
+            .greeting {
+                font-size: 1.2rem;
+            }
+
+            .verify-button {
+                padding: 14px 30px;
+                font-size: 1rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="email-container">
-        <h2>سلام {{ obj.first_name }} {{ obj.last_name }}!</h2>
+    <div class="email-wrapper">
+        <div class="email-container">
 
-        <p>
-            با تشکر از ثبت‌نام شما در سایت ما.
-            لطفاً ایمیل خود را با کلیک روی دکمه زیر تأیید کنید تا حساب شما فعال شود.
-        </p>
+            <!-- Header -->
+            <div class="email-header">
+                <div class="logo">🛡️</div>
+                <div class="brand-name">safewow</div>
+                <div class="header-subtitle">پلتفرم حرفه‌ای خدمات گیمینگ</div>
+            </div>
 
-        <div style="text-align: center;">
-            <a href="{{ link }}" class="button">تایید ایمیل</a>
-        </div>
+            <!-- Content -->
+            <div class="email-content">
 
-        <p>
-            اگر این ثبت‌نام توسط شما انجام نشده است، لطفاً این ایمیل را نادیده بگیرید.
-        </p>
+                <div class="welcome-icon">👋</div>
 
-        <div class="footer">
-            © 2025 safewow. همه حقوق محفوظ است.
+                <div class="greeting">
+                    سلام {{ obj.first_name }} {{ obj.last_name }}!
+                </div>
+
+                <p class="message">
+                    به خانواده بزرگ <strong>safewow</strong> خوش آمدید! 🎉
+                </p>
+
+                <p class="message">
+                    برای تکمیل ثبت‌نام و فعال‌سازی حساب کاربری خود، لطفاً ایمیل خود را
+                    با کلیک روی دکمه زیر تأیید کنید.
+                </p>
+
+                <!-- Button -->
+                <div class="button-container">
+                    <a href="{{ link }}" class="verify-button">
+                        ✓ تایید ایمیل و فعال‌سازی حساب
+                    </a>
+                </div>
+
+                <!-- Steps -->
+                <div class="steps-section">
+                    <div class="steps-title">مراحل بعدی:</div>
+                    <div class="step-item">
+                        <div class="step-number">1</div>
+                        <div class="step-text">روی دکمه بالا کلیک کنید</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">2</div>
+                        <div class="step-text">حساب شما فعال می‌شود</div>
+                    </div>
+                    <div class="step-item">
+                        <div class="step-number">3</div>
+                        <div class="step-text">وارد حساب خود شوید</div>
+                    </div>
+                </div>
+
+                <!-- Info Box -->
+                <div class="info-box">
+                    <p>
+                        💡 نکته: لینک فعال‌سازی محدود به زمان است و پس از مدتی منقضی می‌شود.
+                    </p>
+                </div>
+
+                <!-- Warning -->
+                <div class="warning-box">
+                    <p>
+                        ⚠️ اگر این ثبت‌نام توسط شما انجام نشده است، لطفاً این ایمیل را
+                        نادیده بگیرید و حساب شما به‌طور خودکار حذف خواهد شد.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div class="email-footer">
+
+                <div class="social-icons">
+                    <span class="social-icon">📧</span>
+                    <span class="social-icon">💬</span>
+                    <span class="social-icon">📱</span>
+                </div>
+
+                <div class="footer-links">
+                    <a href="#" class="footer-link">درباره ما</a>
+                    <a href="#" class="footer-link">پشتیبانی</a>
+                    <a href="#" class="footer-link">تماس با ما</a>
+                </div>
+
+                <div class="copyright">
+                    © 2025 safewow - تمامی حقوق محفوظ است
+                </div>
+
+            </div>
+
         </div>
     </div>
 </body>

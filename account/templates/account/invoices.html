@@ -1,132 +1,519 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-4 pt-4" dir="rtl" style="text-align: right;">
+    <div class="row dashboard-wrapper">
+    <!-- سایدبار -->
+    <div class="col-lg-3 col-md-4 mb-4">
+        <div class="sidebar">
+            <div class="sidebar-title">
+                <i class="fas fa-user-circle"></i>
+                پنل کاربری
+            </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'account:dashboard' %}">
+                        <i class="fas fa-chart-line"></i>
+                        <span>داشبورد</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'account:profile_edit' %}">
+                        <i class="fas fa-user-edit"></i>
+                        <span>ویرایش اطلاعات</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'account:bank_edit' %}">
+                        <i class="fas fa-credit-card"></i>
+                        <span>اطلاعات بانکی</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'core:coach_edit' %}">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>اطلاعات مربی</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'account:my_invoices' %}" class="active">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>خریدهای شما</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'account:offers' %}">
+                        <i class="fas fa-tags"></i>
+                        <span>آفرهای من</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'password_change' %}">
+                        <i class="fas fa-lock"></i>
+                        <span>تغییر رمز عبور</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
 
-    <div class="row">
+    <!-- محتوای اصلی -->
+    <div class="col-lg-9 col-md-8">
+        <!-- هدر -->
+        <div class="page-header">
+            <h4>
+                <i class="fas fa-shopping-bag"></i>
+                خریدهای من
+            </h4>
+            <p>لیست تمام سفارشات و خریدهای شما</p>
+        </div>
 
-
-
-        <!-- سفارشات (سمت راست) -->
-        <div class="col-md-9">
-
-            <h5 class="mb-3">سفارشات من</h5>
-
-            {% if invoices %}
-                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-                    {% for invoice in invoices %}
-                        <div class="col">
-                            <div class="card h-100 shadow-sm p-3" style="border-radius: 12px; transition: transform 0.2s;">
-                                <p><strong>شماره فاکتور:</strong> {{ invoice.number|default:invoice.id }}</p>
-                                <p><strong>محصولات خریداری شده:</strong></p>
-                                <ul class="list-unstyled ms-3">
-                                    {% for item in invoice.invoiceitem_set.all %}
-                                        <li>
-                                            <a href="{% url 'shop:product_detail' id=item.product.id %}" class="text-decoration-none">
-                                                • {{ item.product.name }} ({{ item.count }} عدد)
-                                            </a>
-                                        </li>
-                                    {% endfor %}
-                                </ul>
-
-                                <p><strong>ایدی بتل نت ثبت شده:</strong> {{ invoice.battle_tag }}</p>
-                                {% if invoice.discount %}<p><strong>تخفیف :</strong> {{ invoice.discount }}</p>{% endif %}
-                                <p><strong>تاریخ:</strong> {{ invoice.date|date:"Y-m-d H:i" }}</p>
-                                <p><strong>مجموع:</strong> {{ invoice.total }} تومان</p>
-                                <p><strong>وضعیت پرداخت:</strong>
+        <!-- لیست سفارشات -->
+        {% if invoices %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+                {% for invoice in invoices %}
+                    <div class="col">
+                        <div class="order-card">
+                            <!-- هدر سفارش -->
+                            <div class="order-header">
+                                <div class="order-number">
+                                    <i class="fas fa-receipt"></i>
+                                    #{{ invoice.number|default:invoice.id }}
+                                </div>
+                                <div class="order-status {% if invoice.payment.status == 'success' or invoice.payment.status == 'paid' %}status-success{% elif invoice.payment.status == 'pending' %}status-pending{% else %}status-failed{% endif %}">
+                                    <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
                                     {% if invoice.payment %}
                                         {{ invoice.payment.get_status_display }}
                                     {% else %}
                                         ثبت نشده
                                     {% endif %}
-                                </p>
+                                </div>
+                            </div>
+
+                            <!-- بدنه سفارش -->
+                            <div class="order-body">
+                                <!-- لیست محصولات -->
+                                <div class="products-list">
+                                    <h6>
+                                        <i class="fas fa-box"></i>
+                                        محصولات
+                                    </h6>
+                                    {% for item in invoice.invoiceitem_set.all %}
+                                        <a href="{% url 'shop:product_detail' id=item.product.id %}" class="product-item">
+                                            <div class="product-bullet"></div>
+                                            <div class="product-name">{{ item.product.name }}</div>
+                                            <div class="product-count">{{ item.count }}×</div>
+                                        </a>
+                                    {% endfor %}
+                                </div>
+
+                                <!-- اطلاعات -->
+                                {% if invoice.battle_tag %}
+                                <div class="info-row">
+                                    <i class="fas fa-gamepad info-icon"></i>
+                                    <div>
+                                        <div class="info-label">بتل تگ</div>
+                                        <div class="info-value">{{ invoice.battle_tag }}</div>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if invoice.discount %}
+                                <div class="info-row">
+                                    <i class="fas fa-percent info-icon"></i>
+                                    <div>
+                                        <div class="info-label">تخفیف</div>
+                                        <div class="info-value">{{ invoice.discount }} تومان</div>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <!-- فوتر سفارش -->
+                            <div class="order-footer">
+                                <div class="order-date">
+                                    <i class="far fa-calendar"></i>
+                                    {{ invoice.date|date:"Y/m/d" }}
+                                </div>
+                                <div class="order-total">
+                                    {{ invoice.total|floatformat:0 }} تومان
+                                </div>
                             </div>
                         </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-muted">فعلاً هیچ سفارش ثبت نکرده‌اید.</p>
-            {% endif %}
-
-        </div>
-        <!-- پنل کاربری (سمت چپ) -->
-        <div class="col-md-3 mb-4">
-            <div class="card shadow-sm" style="border-radius: 12px; overflow: hidden;">
-                <h6 class="mb-0 text-center py-3" style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6;">
-                    پنل کاربری
-                </h6>
-                <ul class="list-group list-group-flush" style="margin:0; padding:0;">
-                    <a href="{% url 'account:dashboard' %}" class="list-group-item list-group-item-action text-end " style="padding-right:12px;">داشبورد</a>
-                    <a href="{% url 'account:profile_edit' %}" class="list-group-item list-group-item-action text-end" style="padding-right:12px;">ویرایش اطلاعات</a>
-                    <a href="{% url 'account:bank_edit' %}" class="list-group-item list-group-item-action text-end" style="padding-right:12px;">ثبت / ویرایش اطلاعات بانکی</a>
-                    <a href="{% url 'core:coach_edit' %}" class="list-group-item list-group-item-action text-end" style="padding-right:12px;">ویرایش اطلاعات مربی</a>
-                    <a href="{% url 'account:my_invoices' %}" class="list-group-item list-group-item-action text-end active" style="padding-right:12px;">خریدهای شما</a>
-                    <a href="{% url 'account:offers' %}" class="list-group-item list-group-item-action text-end" style="padding-right:12px;">آفرهای من</a>
-                    <a href="{% url 'password_change' %}" class="list-group-item list-group-item-action text-end" style="padding-right:12px;">تغییر رمز عبور</a>
-                </ul>
+                    </div>
+                {% endfor %}
             </div>
-        </div>
-
+        {% else %}
+            <!-- حالت خالی -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <h5>هنوز خریدی نداشتی!</h5>
+                <p>وقتی اولین خریدت رو انجام بدی، اینجا نمایش داده میشه</p>
+                <a href="{% url 'shop:product_list' %}" class="btn-shop">
+                    <i class="fas fa-store"></i>
+                    رفتن به فروشگاه
+                </a>
+            </div>
+        {% endif %}
     </div>
 </div>
 
-<!-- Hover Effect برای کارت‌ها -->
-{#<style>#}
-{#.card:hover {#}
-{#    transform: translateY(-5px);#}
-{#    box-shadow: 0 6px 20px rgba(0,0,0,0.15);#}
-{#}#}
-{#</style>#}
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+    /* استایل‌های اضافی برای داشبورد */
+    .dashboard-wrapper {
+        padding: 0;
+        margin-top: -40px;
+    }
+
+    .sidebar {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 100px;
+    }
+
+    .sidebar-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-menu li {
+        margin-bottom: 8px;
+    }
+
+    .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 18px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #4a5568;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .sidebar-menu a:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        transform: translateX(-5px);
+    }
+
+    .sidebar-menu a.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .sidebar-menu a i {
+        font-size: 1.1rem;
+        width: 24px;
+        text-align: center;
+    }
+
+    /* هدر صفحه */
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+
+    .page-header h4 {
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .page-header p {
+        color: #718096;
+        margin: 10px 0 0 0;
+    }
+
+    /* کارت سفارش */
+    .order-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .order-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 45px rgba(0,0,0,0.15);
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .order-number {
+        font-weight: 700;
+        color: #2d3748;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .order-number i {
+        color: #667eea;
+    }
+
+    .order-status {
+        padding: 6px 16px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .status-success {
+        background: linear-gradient(135deg, rgba(17, 153, 142, 0.15), rgba(56, 239, 125, 0.15));
+        color: #11998e;
+    }
+
+    .status-pending {
+        background: linear-gradient(135deg, rgba(250, 112, 154, 0.15), rgba(254, 225, 64, 0.15));
+        color: #fa709a;
+    }
+
+    .status-failed {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
+        color: #ef4444;
+    }
+
+    .order-body {
+        flex: 1;
+    }
+
+    .info-row {
+        margin-bottom: 15px;
+        display: flex;
+        align-items: start;
+        gap: 10px;
+    }
+
+    .info-icon {
+        color: #667eea;
+        font-size: 1rem;
+        margin-top: 2px;
+        min-width: 20px;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #4a5568;
+        font-size: 0.9rem;
+    }
+
+    .info-value {
+        color: #2d3748;
+        font-size: 0.9rem;
+    }
+
+    .products-list {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 15px;
+        margin: 15px 0;
+    }
+
+    .products-list h6 {
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 12px;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .product-item {
+        padding: 10px;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        transition: all 0.2s ease;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .product-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .product-item:hover {
+        background: rgba(102, 126, 234, 0.05);
+        transform: translateX(-3px);
+    }
+
+    .product-bullet {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #667eea;
+        flex-shrink: 0;
+    }
+
+    .product-name {
+        flex: 1;
+        color: #2d3748;
+        font-weight: 500;
+        font-size: 0.9rem;
+    }
+
+    .product-count {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .order-footer {
+        margin-top: auto;
+        padding-top: 15px;
+        border-top: 2px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .order-date {
+        color: #718096;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .order-total {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    /* حالت خالی */
+    .empty-state {
+        background: white;
+        border-radius: 20px;
+        padding: 60px 40px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 25px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        color: #667eea;
+    }
+
+    .empty-state h5 {
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 12px;
+    }
+
+    .empty-state p {
+        color: #718096;
+        margin-bottom: 25px;
+    }
+
+    .btn-shop {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 35px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+    }
+
+    .btn-shop:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-wrapper {
+            margin-top: 0;
+        }
+
+        .sidebar {
+            position: relative;
+            top: 0;
+            margin-bottom: 20px;
+        }
+
+        .order-card {
+            padding: 20px;
+        }
+
+        .order-header {
+            flex-direction: column;
+            align-items: start;
+            gap: 10px;
+        }
+
+        .empty-state {
+            padding: 40px 20px;
+        }
+    }
+</style>
+
+
 {% endblock %}
-
-
-
-
-
-{#{% extends "base.html" %}#}
-{##}
-{#{% block content %}#}
-{#    <div class="card shadow-sm p-4" style="border-radius: 12px; direction: rtl;">#}
-{#        <h5 class="mb-3">سفارشات من</h5>#}
-{##}
-{#        {% if invoices %}#}
-{#            <div class="row row-cols-1 row-cols-md-2 g-3">#}
-{#                {% for invoice in invoices %}#}
-{#                    <div class="col">#}
-{##}
-{#                        <div class="card h-100 shadow-sm p-3" style="border-radius: 12px;">#}
-{#                            <p><strong>شماره فاکتور:</strong> {{ invoice.number|default:invoice.id }}</p>#}
-{#                            <p><strong>محصولات خریداری شده:</strong></p>#}
-{##}
-{#                            <ul class="list.html-unstyled ms-3">#}
-{#                                {% for item in invoice.invoiceitem_set.all %}#}
-{#                                    <li>#}
-{#                                        <a href="{% url 'shop:product_detail' id=item.product.id %}"#}
-{#                                           class="text-decoration-none">#}
-{#                                            • {{ item.product.name }} ({{ item.count }} عدد)#}
-{#                                        </a>#}
-{#                                    </li>#}
-{#                                {% endfor %}#}
-{#                            </ul>#}
-{##}
-{#                            <p><strong>ایدی بتل نت ثبت شده:</strong> {{ invoice.battle_tag }}</p>#}
-{#                            {% if invoice.discount %}<p><strong>تخفیف :</strong> {{ invoice.discount }}</p>{% endif %}#}
-{#                            <p><strong>تاریخ:</strong> {{ invoice.date|date:"Y-m-d H:i" }}</p>#}
-{#                            <p><strong>مجموع:</strong> {{ invoice.total }} تومان</p>#}
-{#                            <p><strong>وضعیت پرداخت:</strong>#}
-{#                                {% if invoice.payment_set.first %}#}
-{#                                    {{ invoice.payment_set.first.get_status_display }}#}
-{#                                {% else %}#}
-{#                                    ثبت نشده#}
-{#                                {% endif %}#}
-{#                            </p>#}
-{#                        </div>#}
-{#                        </a>#}
-{#                    </div>#}
-{#                {% endfor %}#}
-{#            </div>#}
-{#        {% else %}#}
-{#            <p class="text-muted">فعلاً هیچ سفارش ثبت نکرده‌اید.</p>#}
-{#        {% endif %}#}
-{#    </div>#}
-{#{% endblock %}#}

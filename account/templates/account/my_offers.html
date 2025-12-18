@@ -1,71 +1,522 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row container mt-4 pt-4">
-
-    <!-- ستون راست -->
-     <div class="col-md-3 ">
-            <div class="card shadow-sm p-3" style="border-radius: 12px;">
-                <h6 class="mb-3 text-center">پنل کاربری</h6>
-                <ul class="list-group">
-
-                    <a href="{% url 'account:dashboard' %}" class="list-group-item list-group-item-action text-end ">
-                        داشبورد
-                    </a>
-
-                    <a href="{% url 'account:profile_edit' %}" class="list-group-item list-group-item-action text-end">
-                        ویرایش اطلاعات
-                    </a>
-
-                    <a href="{% url 'account:bank_edit' %}" class="list-group-item list-group-item-action text-end">
-                        ثبت / ویرایش اطلاعات بانکی
-                    </a>
-
-                    <a href="{% url 'core:coach_edit' %}" class="list-group-item list-group-item-action text-end">
-                        ویرایش اطلاعات مربی
-                    </a>
-                    <a href="{% url 'account:my_invoices' %}" class="list-group-item list-group-item-action text-end">
-                        خریدهای شما
-                    </a>
-
-                    <a href="{% url 'account:offers' %}" class="list-group-item list-group-item-action text-end active">
-                        آفرهای من
-                    </a>
-
-                    <a href="{% url 'password_change' %}" class="list-group-item list-group-item-action text-end">
-                        تغییر رمز عبور
-                    </a>
-                </ul>
+    <div class="row dashboard-wrapper">
+    <!-- سایدبار -->
+    <div class="col-lg-3 col-md-4 mb-4">
+        <div class="sidebar">
+            <div class="sidebar-title">
+                <i class="fas fa-user-circle"></i>
+                پنل کاربری
             </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'account:dashboard' %}">
+                        <i class="fas fa-chart-line"></i>
+                        <span>داشبورد</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'account:profile_edit' %}">
+                        <i class="fas fa-user-edit"></i>
+                        <span>ویرایش اطلاعات</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'account:bank_edit' %}">
+                        <i class="fas fa-credit-card"></i>
+                        <span>اطلاعات بانکی</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'core:coach_edit' %}">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>اطلاعات مربی</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'account:my_invoices' %}">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>خریدهای شما</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'account:offers' %}" class="active">
+                        <i class="fas fa-tags"></i>
+                        <span>آفرهای من</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'password_change' %}">
+                        <i class="fas fa-lock"></i>
+                        <span>تغییر رمز عبور</span>
+                    </a>
+                </li>
+            </ul>
         </div>
-
-    <!-- بخش اصلی -->
-    <div class="col-md-9">
-
-        <div class="card shadow-sm p-4" style="border-radius: 12px; direction: rtl;">
-            <h5 class="mb-3">آفرهای من</h5>
-
-            {% if offers %}
-                <div class="row row-cols-1 row-cols-md-2 g-3">
-                    {% for offer in offers %}
-                        <div class="col">
-                            <a href="{% url 'core:order_detail' offer.order.id %}" class="text-decoration-none">
-                                <div class="card h-100 shadow-sm p-3" style="border-radius: 12px;">
-                                    <p><strong>خریدار:</strong> {{ offer.order.buyer }}</p>
-                                    <p><strong>مقدار گلد:</strong> {{ offer.quantity }}</p>
-                                    <p><strong>وضعیت:</strong> {{ offer.get_status_display }}</p>
-                                    <p><strong>قیمت کل:</strong> {{ offer.total_price }}</p>
-                                </div>
-                            </a>
-                        </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="text-muted">هنوز هیچ آفر ثبت نکرده‌اید.</p>
-            {% endif %}
-        </div>
-
     </div>
 
+    <!-- محتوای اصلی -->
+    <div class="col-lg-9 col-md-8">
+        <!-- هدر -->
+        <div class="page-header">
+            <h4>
+                <i class="fas fa-tags"></i>
+                آفرهای من
+            </h4>
+            <p>لیست تمام آفرهایی که برای سفارشات ثبت کردید</p>
+        </div>
+
+        <!-- لیست آفرها -->
+        {% if offers %}
+            <div class="row row-cols-1 row-cols-md-2 row-cols-xl-2 g-4">
+                {% for offer in offers %}
+                    <div class="col">
+                        <a href="{% url 'core:order_detail' offer.order.id %}" class="offer-card status-{{ offer.status }}">
+                            <!-- هدر آفر -->
+                            <div class="offer-header">
+                                <div class="buyer-info">
+                                    <div class="buyer-avatar">
+                                        {{ offer.order.buyer.username|slice:":1"|upper }}
+                                    </div>
+                                    <div class="buyer-details">
+                                        <h6>{{ offer.order.buyer.username }}</h6>
+                                        <span class="buyer-label">خریدار</span>
+                                    </div>
+                                </div>
+                                <div class="offer-status status-{{ offer.status }}-badge">
+                                    <i class="fas fa-circle" style="font-size: 0.5rem;"></i>
+                                    {{ offer.get_status_display }}
+                                </div>
+                            </div>
+
+                            <!-- بدنه آفر -->
+                            <div class="offer-body">
+                                <div class="offer-detail">
+                                    <div class="detail-icon gold">
+                                        <i class="fas fa-coins"></i>
+                                    </div>
+                                    <div class="detail-label">مقدار گلد</div>
+                                    <div class="detail-value">{{ offer.quantity|floatformat:0 }}</div>
+                                </div>
+
+                                <div class="offer-detail">
+                                    <div class="detail-icon price">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </div>
+                                    <div class="detail-label">قیمت کل</div>
+                                    <div class="detail-value">{{ offer.total_price|floatformat:0 }} <span style="font-size: 0.7rem; font-weight: 500;">تومان</span></div>
+                                </div>
+                            </div>
+
+                            <!-- فوتر آفر -->
+                            <div class="offer-footer">
+                                <span class="view-details">
+                                    مشاهده جزئیات
+                                    <i class="fas fa-arrow-left"></i>
+                                </span>
+                                <span class="offer-id">#{{ offer.id }}</span>
+                            </div>
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- حالت خالی -->
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-tags"></i>
+                </div>
+                <h5>هنوز آفری ثبت نکردی!</h5>
+                <p>وقتی اولین آفرت رو برای یه سفارش ثبت کنی، اینجا نمایش داده میشه</p>
+                <a href="{% url 'core:orders' %}" class="btn-create">
+                    <i class="fas fa-plus-circle"></i>
+                    مشاهده سفارشات
+                </a>
+            </div>
+        {% endif %}
+    </div>
 </div>
+<style>
+    /* استایل‌های اضافی برای داشبورد */
+    .dashboard-wrapper {
+        padding: 0;
+        margin-top: -40px;
+    }
+
+    .sidebar {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 100px;
+    }
+
+    .sidebar-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-menu li {
+        margin-bottom: 8px;
+    }
+
+    .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 18px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #4a5568;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .sidebar-menu a:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        transform: translateX(-5px);
+    }
+
+    .sidebar-menu a.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .sidebar-menu a i {
+        font-size: 1.1rem;
+        width: 24px;
+        text-align: center;
+    }
+
+    /* هدر صفحه */
+    .page-header {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+    }
+
+    .page-header h4 {
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .page-header p {
+        color: #718096;
+        margin: 10px 0 0 0;
+    }
+
+    /* کارت آفر */
+    .offer-card {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        height: 100%;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .offer-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, var(--status-color-1), var(--status-color-2));
+    }
+
+    .offer-card.status-pending {
+        --status-color-1: #fa709a;
+        --status-color-2: #fee140;
+    }
+
+    .offer-card.status-accepted {
+        --status-color-1: #11998e;
+        --status-color-2: #38ef7d;
+    }
+
+    .offer-card.status-rejected {
+        --status-color-1: #ef4444;
+        --status-color-2: #dc2626;
+    }
+
+    .offer-card.status-completed {
+        --status-color-1: #667eea;
+        --status-color-2: #764ba2;
+    }
+
+    .offer-card:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 15px 45px rgba(0,0,0,0.15);
+        border-color: rgba(102, 126, 234, 0.3);
+    }
+
+    .offer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .buyer-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .buyer-avatar {
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.2rem;
+    }
+
+    .buyer-details h6 {
+        font-weight: 700;
+        color: #2d3748;
+        margin: 0 0 4px 0;
+        font-size: 1rem;
+    }
+
+    .buyer-label {
+        font-size: 0.8rem;
+        color: #718096;
+    }
+
+    .offer-status {
+        padding: 8px 18px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    .status-pending-badge {
+        background: linear-gradient(135deg, rgba(250, 112, 154, 0.15), rgba(254, 225, 64, 0.15));
+        color: #fa709a;
+    }
+
+    .status-accepted-badge {
+        background: linear-gradient(135deg, rgba(17, 153, 142, 0.15), rgba(56, 239, 125, 0.15));
+        color: #11998e;
+    }
+
+    .status-rejected-badge {
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(220, 38, 38, 0.15));
+        color: #ef4444;
+    }
+
+    .status-completed-badge {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15));
+        color: #667eea;
+    }
+
+    .offer-body {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .offer-detail {
+        background: #f8f9fa;
+        border-radius: 12px;
+        padding: 15px;
+        transition: all 0.2s ease;
+    }
+
+    .offer-detail:hover {
+        background: rgba(102, 126, 234, 0.05);
+    }
+
+    .detail-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        margin-bottom: 10px;
+    }
+
+    .detail-icon.gold {
+        background: linear-gradient(135deg, #fee140, #fa709a);
+        color: white;
+    }
+
+    .detail-icon.price {
+        background: linear-gradient(135deg, #11998e, #38ef7d);
+        color: white;
+    }
+
+    .detail-label {
+        font-size: 0.85rem;
+        color: #718096;
+        margin-bottom: 5px;
+    }
+
+    .detail-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #2d3748;
+    }
+
+    .offer-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-top: 15px;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .view-details {
+        color: #667eea;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s ease;
+    }
+
+    .offer-card:hover .view-details {
+        gap: 10px;
+    }
+
+    .offer-id {
+        font-size: 0.85rem;
+        color: #cbd5e0;
+        font-weight: 600;
+    }
+
+    /* حالت خالی */
+    .empty-state {
+        background: white;
+        border-radius: 20px;
+        padding: 60px 40px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 25px;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        color: #667eea;
+    }
+
+    .empty-state h5 {
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 12px;
+    }
+
+    .empty-state p {
+        color: #718096;
+        margin-bottom: 25px;
+    }
+
+    .btn-create {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 12px 35px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+    }
+
+    .btn-create:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-wrapper {
+            margin-top: 0;
+        }
+
+        .sidebar {
+            position: relative;
+            top: 0;
+            margin-bottom: 20px;
+        }
+
+        .offer-card {
+            padding: 20px;
+        }
+
+        .offer-header {
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .offer-body {
+            grid-template-columns: 1fr;
+        }
+
+        .empty-state {
+            padding: 40px 20px;
+        }
+    }
+</style>
+
+
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 {% endblock %}

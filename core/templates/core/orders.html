@@ -4,117 +4,689 @@
 {% block content %}
 <div class="container mt-4 pt-4">
 
-    <!-- فرم فیلتر: کارت جدا با padding و shadow -->
-    <div class="card p-3 mb-4 shadow-sm text-end">
-        <form method="get" class="row g-2 align-items-end">
-            <div class="col-md-2">
-                <label class="form-label">وضعیت</label>
-                <select name="status" class="form-select">
-                    <option value="">همه وضعیت‌ها</option>
-                    {% for key, value in obj.model.STATUS_CHOICES %}
-                        <option value="{{ key }}" {% if request.GET.status == key %}selected{% endif %}>{{ value }}</option>
-                    {% endfor %}
-                </select>
+    <!-- هدر صفحه -->
+    <div class="orders-header text-center mb-4">
+        <h1 class="orders-title">📋 سفارشات موجود</h1>
+        <p class="orders-subtitle">بهترین فرصت‌ها برای تکمیل سفارش</p>
+    </div>
+
+    <!-- فرم فیلتر -->
+    <div class="filter-card mb-4">
+        <div class="filter-header">
+            <h5 class="filter-title">
+                <span class="filter-icon">🔍</span>
+                فیلتر سفارشات
+            </h5>
+        </div>
+
+        <form method="get" class="filter-form">
+            <div class="filter-grid">
+                <div class="filter-group">
+                    <label class="filter-label">وضعیت</label>
+                    <select name="status" class="filter-select">
+                        <option value="">همه وضعیت‌ها</option>
+                        {% for key, value in obj.model.STATUS_CHOICES %}
+                            <option value="{{ key }}" {% if request.GET.status == key %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">فکشن</label>
+                    <select name="faction" class="filter-select">
+                        <option value="">همه فکشن‌ها</option>
+                        {% for key, value in obj.model.FACTION_CHOICES %}
+                            <option value="{{ key }}" {% if request.GET.faction == key %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">ریجن</label>
+                    <select name="region" class="filter-select">
+                        <option value="">همه ریجن‌ها</option>
+                        {% for key, value in obj.model.REGION_CHOICES %}
+                            <option value="{{ key }}" {% if request.GET.region == key %}selected{% endif %}>{{ value }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label class="filter-label">اکسپنشن</label>
+                    <select name="expansion" class="filter-select">
+                        <option value="">همه اکسپنشن‌ها</option>
+                        {% for e in expansions %}
+                            <option value="{{ e.id }}" {% if request.GET.expansion == e.id|stringformat:"s" %}selected{% endif %}>{{ e.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
 
-            <div class="col-md-2">
-                <label class="form-label">فکشن</label>
-                <select name="faction" class="form-select">
-                    <option value="">همه فکشن‌ها</option>
-                    {% for key, value in obj.model.FACTION_CHOICES %}
-                        <option value="{{ key }}" {% if request.GET.faction == key %}selected{% endif %}>{{ value }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label">ریجن</label>
-                <select name="region" class="form-select">
-                    <option value="">همه ریجن‌ها</option>
-                    {% for key, value in obj.model.REGION_CHOICES %}
-                        <option value="{{ key }}" {% if request.GET.region == key %}selected{% endif %}>{{ value }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="col-md-2">
-                <label class="form-label">اکسپنشن</label>
-                <select name="expansion" class="form-select">
-                    <option value="">همه اکسپنشن‌ها</option>
-                    {% for e in expansions %}
-                        <option value="{{ e.id }}" {% if request.GET.expansion == e.id|stringformat:"s" %}selected{% endif %}>{{ e.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn btn-primary w-100">اعمال فیلتر</button>
-                <a href="{% url 'core:orders' %}" class="btn btn-outline-secondary w-100">ریست</a>
+            <div class="filter-actions">
+                <button type="submit" class="btn-filter-apply">
+                    ✓ اعمال فیلتر
+                </button>
+                <a href="{% url 'core:orders' %}" class="btn-filter-reset">
+                    ↻ ریست فیلترها
+                </a>
             </div>
         </form>
     </div>
 
     <!-- کارت‌های سفارش -->
-    <div class="row g-3">
-        {% for order in page_obj %}
-            <div class="col-md-4">
-                <div class="card h-100 text-end">
-                    <div class="text-center mt-2">
+    {% if page_obj %}
+        <div class="orders-grid">
+            {% for order in page_obj %}
+                <div class="order-card">
+
+                    <!-- بخش faction -->
+                    <div class="order-faction-header">
                         {% if order.faction == 'horde' %}
-                            <img src="{% static 'images/horde.png' %}" class="img-fluid" style="max-height:80px;" alt="Horde">
+                            <img src="{% static 'images/horde.png' %}" class="faction-image" alt="Horde">
+                            <span class="faction-badge horde">Horde</span>
                         {% else %}
-                            <img src="{% static 'images/alliance.png' %}" class="img-fluid" style="max-height:80px;" alt="Alliance">
+                            <img src="{% static 'images/alliance.png' %}" class="faction-image" alt="Alliance">
+                            <span class="faction-badge alliance">Alliance</span>
                         {% endif %}
                     </div>
-                    <div class="card-body p-2" style="font-size: 0.85rem;">
-                        <h6 class="card-title mb-1">{{ order.title }}</h6>
-                        <p class="mb-0"><strong>{% with order.expansion.all|first as exp %}{{ exp.name }}{% endwith %}</strong> :اکسپنشن</p>
-                        <p class="mb-0"><strong>{% with order.realm.all|first as r %}{{ r.name }}{% endwith %}</strong> :ریلم</p>
-                        <p class="mb-1"><strong>{{ order.region }}</strong> :ریجن</p>
-                        <p class="mb-1"><strong>{{ order.amount }}</strong> :مقدار</p>
-                        <p class="mb-1"><strong>{{ order.rest }}</strong> :مقدار باقی مانده</p>
-                        <p class="mb-1"><strong>{{ order.min_reserve }}</strong> :حداقل رزرو</p>
-                        <p class="mb-1"><strong>قیمت هر 1000 گلد:</strong> {{ order.price_per_1k }}</p>
-                        <p class="mb-1"><strong>وضعیت: </strong>{{ order.get_status_display }}</p>
-                        <a href="{% url 'core:order_detail' id=order.id %}" class="btn btn-primary w-100 btn-sm mt-1">مشاهده و تکمیل سفارش</a>
+
+                    <!-- محتوای سفارش -->
+                    <div class="order-content">
+                        <h3 class="order-title">{{ order.title }}</h3>
+
+                        <div class="order-details">
+                            <div class="detail-item">
+                                <span class="detail-icon">🎮</span>
+                                <div class="detail-info">
+                                    <span class="detail-label">اکسپنشن</span>
+                                    <span class="detail-value">{% with order.expansion.all|first as exp %}{{ exp.name }}{% endwith %}</span>
+                                </div>
+                            </div>
+
+                            <div class="detail-item">
+                                <span class="detail-icon">🏰</span>
+                                <div class="detail-info">
+                                    <span class="detail-label">ریلم</span>
+                                    <span class="detail-value">{% with order.realm.all|first as r %}{{ r.name }}{% endwith %}</span>
+                                </div>
+                            </div>
+
+                            <div class="detail-item">
+                                <span class="detail-icon">🌍</span>
+                                <div class="detail-info">
+                                    <span class="detail-label">ریجن</span>
+                                    <span class="detail-value">{{ order.region }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- آمار سفارش -->
+                        <div class="order-stats">
+                            <div class="stat-box">
+                                <div class="stat-label">مقدار کل</div>
+                                <div class="stat-value">{{ order.amount }}</div>
+                            </div>
+                            <div class="stat-box highlight">
+                                <div class="stat-label">باقیمانده</div>
+                                <div class="stat-value">{{ order.rest }}</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-label">حداقل رزرو</div>
+                                <div class="stat-value">{{ order.min_reserve }}</div>
+                            </div>
+                        </div>
+
+                        <!-- قیمت -->
+                        <div class="order-price">
+                            <span class="price-label">قیمت هر 1000 گلد:</span>
+                            <span class="price-value">{{ order.price_per_1k }} تومان</span>
+                        </div>
+
+                        <!-- وضعیت -->
+                        <div class="order-status">
+                            <span class="status-badge">{{ order.get_status_display }}</span>
+                        </div>
+
+                        <!-- دکمه اکشن -->
+                        <a href="{% url 'core:order_detail' id=order.id %}" class="btn-order-action">
+                            مشاهده و تکمیل سفارش
+                            <span class="btn-arrow">←</span>
+                        </a>
                     </div>
+
                 </div>
-            </div>
-        {% empty %}
-            <p class="text-muted mt-3">فعلاً هیچ سفارشی موجود نیست.</p>
-        {% endfor %}
-    </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h3 class="empty-title">سفارشی یافت نشد</h3>
+            <p class="empty-text">در حال حاضر سفارشی با این فیلترها موجود نیست</p>
+            <a href="{% url 'core:orders' %}" class="btn-empty-action">
+                مشاهده همه سفارشات
+            </a>
+        </div>
+    {% endif %}
 
     <!-- Pagination -->
-    <div class="d-flex justify-content-center mt-3">
-        <nav aria-label="Page navigation">
-            <ul class="pagination">
-                {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">&laquo;</a>
-                    </li>
-                {% endif %}
-
-                {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                    {% else %}
-                        <li class="page-item">
-                            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+    {% if page_obj.paginator.num_pages > 1 %}
+        <div class="pagination-wrapper">
+            <nav class="pagination-nav">
+                <ul class="pagination-list">
+                    {% if page_obj.has_previous %}
+                        <li class="pagination-item">
+                            <a class="pagination-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
+                                ← قبلی
+                            </a>
                         </li>
                     {% endif %}
-                {% endfor %}
 
-                {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">&raquo;</a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
-    </div>
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                            <li class="pagination-item active">
+                                <span class="pagination-link">{{ num }}</span>
+                            </li>
+                        {% else %}
+                            <li class="pagination-item">
+                                <a class="pagination-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ num }}">
+                                    {{ num }}
+                                </a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="pagination-item">
+                            <a class="pagination-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
+                                بعدی →
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    {% endif %}
 
 </div>
+
+<style>
+/* هدر صفحه */
+.orders-header {
+    padding: 20px 0;
+}
+
+.orders-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.orders-subtitle {
+    font-size: 1.1rem;
+    color: #718096;
+}
+
+/* کارت فیلتر */
+.filter-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+.filter-header {
+    margin-bottom: 20px;
+}
+
+.filter-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.filter-icon {
+    font-size: 1.5rem;
+}
+
+.filter-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.95rem;
+}
+
+.filter-select {
+    padding: 10px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-weight: 500;
+    color: #2d3748;
+    transition: all 0.3s ease;
+    font-family: 'Vazirmatn', sans-serif;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.btn-filter-apply {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-filter-apply:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-filter-reset {
+    background: #f7fafc;
+    color: #718096;
+    border: 2px solid #e2e8f0;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-filter-reset:hover {
+    background: #edf2f7;
+    color: #4a5568;
+    transform: translateY(-2px);
+}
+
+/* گرید سفارشات */
+.orders-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 25px;
+}
+
+/* کارت سفارش */
+.order-card {
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.order-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+}
+
+/* هدر faction */
+.order-faction-header {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+}
+
+.faction-image {
+    max-height: 70px;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.15));
+}
+
+.faction-badge {
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 6px 18px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.faction-badge.horde {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+}
+
+.faction-badge.alliance {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
+}
+
+/* محتوای سفارش */
+.order-content {
+    padding: 25px;
+}
+
+.order-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 20px;
+}
+
+/* جزئیات */
+.order-details {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 10px;
+}
+
+.detail-icon {
+    font-size: 1.3rem;
+}
+
+.detail-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    flex: 1;
+}
+
+.detail-label {
+    font-size: 0.8rem;
+    color: #718096;
+    font-weight: 500;
+}
+
+.detail-value {
+    font-size: 0.95rem;
+    color: #2d3748;
+    font-weight: 700;
+}
+
+/* آمار */
+.order-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.stat-box {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.stat-box.highlight {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: #718096;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.stat-box.highlight .stat-label {
+    color: rgba(255,255,255,0.9);
+}
+
+.stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.stat-box.highlight .stat-value {
+    color: white;
+}
+
+/* قیمت */
+.order-price {
+    background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(56, 161, 105, 0.1) 100%);
+    padding: 15px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.price-label {
+    font-size: 0.9rem;
+    color: #4a5568;
+    font-weight: 600;
+}
+
+.price-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #48bb78;
+}
+
+/* وضعیت */
+.order-status {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.status-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+/* دکمه اکشن */
+.btn-order-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-order-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    color: white;
+}
+
+.btn-arrow {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-order-action:hover .btn-arrow {
+    transform: translateX(-5px);
+}
+
+/* حالت خالی */
+.empty-state {
+    background: white;
+    border-radius: 20px;
+    padding: 80px 40px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+.empty-icon {
+    font-size: 5rem;
+    opacity: 0.3;
+    margin-bottom: 20px;
+}
+
+.empty-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.empty-text {
+    color: #718096;
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+
+.btn-empty-action {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 35px;
+    border-radius: 25px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-empty-action:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+    color: white;
+}
+
+/* Pagination */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+}
+
+.pagination-nav {
+    background: white;
+    border-radius: 15px;
+    padding: 15px 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+.pagination-list {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    gap: 8px;
+    align-items: center;
+}
+
+.pagination-item {
+    display: inline-block;
+}
+
+.pagination-link {
+    display: block;
+    padding: 10px 16px;
+    color: #4a5568;
+    text-decoration: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.pagination-link:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+.pagination-item.active .pagination-link {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-color: transparent;
+}
+
+/* ریسپانسیو */
+@media (max-width: 992px) {
+    .filter-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .orders-title {
+        font-size: 1.8rem;
+    }
+
+    .filter-card {
+        padding: 20px;
+    }
+
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-actions {
+        flex-direction: column;
+    }
+
+    .btn-filter-apply,
+    .btn-filter-reset {
+        width: 100%;
+    }
+
+    .orders-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
 {% endblock %}
 
 {#{% extends 'base.html' %}#}

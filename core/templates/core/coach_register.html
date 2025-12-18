@@ -1,215 +1,1156 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="container mt-4 pt-4" dir="rtl" style="text-align: right;">
-
-        <!-- نمایش فقط آخرین پیام -->
-        {% if messages %}
-            {% for message in messages %}
-                {% if forloop.last %}
-                    <div class="alert alert-dismissible fade show
-                    {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}"
-                         role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="container" style="max-width: 1400px; padding: 0 20px;">
+    <!-- نمایش پیام‌ها -->
+    {% if messages %}
+        {% for message in messages %}
+            {% if forloop.last %}
+                <div class="alert-message {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}" style="margin-top: 20px;">
+                    <div class="alert-icon">
+                        {% if 'success' in message.tags %}
+                            ✓
+                        {% elif 'error' in message.tags or 'danger' in message.tags %}
+                            ✕
+                        {% elif 'warning' in message.tags %}
+                            ⚠
+                        {% else %}
+                            ℹ
+                        {% endif %}
                     </div>
-                {% endif %}
-            {% endfor %}
+                    <div class="alert-content">
+                        {{ message }}
+                    </div>
+                    <button type="button" class="alert-close" onclick="this.parentElement.remove()">
+                        ✕
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <div class="row dashboard-wrapper">
+        <!-- سایدبار -->
+        {% if edit %}
+        <div class="col-lg-3 col-md-4 mb-4">
+            <div class="sidebar">
+                <div class="sidebar-title">
+                    <i class="fas fa-user-circle"></i>
+                    پنل کاربری
+                </div>
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="{% url 'account:dashboard' %}">
+                            <i class="fas fa-chart-line"></i>
+                            <span>داشبورد</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'account:profile_edit' %}">
+                            <i class="fas fa-user-edit"></i>
+                            <span>ویرایش اطلاعات</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'account:bank_edit' %}">
+                            <i class="fas fa-credit-card"></i>
+                            <span>اطلاعات بانکی</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'core:coach_edit' %}" class="active">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>اطلاعات مربی</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'account:my_invoices' %}">
+                            <i class="fas fa-shopping-bag"></i>
+                            <span>خریدهای شما</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'account:offers' %}">
+                            <i class="fas fa-tags"></i>
+                            <span>آفرهای من</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{% url 'password_change' %}">
+                            <i class="fas fa-lock"></i>
+                            <span>تغییر رمز عبور</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
         {% endif %}
 
-        <div class="row">
-
-            <!-- فرم اصلی (سمت راست) -->
-            <div class="{% if edit %}col-md-9{% else %}col-md-12{% endif %} mb-4">
-
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0">
-                            {% if edit %}ویرایش اطلاعات مربی{% else %}ثبت اطلاعات مربی{% endif %}
-                        </h5>
-                    </div>
-
-                    <div class="card-body">
-                        <form method="post">
-                            {% csrf_token %}
-
-                            <div class="row g-3">
-                                {% for field in form %}
-                                    <div class="col-md-6">
-                                        <label class="form-label">{{ field.label }}</label>
-                                        {{ field }}
-                                        {% if field.errors %}
-                                            <div class="text-danger small">
-                                                {{ field.errors|striptags }}
-                                            </div>
-                                        {% endif %}
-                                    </div>
-                                {% endfor %}
-                            </div>
-
-                            <button class="btn btn-primary mt-3 px-4">
-                                {% if edit %}ذخیره تغییرات{% else %}ثبت{% endif %}
-                            </button>
-
-                        </form>
-                    </div>
+        <!-- فرم اصلی -->
+        <div class="{% if edit %}col-lg-9 col-md-8{% else %}col-12{% endif %}">
+            <div class="form-card">
+                <div class="form-header">
+                    <h4>
+                        {% if edit %}
+                            <i class="fas fa-edit"></i>
+                            ویرایش اطلاعات مربی
+                        {% else %}
+                            <i class="fas fa-user-plus"></i>
+                            ثبت‌نام به عنوان مربی
+                        {% endif %}
+                    </h4>
+                    <p>
+                        {% if edit %}
+                            اطلاعات مربیگری خود را به‌روزرسانی کنید
+                        {% else %}
+                            برای شروع همکاری، اطلاعات خود را با دقت وارد کنید
+                        {% endif %}
+                    </p>
                 </div>
 
-            </div>
-
-            <!-- پنل کاربری (سمت چپ) -->
-            {% if edit %}
-                <div class="col-md-3">
-                    <div class="card shadow-sm" style="border-radius: 12px; overflow: hidden;">
-                        <h6 class="mb-0 text-center py-3"
-                            style="background-color: #f8f9fa; border-bottom: 1px solid #dee2e6;">
-                            پنل کاربری
+                {% if not edit %}
+                    <!-- راهنما برای ثبت‌نام جدید -->
+                    <div class="info-box">
+                        <h6>
+                            <i class="fas fa-lightbulb"></i>
+                            نکات مهم
                         </h6>
-
-                        <ul class="list-group list-group-flush" style="margin:0; padding:0;">
-                            <a href="{% url 'account:dashboard' %}"
-                               class="list-group-item list-group-item-action text-end "
-                               style="padding-right: 12px;">
-                                داشبورد
-                            </a>
-
-                            <a href="{% url 'account:profile_edit' %}"
-                               class="list-group-item list-group-item-action text-end"
-                               style="padding-right: 12px;">
-                                ویرایش اطلاعات
-                            </a>
-
-                            <a href="{% url 'account:bank_edit' %}"
-                               class="list-group-item list-group-item-action text-end"
-                               style="padding-right: 12px;">
-                                ثبت / ویرایش اطلاعات بانکی
-                            </a>
-
-                            <a href="{% url 'core:coach_edit' %}"
-                               class="list-group-item list-group-item-action text-end active"
-                               style="padding-right: 12px;">
-                                ویرایش اطلاعات مربی
-                            </a>
-
-                            <a href="{% url 'account:my_invoices' %}"
-                               class="list-group-item list-group-item-action text-end"
-                               style="padding-right: 12px;">
-                                خریدهای شما
-                            </a>
-
-                            <a href="{% url 'account:offers' %}"
-                               class="list-group-item list-group-item-action text-end"
-                               style="padding-right: 12px;">
-                                آفرهای من
-                            </a>
-
-                            <a href="{% url 'password_change' %}"
-                               class="list-group-item list-group-item-action text-end"
-                               style="padding-right: 12px;">
-                                تغییر رمز عبور
-                            </a>
+                        <ul>
+                            <li>تمامی فیلدها را با دقت تکمیل کنید</li>
+                            <li>اطلاعات وارد شده پس از تأیید نمایش داده می‌شود</li>
+                            <li>برای ثبت‌نام موفق، تجربه خود را کامل شرح دهید</li>
                         </ul>
                     </div>
-                </div>
+                {% endif %}
 
-            {% endif %}
+                <form method="post" class="coach-form">
+                    {% csrf_token %}
 
+                    <div class="form-grid">
+                        {% for field in form %}
+                            <div class="form-group {% if field.field.widget.input_type == 'textarea' or 'description' in field.name %}form-group-full{% endif %}">
+                                <label class="form-label">
+                                    {{ field.label }}
+                                    {% if field.field.required %}
+                                        <span class="required-star">*</span>
+                                    {% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="form-help">
+                                        <i class="fas fa-info-circle"></i>
+                                        {{ field.help_text }}
+                                    </small>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="field-error">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        {{ field.errors|striptags }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-submit">
+                            {% if edit %}
+                                <i class="fas fa-save"></i>
+                                ذخیره تغییرات
+                            {% else %}
+                                <i class="fas fa-check"></i>
+                                ثبت اطلاعات
+                            {% endif %}
+                        </button>
+
+                        {% if edit %}
+                            <a href="{% url 'account:dashboard' %}" class="btn-cancel">
+                                <i class="fas fa-times"></i>
+                                انصراف
+                            </a>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
+</div>
+<style>
+    /* استایل‌های اضافی برای داشبورد */
+    .dashboard-wrapper {
+        padding: 0;
+        margin-top: -40px;
+    }
+
+    .sidebar {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 100px;
+    }
+
+    .sidebar-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-menu li {
+        margin-bottom: 8px;
+    }
+
+    .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 18px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #4a5568;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .sidebar-menu a:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        transform: translateX(-5px);
+    }
+
+    .sidebar-menu a.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .sidebar-menu a i {
+        font-size: 1.1rem;
+        width: 24px;
+        text-align: center;
+    }
+
+    /* پیام‌های Alert */
+    .alert-message {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px 25px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(56, 161, 105, 0.1) 100%);
+        border-right: 4px solid #48bb78;
+    }
+
+    .alert-danger, .alert-error {
+        background: linear-gradient(135deg, rgba(245, 87, 108, 0.1) 0%, rgba(220, 53, 69, 0.1) 100%);
+        border-right: 4px solid #f5576c;
+    }
+
+    .alert-warning {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
+        border-right: 4px solid #ffc107;
+    }
+
+    .alert-info {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-right: 4px solid #667eea;
+    }
+
+    .alert-icon {
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .alert-success .alert-icon {
+        color: #48bb78;
+    }
+
+    .alert-danger .alert-icon,
+    .alert-error .alert-icon {
+        color: #f5576c;
+    }
+
+    .alert-warning .alert-icon {
+        color: #ffc107;
+    }
+
+    .alert-info .alert-icon {
+        color: #667eea;
+    }
+
+    .alert-content {
+        flex: 1;
+        color: #2d3748;
+        font-weight: 600;
+    }
+
+    .alert-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #a0aec0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 0;
+        width: 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .alert-close:hover {
+        background: rgba(0,0,0,0.1);
+        color: #2d3748;
+    }
+
+    /* کارت فرم */
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+
+    .form-header {
+        margin-bottom: 35px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .form-header h4 {
+        font-weight: 700;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0;
+    }
+
+    .form-header p {
+        color: #718096;
+        margin: 10px 0 0 0;
+        font-size: 0.95rem;
+    }
+
+    /* باکس اطلاعات */
+    .info-box {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        border-right: 4px solid #667eea;
+    }
+
+    .info-box h6 {
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-box ul {
+        margin: 0;
+        padding-right: 20px;
+        color: #4a5568;
+        line-height: 1.8;
+    }
+
+    .info-box li {
+        margin-bottom: 8px;
+    }
+
+    /* فرم */
+    .coach-form {
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .form-group-full {
+        grid-column: 1 / -1;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        font-size: 0.95rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-label i {
+        color: #667eea;
+        font-size: 1rem;
+    }
+
+    .required-star {
+        color: #f5576c;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        padding: 14px 18px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-family: 'Vazirmatn', sans-serif;
+        font-size: 1rem;
+        color: #2d3748;
+        transition: all 0.3s ease;
+        width: 100%;
+        background: #f8f9fa;
+    }
+
+    .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        background: white;
+    }
+
+    .form-help {
+        color: #718096;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: start;
+        gap: 6px;
+    }
+
+    .form-help i {
+        color: #667eea;
+        margin-top: 2px;
+    }
+
+    .field-error {
+        color: #f5576c;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(239, 68, 68, 0.1);
+        padding: 8px 12px;
+        border-radius: 8px;
+    }
+
+    /* دکمه‌های اکشن */
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        justify-content: flex-start;
+        padding-top: 10px;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 14px 40px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+    }
+
+    .btn-submit i {
+        font-size: 1.1rem;
+    }
+
+    .btn-cancel {
+        background: white;
+        color: #718096;
+        border: 2px solid #e2e8f0;
+        padding: 14px 40px;
+        border-radius: 25px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-cancel:hover {
+        background: #f8f9fa;
+        color: #4a5568;
+        border-color: #cbd5e0;
+        transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-wrapper {
+            margin-top: 0;
+        }
+
+        .sidebar {
+            position: relative;
+            top: 0;
+            margin-bottom: 20px;
+        }
+
+        .form-card {
+            padding: 25px;
+        }
+
+        .form-header h4 {
+            font-size: 1.3rem;
+        }
+
+        .form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-submit,
+        .btn-cancel {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 {% endblock %}
-
-
-
-
-
-
-
-
-
 
 {#{% extends "base.html" %}#}
 {##}
 {#{% block content %}#}
-{#    <div class="container mt-4 pt-4" dir="rtl" style="text-align: right;">#}
-{#        <!-- نمایش آخرین پیام فقط -->#}
+{#<div class="container mt-4 pt-4" dir="rtl">#}
+{##}
+{#    <!-- نمایش پیام‌ها -->#}
 {#    {% if messages %}#}
 {#        {% for message in messages %}#}
 {#            {% if forloop.last %}#}
-{#                <div class="alert alert-dismissible fade show#}
-{#                    {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}"#}
-{#                     role="alert">#}
-{#                    {{ message }}#}
-{#                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>#}
+{#                <div class="alert-message {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">#}
+{#                    <div class="alert-icon">#}
+{#                        {% if 'success' in message.tags %}#}
+{#                            ✓#}
+{#                        {% elif 'error' in message.tags or 'danger' in message.tags %}#}
+{#                            ✕#}
+{#                        {% elif 'warning' in message.tags %}#}
+{#                            ⚠#}
+{#                        {% else %}#}
+{#                            ℹ#}
+{#                        {% endif %}#}
+{#                    </div>#}
+{#                    <div class="alert-content">#}
+{#                        {{ message }}#}
+{#                    </div>#}
+{#                    <button type="button" class="alert-close" onclick="this.parentElement.remove()">#}
+{#                        ✕#}
+{#                    </button>#}
 {#                </div>#}
 {#            {% endif %}#}
 {#        {% endfor %}#}
 {#    {% endif %}#}
-{#    {% if edit %}#}
-{#         <div class="col-md-3 ">#}
-{#            <div class="card shadow-sm p-3" style="border-radius: 12px;">#}
-{#                <h6 class="mb-3 text-center">پنل کاربری</h6>#}
-{#                <ul class="list.html-group">#}
 {##}
-{#                    <a href="{% url 'account:dashboard' %}" class="list.html-group-item list.html-group-item-action text-end">#}
-{#                        داشبورد#}
-{#                    </a>#}
+{#    <div class="row g-4">#}
 {##}
-{#                    <a href="{% url 'account:profile_edit' %}" class="list.html-group-item list.html-group-item-action text-end">#}
-{#                        ویرایش اطلاعات#}
-{#                    </a>#}
+{#        <!-- فرم اصلی -->#}
+{#        <div class="{% if edit %}col-lg-9{% else %}col-lg-12{% endif %}">#}
 {##}
-{#                    <a href="{% url 'account:bank_edit' %}" class="list.html-group-item list.html-group-item-action text-end">#}
-{#                        ثبت / ویرایش اطلاعات بانکی#}
-{#                    </a>#}
+{#            <div class="form-card">#}
 {##}
-{#                    <a href="{% url 'core:coach_edit' %}" class="list.html-group-item list.html-group-item-action text-end active">#}
-{#                        ویرایش اطلاعات مربی#}
-{#                    </a>#}
-{#                    <a href="{% url 'account:my_invoices' %}" class="list.html-group-item list.html-group-item-action text-end">#}
-{#                        خریدهای شما#}
-{#                    </a>#}
+{#                <div class="form-header">#}
+{#                    <div class="header-icon">#}
+{#                        {% if edit %}✏️{% else %}📝{% endif %}#}
+{#                    </div>#}
+{#                    <h2 class="form-title">#}
+{#                        {% if edit %}ویرایش اطلاعات مربی{% else %}ثبت‌نام به عنوان مربی{% endif %}#}
+{#                    </h2>#}
+{#                    <p class="form-subtitle">#}
+{#                        {% if edit %}#}
+{#                            اطلاعات خود را به‌روز کنید#}
+{#                        {% else %}#}
+{#                            برای شروع همکاری، اطلاعات خود را وارد کنید#}
+{#                        {% endif %}#}
+{#                    </p>#}
+{#                </div>#}
 {##}
-{#                    <a href="{% url 'account:offers' %}" class="list.html-group-item list.html-group-item-action text-end">#}
-{#                        آفرهای من#}
-{#                    </a>#}
+{#                <div class="form-body">#}
 {##}
-{#                    <a href="{% url 'password_change' %}" class="list.html-group-item list.html-group-item-action text-end">#}
-{#                        تغییر رمز عبور#}
-{#                    </a>#}
-{#                </ul>#}
-{#            </div>#}
-{#        </div>#}
-{#    {% endif %}#}
-{#        <div class="card shadow-sm">#}
-{#            <div class="card-header bg-primary text-white">#}
-{#                <h5 class="mb-0">{% if edit %}ویرایش اطلاعات مربی{% else %}ثبت اطلاعات مربی{% endif %}</h5>#}
-{#            </div>#}
-{##}
-{#            <div class="card-body">#}
-{#                <form method="post">#}
-{#                    {% csrf_token %}#}
-{##}
-{#                    <div class="row g-3">#}
-{#                        {% for field in form %}#}
-{#                            <div class="col-md-6">#}
-{#                                <label class="form-label">{{ field.label }}</label>#}
-{#                                {{ field }}#}
-{#                                {% if field.errors %}#}
-{#                                    <div class="text-danger small">#}
-{#                                        {{ field.errors|striptags }}#}
-{#                                    </div>#}
-{#                                {% endif %}#}
+{#                    {% if not edit %}#}
+{#                        <!-- راهنما برای ثبت‌نام جدید -->#}
+{#                        <div class="info-box mb-4">#}
+{#                            <div class="info-icon">💡</div>#}
+{#                            <div class="info-content">#}
+{#                                <h5 class="info-title">نکات مهم</h5>#}
+{#                                <ul class="info-list">#}
+{#                                    <li>تمامی فیلدها را با دقت تکمیل کنید</li>#}
+{#                                    <li>اطلاعات وارد شده پس از تأیید نمایش داده می‌شود</li>#}
+{#                                    <li>برای ثبت‌نام موفق، تجربه خود را کامل شرح دهید</li>#}
+{#                                </ul>#}
 {#                            </div>#}
-{#                        {% endfor %}#}
+{#                        </div>#}
+{#                    {% endif %}#}
+{##}
+{#                    <form method="post" class="coach-form">#}
+{#                        {% csrf_token %}#}
+{##}
+{#                        <div class="form-grid">#}
+{#                            {% for field in form %}#}
+{#                                <div class="form-group {% if field.field.widget.input_type == 'textarea' or 'description' in field.name %}form-group-full{% endif %}">#}
+{#                                    <label class="form-label">#}
+{#                                        {{ field.label }}#}
+{#                                        {% if field.field.required %}#}
+{#                                            <span class="required-star">*</span>#}
+{#                                        {% endif %}#}
+{#                                    </label>#}
+{#                                    {{ field }}#}
+{#                                    {% if field.help_text %}#}
+{#                                        <small class="form-help">{{ field.help_text }}</small>#}
+{#                                    {% endif %}#}
+{#                                    {% if field.errors %}#}
+{#                                        <div class="field-error">#}
+{#                                            {{ field.errors|striptags }}#}
+{#                                        </div>#}
+{#                                    {% endif %}#}
+{#                                </div>#}
+{#                            {% endfor %}#}
+{#                        </div>#}
+{##}
+{#                        <div class="form-actions">#}
+{#                            <button type="submit" class="btn-submit">#}
+{#                                {% if edit %}#}
+{#                                    <span class="btn-icon">💾</span>#}
+{#                                    <span class="btn-text">ذخیره تغییرات</span>#}
+{#                                {% else %}#}
+{#                                    <span class="btn-icon">✓</span>#}
+{#                                    <span class="btn-text">ثبت اطلاعات</span>#}
+{#                                {% endif %}#}
+{#                            </button>#}
+{##}
+{#                            {% if edit %}#}
+{#                                <a href="{% url 'account:dashboard' %}" class="btn-cancel">#}
+{#                                    انصراف#}
+{#                                </a>#}
+{#                            {% endif %}#}
+{#                        </div>#}
+{##}
+{#                    </form>#}
+{##}
+{#                </div>#}
+{##}
+{#            </div>#}
+{##}
+{#        </div>#}
+{##}
+{#        <!-- Sidebar پنل کاربری -->#}
+{#        {% if edit %}#}
+{#            <div class="col-lg-3">#}
+{#                <div class="sidebar-panel">#}
+{##}
+{#                    <div class="sidebar-header">#}
+{#                        <span class="sidebar-icon">👤</span>#}
+{#                        <h4 class="sidebar-title">پنل کاربری</h4>#}
 {#                    </div>#}
 {##}
-{#                    <button class="btn btn-primary mt-3 px-4">#}
-{#                        {% if edit %}ذخیره تغییرات{% else %}ثبت{% endif %}#}
-{#                    </button>#}
+{#                    <nav class="sidebar-nav">#}
+{#                        <a href="{% url 'account:dashboard' %}" class="nav-item">#}
+{#                            <span class="nav-icon">📊</span>#}
+{#                            <span class="nav-text">داشبورد</span>#}
+{#                        </a>#}
 {##}
-{#                </form>#}
+{#                        <a href="{% url 'account:profile_edit' %}" class="nav-item">#}
+{#                            <span class="nav-icon">✏️</span>#}
+{#                            <span class="nav-text">ویرایش اطلاعات</span>#}
+{#                        </a>#}
+{##}
+{#                        <a href="{% url 'account:bank_edit' %}" class="nav-item">#}
+{#                            <span class="nav-icon">🏦</span>#}
+{#                            <span class="nav-text">اطلاعات بانکی</span>#}
+{#                        </a>#}
+{##}
+{#                        <a href="{% url 'core:coach_edit' %}" class="nav-item active">#}
+{#                            <span class="nav-icon">👨‍🏫</span>#}
+{#                            <span class="nav-text">اطلاعات مربیگری</span>#}
+{#                        </a>#}
+{##}
+{#                        <a href="{% url 'account:my_invoices' %}" class="nav-item">#}
+{#                            <span class="nav-icon">🧾</span>#}
+{#                            <span class="nav-text">خریدهای شما</span>#}
+{#                        </a>#}
+{##}
+{#                        <a href="{% url 'account:offers' %}" class="nav-item">#}
+{#                            <span class="nav-icon">📋</span>#}
+{#                            <span class="nav-text">پیشنهادهای من</span>#}
+{#                        </a>#}
+{##}
+{#                        <a href="{% url 'password_change' %}" class="nav-item">#}
+{#                            <span class="nav-icon">🔐</span>#}
+{#                            <span class="nav-text">تغییر رمز عبور</span>#}
+{#                        </a>#}
+{#                    </nav>#}
+{##}
+{#                </div>#}
 {#            </div>#}
-{#        </div>#}
+{#        {% endif %}#}
 {##}
 {#    </div>#}
+{##}
+{#</div>#}
+{##}
+{#<style>#}
+{#/* پیام‌های Alert */#}
+{#.alert-message {#}
+{#    display: flex;#}
+{#    align-items: center;#}
+{#    gap: 15px;#}
+{#    padding: 20px 25px;#}
+{#    border-radius: 15px;#}
+{#    margin-bottom: 30px;#}
+{#    box-shadow: 0 4px 15px rgba(0,0,0,0.1);#}
+{#    animation: slideDown 0.3s ease;#}
+{#}#}
+{##}
+{#@keyframes slideDown {#}
+{#    from {#}
+{#        opacity: 0;#}
+{#        transform: translateY(-20px);#}
+{#    }#}
+{#    to {#}
+{#        opacity: 1;#}
+{#        transform: translateY(0);#}
+{#    }#}
+{#}#}
+{##}
+{#.alert-success {#}
+{#    background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(56, 161, 105, 0.1) 100%);#}
+{#    border-right: 4px solid #48bb78;#}
+{#}#}
+{##}
+{#.alert-danger, .alert-error {#}
+{#    background: linear-gradient(135deg, rgba(245, 87, 108, 0.1) 0%, rgba(220, 53, 69, 0.1) 100%);#}
+{#    border-right: 4px solid #f5576c;#}
+{#}#}
+{##}
+{#.alert-warning {#}
+{#    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);#}
+{#    border-right: 4px solid #ffc107;#}
+{#}#}
+{##}
+{#.alert-info {#}
+{#    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);#}
+{#    border-right: 4px solid #667eea;#}
+{#}#}
+{##}
+{#.alert-icon {#}
+{#    font-size: 1.8rem;#}
+{#    font-weight: 700;#}
+{#}#}
+{##}
+{#.alert-success .alert-icon {#}
+{#    color: #48bb78;#}
+{#}#}
+{##}
+{#.alert-danger .alert-icon,#}
+{#.alert-error .alert-icon {#}
+{#    color: #f5576c;#}
+{#}#}
+{##}
+{#.alert-warning .alert-icon {#}
+{#    color: #ffc107;#}
+{#}#}
+{##}
+{#.alert-info .alert-icon {#}
+{#    color: #667eea;#}
+{#}#}
+{##}
+{#.alert-content {#}
+{#    flex: 1;#}
+{#    color: #2d3748;#}
+{#    font-weight: 600;#}
+{#}#}
+{##}
+{#.alert-close {#}
+{#    background: none;#}
+{#    border: none;#}
+{#    font-size: 1.5rem;#}
+{#    color: #a0aec0;#}
+{#    cursor: pointer;#}
+{#    transition: all 0.3s ease;#}
+{#    padding: 0;#}
+{#    width: 30px;#}
+{#    height: 30px;#}
+{#    display: flex;#}
+{#    align-items: center;#}
+{#    justify-content: center;#}
+{#    border-radius: 50%;#}
+{#}#}
+{##}
+{#.alert-close:hover {#}
+{#    background: rgba(0,0,0,0.1);#}
+{#    color: #2d3748;#}
+{#}#}
+{##}
+{#/* کارت فرم */#}
+{#.form-card {#}
+{#    background: white;#}
+{#    border-radius: 25px;#}
+{#    overflow: hidden;#}
+{#    box-shadow: 0 10px 40px rgba(0,0,0,0.08);#}
+{#}#}
+{##}
+{#.form-header {#}
+{#    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);#}
+{#    padding: 40px 30px;#}
+{#    text-align: center;#}
+{#    color: white;#}
+{#}#}
+{##}
+{#.header-icon {#}
+{#    font-size: 3.5rem;#}
+{#    margin-bottom: 15px;#}
+{#}#}
+{##}
+{#.form-title {#}
+{#    font-size: 2rem;#}
+{#    font-weight: 700;#}
+{#    margin-bottom: 10px;#}
+{#}#}
+{##}
+{#.form-subtitle {#}
+{#    font-size: 1.05rem;#}
+{#    opacity: 0.95;#}
+{#}#}
+{##}
+{#.form-body {#}
+{#    padding: 40px;#}
+{#}#}
+{##}
+{#/* باکس اطلاعات */#}
+{#.info-box {#}
+{#    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);#}
+{#    border-radius: 15px;#}
+{#    padding: 25px;#}
+{#    display: flex;#}
+{#    gap: 20px;#}
+{#}#}
+{##}
+{#.info-icon {#}
+{#    font-size: 2.5rem;#}
+{#    flex-shrink: 0;#}
+{#}#}
+{##}
+{#.info-content {#}
+{#    flex: 1;#}
+{#}#}
+{##}
+{#.info-title {#}
+{#    font-size: 1.2rem;#}
+{#    font-weight: 700;#}
+{#    color: #2d3748;#}
+{#    margin-bottom: 12px;#}
+{#}#}
+{##}
+{#.info-list {#}
+{#    margin: 0;#}
+{#    padding-right: 20px;#}
+{#    color: #4a5568;#}
+{#    line-height: 1.8;#}
+{#}#}
+{##}
+{#.info-list li {#}
+{#    margin-bottom: 8px;#}
+{#}#}
+{##}
+{#/* فرم */#}
+{#.coach-form {#}
+{#    display: flex;#}
+{#    flex-direction: column;#}
+{#    gap: 30px;#}
+{#}#}
+{##}
+{#.form-grid {#}
+{#    display: grid;#}
+{#    grid-template-columns: repeat(2, 1fr);#}
+{#    gap: 25px;#}
+{#}#}
+{##}
+{#.form-group {#}
+{#    display: flex;#}
+{#    flex-direction: column;#}
+{#    gap: 10px;#}
+{#}#}
+{##}
+{#.form-group-full {#}
+{#    grid-column: 1 / -1;#}
+{#}#}
+{##}
+{#.form-label {#}
+{#    font-weight: 700;#}
+{#    color: #2d3748;#}
+{#    font-size: 1rem;#}
+{#}#}
+{##}
+{#.required-star {#}
+{#    color: #f5576c;#}
+{#}#}
+{##}
+{#.form-group input,#}
+{#.form-group select,#}
+{#.form-group textarea {#}
+{#    padding: 14px 18px;#}
+{#    border: 2px solid #e2e8f0;#}
+{#    border-radius: 12px;#}
+{#    font-family: 'Vazirmatn', sans-serif;#}
+{#    font-size: 1rem;#}
+{#    color: #2d3748;#}
+{#    transition: all 0.3s ease;#}
+{#    width: 100%;#}
+{#}#}
+{##}
+{#.form-group textarea {#}
+{#    min-height: 120px;#}
+{#    resize: vertical;#}
+{#}#}
+{##}
+{#.form-group input:focus,#}
+{#.form-group select:focus,#}
+{#.form-group textarea:focus {#}
+{#    outline: none;#}
+{#    border-color: #667eea;#}
+{#    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);#}
+{#}#}
+{##}
+{#.form-help {#}
+{#    color: #718096;#}
+{#    font-size: 0.85rem;#}
+{#}#}
+{##}
+{#.field-error {#}
+{#    color: #f5576c;#}
+{#    font-size: 0.9rem;#}
+{#    font-weight: 600;#}
+{#}#}
+{##}
+{#/* دکمه‌های اکشن */#}
+{#.form-actions {#}
+{#    display: flex;#}
+{#    gap: 15px;#}
+{#    justify-content: flex-start;#}
+{#}#}
+{##}
+{#.btn-submit {#}
+{#    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);#}
+{#    color: white;#}
+{#    border: none;#}
+{#    padding: 16px 35px;#}
+{#    border-radius: 12px;#}
+{#    font-size: 1.1rem;#}
+{#    font-weight: 700;#}
+{#    cursor: pointer;#}
+{#    transition: all 0.3s ease;#}
+{#    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);#}
+{#    display: flex;#}
+{#    align-items: center;#}
+{#    gap: 10px;#}
+{#}#}
+{##}
+{#.btn-submit:hover {#}
+{#    transform: translateY(-3px);#}
+{#    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);#}
+{#}#}
+{##}
+{#.btn-icon {#}
+{#    font-size: 1.3rem;#}
+{#}#}
+{##}
+{#.btn-cancel {#}
+{#    background: #f7fafc;#}
+{#    color: #718096;#}
+{#    border: 2px solid #e2e8f0;#}
+{#    padding: 16px 35px;#}
+{#    border-radius: 12px;#}
+{#    font-weight: 700;#}
+{#    text-decoration: none;#}
+{#    transition: all 0.3s ease;#}
+{#    display: inline-block;#}
+{#}#}
+{##}
+{#.btn-cancel:hover {#}
+{#    background: #edf2f7;#}
+{#    color: #4a5568;#}
+{#    transform: translateY(-2px);#}
+{#}#}
+{##}
+{#/* Sidebar پنل */#}
+{#.sidebar-panel {#}
+{#    background: white;#}
+{#    border-radius: 20px;#}
+{#    overflow: hidden;#}
+{#    box-shadow: 0 4px 15px rgba(0,0,0,0.08);#}
+{#    position: sticky;#}
+{#    top: 100px;#}
+{#}#}
+{##}
+{#.sidebar-header {#}
+{#    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);#}
+{#    padding: 25px 20px;#}
+{#    text-align: center;#}
+{#    color: white;#}
+{#}#}
+{##}
+{#.sidebar-icon {#}
+{#    font-size: 2.5rem;#}
+{#    display: block;#}
+{#    margin-bottom: 10px;#}
+{#}#}
+{##}
+{#.sidebar-title {#}
+{#    font-size: 1.3rem;#}
+{#    font-weight: 700;#}
+{#    margin: 0;#}
+{#}#}
+{##}
+{#.sidebar-nav {#}
+{#    padding: 15px 0;#}
+{#}#}
+{##}
+{#.nav-item {#}
+{#    display: flex;#}
+{#    align-items: center;#}
+{#    gap: 12px;#}
+{#    padding: 15px 25px;#}
+{#    color: #4a5568;#}
+{#    text-decoration: none;#}
+{#    transition: all 0.3s ease;#}
+{#    border-right: 3px solid transparent;#}
+{#    font-weight: 600;#}
+{#}#}
+{##}
+{#.nav-item:hover {#}
+{#    background: rgba(102, 126, 234, 0.08);#}
+{#    color: #667eea;#}
+{#    border-right-color: #667eea;#}
+{#}#}
+{##}
+{#.nav-item.active {#}
+{#    background: linear-gradient(90deg, rgba(102, 126, 234, 0.15) 0%, rgba(102, 126, 234, 0.05) 100%);#}
+{#    color: #667eea;#}
+{#    border-right-color: #667eea;#}
+{#}#}
+{##}
+{#.nav-icon {#}
+{#    font-size: 1.3rem;#}
+{#}#}
+{##}
+{#.nav-text {#}
+{#    flex: 1;#}
+{#}#}
+{##}
+{#/* ریسپانسیو */#}
+{#@media (max-width: 992px) {#}
+{#    .sidebar-panel {#}
+{#        position: static;#}
+{#        top: auto;#}
+{#        margin-bottom: 30px;#}
+{#    }#}
+{##}
+{#    .form-grid {#}
+{#        grid-template-columns: 1fr;#}
+{#    }#}
+{#}#}
+{##}
+{#@media (max-width: 768px) {#}
+{#    .form-header {#}
+{#        padding: 30px 20px;#}
+{#    }#}
+{##}
+{#    .form-title {#}
+{#        font-size: 1.6rem;#}
+{#    }#}
+{##}
+{#    .form-body {#}
+{#        padding: 25px;#}
+{#    }#}
+{##}
+{#    .info-box {#}
+{#        flex-direction: column;#}
+{#        text-align: center;#}
+{#    }#}
+{##}
+{#    .form-actions {#}
+{#        flex-direction: column;#}
+{#    }#}
+{##}
+{#    .btn-submit,#}
+{#    .btn-cancel {#}
+{#        width: 100%;#}
+{#        justify-content: center;#}
+{#    }#}
+{#}#}
+{#</style>#}
+{##}
 {#{% endblock %}#}

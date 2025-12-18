@@ -2,73 +2,386 @@
 {% load form_filters %}
 
 {% block content %}
-<div class="row container mt-4 pt-4">
-
-    <!-- ستون راست -->
-     <div class="col-md-3 ">
-            <div class="card shadow-sm p-3" style="border-radius: 12px;">
-                <h6 class="mb-3 text-center">پنل کاربری</h6>
-                <ul class="list-group">
-
-                    <a href="{% url 'account:dashboard' %}" class="list-group-item list-group-item-action text-end ">
-                        داشبورد
-                    </a>
-
-                    <a href="{% url 'account:profile_edit' %}" class="list-group-item list-group-item-action text-end">
-                        ویرایش اطلاعات
-                    </a>
-
-                    <a href="{% url 'account:bank_edit' %}" class="list-group-item list-group-item-action text-end active">
-                        ثبت / ویرایش اطلاعات بانکی
-                    </a>
-
-                    <a href="{% url 'core:coach_edit' %}" class="list-group-item list-group-item-action text-end">
-                        ویرایش اطلاعات مربی
-                    </a>
-                    <a href="{% url 'account:my_invoices' %}" class="list-group-item list-group-item-action text-end">
-                        خریدهای شما
-                    </a>
-
-                    <a href="{% url 'account:offers' %}" class="list-group-item list-group-item-action text-end">
-                        آفرهای من
-                    </a>
-
-                    <a href="{% url 'password_change' %}" class="list-group-item list-group-item-action text-end">
-                        تغییر رمز عبور
-                    </a>
-                </ul>
+    <div class="row dashboard-wrapper">
+    <!-- سایدبار -->
+    <div class="col-lg-3 col-md-4 mb-4">
+        <div class="sidebar">
+            <div class="sidebar-title">
+                <i class="fas fa-user-circle"></i>
+                پنل کاربری
             </div>
+            <ul class="sidebar-menu">
+                <li>
+                    <a href="{% url 'account:dashboard' %}">
+                        <i class="fas fa-chart-line"></i>
+                        <span>داشبورد</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'account:profile_edit' %}">
+                        <i class="fas fa-user-edit"></i>
+                        <span>ویرایش اطلاعات</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'account:bank_edit' %}" class="active">
+                        <i class="fas fa-credit-card"></i>
+                        <span>اطلاعات بانکی</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'core:coach_edit' %}">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <span>اطلاعات مربی</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'account:my_invoices' %}">
+                        <i class="fas fa-shopping-bag"></i>
+                        <span>خریدهای شما</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'account:offers' %}">
+                        <i class="fas fa-tags"></i>
+                        <span>آفرهای من</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{% url 'password_change' %}">
+                        <i class="fas fa-lock"></i>
+                        <span>تغییر رمز عبور</span>
+                    </a>
+                </li>
+            </ul>
         </div>
+    </div>
 
     <!-- فرم -->
-    <div class="col-md-9">
-        <div class="card shadow-sm p-4" style="border-radius: 12px; direction: rtl;">
-            <h4 class="mb-4">ثبت / ویرایش اطلاعات بانکی</h4>
+    <div class="col-lg-9 col-md-8">
+        <div class="form-card">
+            <div class="form-header">
+                <h4>
+                    <i class="fas fa-credit-card"></i>
+                    ثبت / ویرایش اطلاعات بانکی
+                </h4>
+                <p>اطلاعات بانکی خود را برای دریافت پرداخت‌ها وارد کنید</p>
+            </div>
+
+            <!-- باکس اطلاعاتی -->
+            <div class="info-box">
+                <h6>
+                    <i class="fas fa-shield-alt"></i>
+                    امنیت اطلاعات
+                </h6>
+                <p>اطلاعات بانکی شما به صورت کاملاً امن ذخیره می‌شود و فقط برای واریز پول به حساب شما استفاده خواهد شد.</p>
+            </div>
 
             <form method="post">
                 {% csrf_token %}
 
-                <div class="mb-3">
-                    <label class="form-label">نام روی کارت</label>
-                    {{ form.full_name|add_class:"form-control" }}
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-user"></i>
+                        نام و نام خانوادگی روی کارت
+                    </label>
+                    <div class="input-wrapper">
+                        {{ form.full_name|add_class:"form-control" }}
+                        <i class="fas fa-id-card input-icon"></i>
+                    </div>
+                    <div class="form-help">
+                        <i class="fas fa-info-circle"></i>
+                        <span>نام و نام خانوادگی باید دقیقاً مطابق با کارت بانکی شما باشد</span>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">شماره کارت</label>
-                    {{ form.card_number|add_class:"form-control" }}
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-credit-card"></i>
+                        شماره کارت
+                    </label>
+                    <div class="input-wrapper">
+                        {{ form.card_number|add_class:"form-control" }}
+                        <i class="fas fa-credit-card input-icon"></i>
+                    </div>
+                    <div class="form-help">
+                        <i class="fas fa-info-circle"></i>
+                        <span>شماره کارت 16 رقمی بدون فاصله وارد کنید (مثال: 6037991234567890)</span>
+                    </div>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">شماره شبا</label>
-                    {{ form.shaba_number|add_class:"form-control" }}
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-university"></i>
+                        شماره شبا
+                    </label>
+                    <div class="input-wrapper">
+                        {{ form.shaba_number|add_class:"form-control" }}
+                        <i class="fas fa-university input-icon"></i>
+                    </div>
+                    <div class="form-help">
+                        <i class="fas fa-info-circle"></i>
+                        <span>شماره شبا را با IR وارد کنید (مثال: IR123456789012345678901234)</span>
+                    </div>
                 </div>
 
-                <button class="btn btn-success px-4 mt-3">ذخیره اطلاعات</button>
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-save"></i>
+                    ذخیره اطلاعات بانکی
+                </button>
             </form>
-
         </div>
     </div>
-
 </div>
+
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<style>
+    /* استایل‌های اضافی برای داشبورد */
+    .dashboard-wrapper {
+        padding: 0;
+        margin-top: -40px;
+    }
+
+    .sidebar {
+        background: white;
+        border-radius: 20px;
+        padding: 25px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+        position: sticky;
+        top: 100px;
+    }
+
+    .sidebar-title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .sidebar-menu {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .sidebar-menu li {
+        margin-bottom: 8px;
+    }
+
+    .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 18px;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #4a5568;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .sidebar-menu a:hover {
+        background: rgba(102, 126, 234, 0.1);
+        color: #667eea;
+        transform: translateX(-5px);
+    }
+
+    .sidebar-menu a.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .sidebar-menu a i {
+        font-size: 1.1rem;
+        width: 24px;
+        text-align: center;
+    }
+
+    /* کارت فرم */
+    .form-card {
+        background: white;
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    }
+
+    .form-header {
+        margin-bottom: 35px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .form-header h4 {
+        font-weight: 700;
+        color: #2d3748;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0;
+    }
+
+    .form-header p {
+        color: #718096;
+        margin: 10px 0 0 0;
+        font-size: 0.95rem;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.95rem;
+    }
+
+    .form-label i {
+        color: #667eea;
+        font-size: 1rem;
+    }
+
+    .form-control {
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 14px 18px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: #f8f9fa;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        background: white;
+        outline: none;
+    }
+
+    .form-control::placeholder {
+        color: #cbd5e0;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        padding: 14px 40px;
+        border-radius: 25px;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+    }
+
+    .btn-submit i {
+        font-size: 1.1rem;
+    }
+
+    /* آیکون‌های ورودی */
+    .input-wrapper {
+        position: relative;
+    }
+
+    .input-icon {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #cbd5e0;
+        font-size: 1.1rem;
+        pointer-events: none;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus ~ .input-icon {
+        color: #667eea;
+    }
+
+    .input-wrapper .form-control {
+        padding-left: 50px;
+    }
+
+    /* پیام‌های راهنما */
+    .form-help {
+        font-size: 0.85rem;
+        color: #718096;
+        margin-top: 8px;
+        display: flex;
+        align-items: start;
+        gap: 6px;
+    }
+
+    .form-help i {
+        color: #667eea;
+        margin-top: 2px;
+    }
+
+    /* کارت اطلاعاتی */
+    .info-box {
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 30px;
+        border-right: 4px solid #667eea;
+    }
+
+    .info-box h6 {
+        font-weight: 700;
+        color: #2d3748;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .info-box p {
+        color: #4a5568;
+        margin: 0;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-wrapper {
+            margin-top: 0;
+        }
+
+        .sidebar {
+            position: relative;
+            top: 0;
+            margin-bottom: 20px;
+        }
+
+        .form-card {
+            padding: 25px;
+        }
+
+        .form-header h4 {
+            font-size: 1.3rem;
+        }
+    }
+</style>
+
+
 {% endblock %}
-v

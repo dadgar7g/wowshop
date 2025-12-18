@@ -2,212 +2,560 @@
 {% load form_filters %}
 
 {% block content %}
-    <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+<div class="signup-container">
+
+    <!-- نمایش پیام‌ها -->
     {% if messages %}
         {% for message in messages %}
             {% if forloop.last %}
-                <div class="alert alert-dismissible fade show
-                    {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}"
-                     role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                <div class="alert-message {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+                    <div class="alert-icon">
+                        {% if 'success' in message.tags %}
+                            ✓
+                        {% elif 'error' in message.tags or 'danger' in message.tags %}
+                            ✕
+                        {% elif 'warning' in message.tags %}
+                            ⚠
+                        {% else %}
+                            ℹ
+                        {% endif %}
+                    </div>
+                    <div class="alert-content">
+                        {{ message }}
+                    </div>
+                    <button type="button" class="alert-close" onclick="this.parentElement.remove()">
+                        ✕
+                    </button>
                 </div>
             {% endif %}
         {% endfor %}
     {% endif %}
 
-    <!-- کارت فرم عریض‌تر -->
-    <div class="card shadow-lg p-4 w-100" style="max-width: 700px; border-radius: 15px;">
-        <h4 class="text-center mb-4">ثبت‌نام</h4>
+    <div class="signup-card">
 
-        <form method="post">
+        <!-- هدر فرم -->
+        <div class="signup-header">
+            <div class="header-icon">✨</div>
+            <h2 class="signup-title">ثبت‌نام در safewow</h2>
+            <p class="signup-subtitle">به جمع ما بپیوندید و از امکانات ویژه بهره‌مند شوید</p>
+        </div>
+
+        <!-- فرم ثبت‌نام -->
+        <form method="post" class="signup-form">
             {% csrf_token %}
-            {{ form.non_field_errors }}
 
-            <div class="row g-3">
-                <div class="col-md-6">
-                    <label class="form-label d-block text-end">ایمیل</label>
-                    {{ form.email|add_class:"form-control" }}
-                    {{ form.email.errors }}
+            <!-- خطاهای کلی -->
+            {% if form.non_field_errors %}
+                <div class="error-alert">
+                    <div class="error-icon">✕</div>
+                    <div class="error-content">
+                        {{ form.non_field_errors }}
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="form-grid">
+
+                <!-- ایمیل -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">📧</span>
+                        ایمیل
+                        <span class="required-star">*</span>
+                    </label>
+                    {{ form.email|add_class:"form-input" }}
+                    {% if form.email.errors %}
+                        <div class="field-error">{{ form.email.errors }}</div>
+                    {% endif %}
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label d-block text-end">نام کاربری</label>
-                    {{ form.username|add_class:"form-control" }}
-                    {{ form.username.errors }}
+                <!-- نام کاربری -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">👤</span>
+                        نام کاربری
+                        <span class="required-star">*</span>
+                    </label>
+                    {{ form.username|add_class:"form-input" }}
+                    {% if form.username.errors %}
+                        <div class="field-error">{{ form.username.errors }}</div>
+                    {% endif %}
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label d-block text-end">نام خانوادگی</label>
-                    {{ form.last_name|add_class:"form-control" }}
-                    {{ form.last_name.errors }}
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label d-block text-end">نام</label>
-                    {{ form.first_name|add_class:"form-control" }}
-                    {{ form.first_name.errors }}
+                <!-- نام -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">✏️</span>
+                        نام
+                    </label>
+                    {{ form.first_name|add_class:"form-input" }}
+                    {% if form.first_name.errors %}
+                        <div class="field-error">{{ form.first_name.errors }}</div>
+                    {% endif %}
                 </div>
 
-                <div class="col-md-6 position-relative">
-                    <label class="form-label d-block text-end">تکرار رمز عبور</label>
-                    <div class="input-group">
-                        {{ form.password2|add_class:"form-control" }}
-                        <button type="button" class="btn btn-outline-secondary toggle-password">
-                            👁
+                <!-- نام خانوادگی -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">✏️</span>
+                        نام خانوادگی
+                    </label>
+                    {{ form.last_name|add_class:"form-input" }}
+                    {% if form.last_name.errors %}
+                        <div class="field-error">{{ form.last_name.errors }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- رمز عبور -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">🔒</span>
+                        رمز عبور
+                        <span class="required-star">*</span>
+                    </label>
+                    <div class="password-wrapper">
+                        {{ form.password1|add_class:"form-input password-input" }}
+                        <button type="button" class="toggle-password">
+                            <span class="eye-icon">👁️</span>
                         </button>
                     </div>
-                    {{ form.password2.errors }}
+                    {% if form.password1.errors %}
+                        <div class="field-error">{{ form.password1.errors }}</div>
+                    {% endif %}
                 </div>
 
-
-                <div class="col-md-6 position-relative">
-                    <label class="form-label d-block text-end">رمز عبور</label>
-                    <div class="input-group">
-                        {{ form.password1|add_class:"form-control" }}
-                        <button type="button" class="btn btn-outline-secondary toggle-password">
-                            👁
+                <!-- تکرار رمز عبور -->
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">✓</span>
+                        تکرار رمز عبور
+                        <span class="required-star">*</span>
+                    </label>
+                    <div class="password-wrapper">
+                        {{ form.password2|add_class:"form-input password-input" }}
+                        <button type="button" class="toggle-password">
+                            <span class="eye-icon">👁️</span>
                         </button>
                     </div>
-                    {{ form.password1.errors }}
+                    {% if form.password2.errors %}
+                        <div class="field-error">{{ form.password2.errors }}</div>
+                    {% endif %}
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label d-block text-end">شماره تلفن</label>
-                    {{ form.phone|add_class:"form-control" }}
-                    {{ form.phone.errors }}
+
+                <!-- شماره تلفن -->
+                <div class="form-group form-group-full">
+                    <label class="form-label">
+                        <span class="label-icon">📱</span>
+                        شماره تلفن
+                    </label>
+                    {{ form.phone|add_class:"form-input" }}
+                    {% if form.phone.errors %}
+                        <div class="field-error">{{ form.phone.errors }}</div>
+                    {% endif %}
                 </div>
 
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 mt-3">
-                ایجاد حساب کاربری
+            <!-- دکمه ثبت‌نام -->
+            <button type="submit" class="btn-signup">
+                <span class="btn-icon">🚀</span>
+                <span class="btn-text">ایجاد حساب کاربری</span>
             </button>
+
         </form>
-        <div class="text-center mt-3">
-            <span>ایمیل ارسال نشد؟</span>
-            <a href="{% url 'account:resend_email' %}" class="text-decoration-none fw-bold">ارسال دوباره ایمیل فعال سازی</a>
-        </div>
-        <div class="text-center mt-3">
-            <span>حساب دارید؟</span>
-            <a href="{% url 'login' %}" class="text-decoration-none fw-bold">ورود</a>
+
+        <!-- لینک‌های اضافی -->
+        <div class="extra-links">
+            <div class="link-box">
+                <span class="link-text">ایمیل فعال‌سازی دریافت نکردید؟</span>
+                <a href="{% url 'account:resend_email' %}" class="link-action">
+                    ارسال مجدد ایمیل
+                </a>
+            </div>
+
+            <div class="divider">
+                <span class="divider-text">یا</span>
+            </div>
+
+            <div class="link-box">
+                <span class="link-text">حساب کاربری دارید؟</span>
+                <a href="{% url 'login' %}" class="link-action">
+                    ورود به حساب
+                </a>
+            </div>
         </div>
 
     </div>
+
 </div>
+
+<style>
+/* Container */
+.signup-container {
+    min-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+/* پیام‌های Alert */
+.alert-message {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px 25px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    animation: slideDown 0.3s ease;
+    max-width: 900px;
+    width: 100%;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-success {
+    background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(56, 161, 105, 0.1) 100%);
+    border-right: 4px solid #48bb78;
+}
+
+.alert-danger, .alert-error {
+    background: linear-gradient(135deg, rgba(245, 87, 108, 0.1) 0%, rgba(220, 53, 69, 0.1) 100%);
+    border-right: 4px solid #f5576c;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
+    border-right: 4px solid #ffc107;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-right: 4px solid #667eea;
+}
+
+.alert-icon {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.alert-success .alert-icon { color: #48bb78; }
+.alert-danger .alert-icon, .alert-error .alert-icon { color: #f5576c; }
+.alert-warning .alert-icon { color: #ffc107; }
+.alert-info .alert-icon { color: #667eea; }
+
+.alert-content {
+    flex: 1;
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.alert-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #a0aec0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.alert-close:hover {
+    background: rgba(0,0,0,0.1);
+    color: #2d3748;
+}
+
+/* کارت ثبت‌نام */
+.signup-card {
+    background: white;
+    border-radius: 25px;
+    padding: 45px 40px;
+    width: 100%;
+    max-width: 900px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* هدر */
+.signup-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.header-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+}
+
+.signup-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 8px;
+}
+
+.signup-subtitle {
+    color: #718096;
+    font-size: 1rem;
+}
+
+/* Alert خطا */
+.error-alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, rgba(245, 87, 108, 0.1) 0%, rgba(220, 53, 69, 0.1) 100%);
+    border-right: 4px solid #f5576c;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 25px;
+}
+
+.error-icon {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f5576c;
+}
+
+.error-content {
+    color: #2d3748;
+    font-weight: 600;
+    flex: 1;
+}
+
+/* فرم */
+.signup-form {
+    margin-bottom: 30px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 0.95rem;
+}
+
+.label-icon {
+    font-size: 1.1rem;
+}
+
+.required-star {
+    color: #f5576c;
+}
+
+.form-input {
+    padding: 14px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    color: #2d3748;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.field-error {
+    color: #f5576c;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Password wrapper */
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-input {
+    padding-left: 50px;
+}
+
+.toggle-password {
+    position: absolute;
+    left: 10px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.toggle-password:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.eye-icon {
+    font-size: 1.3rem;
+}
+
+/* دکمه ثبت‌نام */
+.btn-signup {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 16px 30px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.btn-signup:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+}
+
+.btn-icon {
+    font-size: 1.3rem;
+}
+
+/* لینک‌های اضافی */
+.extra-links {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.link-box {
+    text-align: center;
+}
+
+.link-text {
+    color: #718096;
+    font-size: 0.95rem;
+    margin-left: 8px;
+}
+
+.link-action {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 700;
+    transition: all 0.3s ease;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.link-action:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #764ba2;
+}
+
+.divider {
+    position: relative;
+    margin: 15px 0;
+}
+
+.divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+}
+
+.divider-text {
+    position: relative;
+    background: white;
+    padding: 0 15px;
+    color: #cbd5e0;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+/* ریسپانسیو */
+@media (max-width: 768px) {
+    .signup-card {
+        padding: 35px 25px;
+    }
+
+    .signup-title {
+        font-size: 1.6rem;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 
 <script>
 document.querySelectorAll(".toggle-password").forEach(btn => {
     btn.addEventListener("click", function () {
-        let input = this.previousElementSibling;
+        let input = this.parentElement.querySelector(".password-input");
+        let icon = this.querySelector(".eye-icon");
         if (input.type === "password") {
             input.type = "text";
-            this.innerHTML = "🙈";
+            icon.textContent = "🙈";
         } else {
             input.type = "password";
-            this.innerHTML = "👁";
+            icon.textContent = "👁️";
         }
     });
 });
 </script>
-
-{#<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">#}
-{#    <!-- نمایش آخرین پیام فقط -->#}
-{#    {% if messages %}#}
-{#        {% for message in messages %}#}
-{#            {% if forloop.last %}#}
-{#                <div class="alert alert-dismissible fade show#}
-{#                    {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}"#}
-{#                     role="alert">#}
-{#                    {{ message }}#}
-{#                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>#}
-{#                </div>#}
-{#            {% endif %}#}
-{#        {% endfor %}#}
-{#    {% endif %}#}
-{#    <div class="card shadow-lg p-4" style="width: 400px; border-radius: 15px;">#}
-{#        <h4 class="text-center mb-4">ثبت‌نام</h4>#}
-{##}
-{#        <form method="post">#}
-{#            {% csrf_token %}#}
-{#            {{ form.non_field_errors }}#}
-{##}
-{#            <div class="mb-3">#}
-{#                <label class="form-label d-block text-end">نام کاربری</label>#}
-{#                {{ form.username|add_class:"form-control" }}#}
-{#                {{ form.username.errors }}#}
-{#            </div>#}
-{##}
-{#            <div class="mb-3">#}
-{#                <label class="form-label d-block text-end">نام</label>#}
-{#                {{ form.first_name|add_class:"form-control" }}#}
-{#                {{ form.first_name.errors }}#}
-{#            </div>#}
-{##}
-{#            <div class="mb-3">#}
-{#                <label class="form-label d-block text-end">نام خانوادگی</label>#}
-{#                {{ form.last_name|add_class:"form-control" }}#}
-{#                {{ form.last_name.errors }}#}
-{#            </div>#}
-{##}
-{#            <div class="mb-3">#}
-{#                <label class="form-label d-block text-end">ایمیل</label>#}
-{#                {{ form.email|add_class:"form-control" }}#}
-{#                {{ form.email.errors }}#}
-{#            </div>#}
-{##}
-{#            <div class="mb-3">#}
-{#                <label class="form-label d-block text-end">شماره تلفن</label>#}
-{#                {{ form.phone|add_class:"form-control" }}#}
-{#                {{ form.phone.errors }}#}
-{#            </div>#}
-{##}
-{#            <div class="mb-3 position-relative">#}
-{#    <label class="form-label d-block text-end">رمز عبور</label>#}
-{#    <div class="input-group">#}
-{#        {{ form.password1|add_class:"form-control" }}#}
-{#        <button type="button" class="btn btn-outline-secondary toggle-password">#}
-{#            👁#}
-{#        </button>#}
-{#    </div>#}
-{#    {{ form.password1.errors }}#}
-{#</div>#}
-{##}
-{#<div class="mb-3 position-relative">#}
-{#    <label class="form-label d-block text-end">تکرار رمز عبور</label>#}
-{#    <div class="input-group">#}
-{#        {{ form.password2|add_class:"form-control" }}#}
-{#        <button type="button" class="btn btn-outline-secondary toggle-password">#}
-{#            👁#}
-{#        </button>#}
-{#    </div>#}
-{#    {{ form.password2.errors }}#}
-{#</div>#}
-{##}
-{#            <button type="submit" class="btn btn-primary w-100 mt-3">#}
-{#                ایجاد حساب کاربری#}
-{#            </button>#}
-{#        </form>#}
-{##}
-{#        <div class="text-center mt-3">#}
-{#            <span>حساب دارید؟</span>#}
-{#            <a href="{% url 'login' %}" class="text-decoration-none fw-bold">ورود</a>#}
-{#        </div>#}
-{##}
-{#    </div>#}
-{##}
-{#</div>#}
-{#    <script>#}
-{#document.querySelectorAll(".toggle-password").forEach(btn => {#}
-{#    btn.addEventListener("click", function () {#}
-{#        let input = this.previousElementSibling;#}
-{#        if (input.type === "password") {#}
-{#            input.type = "text";#}
-{#            this.innerHTML = "🙈";  // آیکون چشم بسته#}
-{#        } else {#}
-{#            input.type = "password";#}
-{#            this.innerHTML = "👁";  // آیکون چشم#}
-{#        }#}
-{#    });#}
-{#});#}
-{#</script>#}
 
 {% endblock %}

@@ -4,23 +4,61 @@
 <div class="container mt-5 pt-5" dir="rtl">
 
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-7">
 
-            <div class="card shadow-sm p-4 text-center" style="border-radius: 12px;">
+            <div class="success-card">
 
-                <h3 class="text-success fw-bold mb-3">پرداخت با موفقیت انجام شد ✔</h3>
+                <!-- آیکون موفقیت -->
+                <div class="success-icon-wrapper">
+                    <div class="success-checkmark">
+                        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                        </svg>
+                    </div>
+                </div>
 
-                <p class="mb-3 text-muted">
-                    کد پیگیری پرداخت شما:
-                </p>
+                <!-- پیام موفقیت -->
+                <h2 class="success-title">پرداخت با موفقیت انجام شد! 🎉</h2>
+                <p class="success-subtitle">سفارش شما با موفقیت ثبت شد و به زودی ارسال خواهد شد</p>
 
-                <h4 class="fw-bold mb-4">{{ refid }}</h4>
+                <!-- کد پیگیری -->
+                <div class="tracking-section">
+                    <div class="tracking-label">
+                        <span class="tracking-icon">🔍</span>
+                        کد پیگیری سفارش شما
+                    </div>
+                    <div class="tracking-code">{{ refid }}</div>
+                    <button class="btn-copy-code" onclick="copyToClipboard('{{ refid }}')">
+                        📋 کپی کد
+                    </button>
+                </div>
 
-                <a href="{% url 'shop:product_list' %}"
-                   class="btn btn-warning text-white fw-bold px-4 py-2"
-                   style="border-radius: 8px;">
-                    بازگشت به صفحه اصلی
-                </a>
+                <!-- اطلاعات بیشتر -->
+                <div class="info-boxes">
+                    <div class="info-box">
+                        <div class="info-icon">📧</div>
+                        <div class="info-text">ایمیل تأیید ارسال شد</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-icon">📦</div>
+                        <div class="info-text">آماده‌سازی سفارش</div>
+                    </div>
+                    <div class="info-box">
+                        <div class="info-icon">🚚</div>
+                        <div class="info-text">ارسال حداکثر 2 روز</div>
+                    </div>
+                </div>
+
+                <!-- دکمه‌های اکشن -->
+                <div class="action-buttons">
+                    <a href="{% url 'account:dashboard' %}" class="btn-primary-action">
+                        👤 مشاهده سفارش‌ها
+                    </a>
+                    <a href="{% url 'shop:product_list' %}" class="btn-secondary-action">
+                        🛍️ ادامه خرید
+                    </a>
+                </div>
 
             </div>
 
@@ -28,4 +66,247 @@
     </div>
 
 </div>
+
+<style>
+/* کارت موفقیت */
+.success-card {
+    background: white;
+    border-radius: 25px;
+    padding: 50px 40px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+/* آیکون موفقیت */
+.success-icon-wrapper {
+    margin-bottom: 30px;
+}
+
+.success-checkmark {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    position: relative;
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.checkmark {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: #48bb78;
+    stroke-miterlimit: 10;
+    box-shadow: 0 0 0 8px rgba(72, 187, 120, 0.1);
+}
+
+.checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke: #48bb78;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* متن‌های موفقیت */
+.success-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 15px;
+}
+
+.success-subtitle {
+    font-size: 1.1rem;
+    color: #718096;
+    margin-bottom: 35px;
+}
+
+/* بخش کد پیگیری */
+.tracking-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 35px;
+}
+
+.tracking-label {
+    color: #718096;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.tracking-icon {
+    font-size: 1.2rem;
+}
+
+.tracking-code {
+    background: white;
+    border: 2px dashed #667eea;
+    border-radius: 12px;
+    padding: 15px 20px;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+    letter-spacing: 2px;
+    margin-bottom: 15px;
+    font-family: monospace;
+}
+
+.btn-copy-code {
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-copy-code:hover {
+    background: #764ba2;
+    transform: translateY(-2px);
+}
+
+/* باکس‌های اطلاعات */
+.info-boxes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 35px;
+}
+
+.info-box {
+    background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(56, 161, 105, 0.1) 100%);
+    border-radius: 12px;
+    padding: 20px 15px;
+    transition: all 0.3s ease;
+}
+
+.info-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(72, 187, 120, 0.2);
+}
+
+.info-icon {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.info-text {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+/* دکمه‌های اکشن */
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.btn-primary-action {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary-action:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+    color: white;
+}
+
+.btn-secondary-action {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary-action:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-3px);
+}
+
+/* ریسپانسیو */
+@media (max-width: 768px) {
+    .success-card {
+        padding: 40px 25px;
+    }
+
+    .success-title {
+        font-size: 1.6rem;
+    }
+
+    .info-boxes {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text).then(function() {
+        const btn = document.querySelector('.btn-copy-code');
+        btn.innerHTML = '✓ کپی شد!';
+        btn.style.background = '#48bb78';
+
+        setTimeout(function() {
+            btn.innerHTML = '📋 کپی کد';
+            btn.style.background = '#667eea';
+        }, 2000);
+    });
+}
+</script>
+
 {% endblock %}

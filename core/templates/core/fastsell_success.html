@@ -2,26 +2,395 @@
 
 {% block content %}
 
-<div class="container mt-5" dir="rtl" style="text-align: right;">
+<div class="container mt-5 pt-5" dir="rtl">
 
-    <div class="card shadow-sm mx-auto" style="max-width: 600px;">
-        <div class="card-header bg-success text-white">
-            <h5 class="mb-0">ارسال موفقیت‌آمیز</h5>
-        </div>
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
 
-        <div class="card-body">
-            <p class="mb-3">
-                درخواست شما با موفقیت ارسال شد.<br>
-                در اسرع وقت با شما تماس خواهیم گرفت.<br>
-                <b>لطفاً شماره تلفن یا آیدی دیسکورد خود را اگر هنوز ثبت نکرده‌اید، نسبت به ثبت آنها اقدام نمایید.
-                با تشکر</b> <br>
-            </p>
+            <div class="success-card">
 
-            <a href="{% url 'account:dashboard' %}" class="btn btn-primary mt-3 px-4">
-                بازگشت به داشبورد
-            </a>
+                <!-- آیکون موفقیت -->
+                <div class="success-icon-wrapper">
+                    <div class="success-checkmark">
+                        <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- پیام موفقیت -->
+                <h2 class="success-title">درخواست با موفقیت ارسال شد! 🎉</h2>
+                <p class="success-subtitle">تیم ما در اسرع وقت با شما تماس خواهد گرفت</p>
+
+                <!-- اطلاعات مهم -->
+                <div class="info-alert">
+                    <div class="alert-icon">⚠️</div>
+                    <div class="alert-content">
+                        <h5 class="alert-title">نکته مهم</h5>
+                        <p class="alert-text">
+                            لطفاً شماره تلفن یا آیدی دیسکورد خود را اگر هنوز ثبت نکرده‌اید،
+                            در داشبورد کاربری خود ثبت نمایید تا بتوانیم با شما در تماس باشیم.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- مراحل بعدی -->
+                <div class="next-steps">
+                    <h4 class="steps-title">مراحل بعدی:</h4>
+                    <div class="steps-list">
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-text">بررسی درخواست توسط تیم ما</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-text">تماس با شما برای هماهنگی</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-text">تکمیل فرآیند و پرداخت</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- زمان پاسخگویی -->
+                <div class="timing-info">
+                    <div class="timing-icon">⏱️</div>
+                    <div class="timing-text">
+                        <strong>زمان پاسخگویی:</strong> حداکثر 24 ساعت
+                    </div>
+                </div>
+
+                <!-- دکمه‌های اکشن -->
+                <div class="action-buttons">
+                    <a href="{% url 'account:dashboard' %}" class="btn-primary-action">
+                        👤 رفتن به داشبورد
+                    </a>
+                    <a href="{% url 'core:home' %}" class="btn-secondary-action">
+                        🏠 صفحه اصلی
+                    </a>
+                </div>
+
+                <!-- پشتیبانی -->
+                <div class="support-section">
+                    <p class="support-text">سوالی دارید؟</p>
+                    <a href="#" class="support-link">
+                        <span class="support-icon">💬</span>
+                        تماس با پشتیبانی
+                    </a>
+                </div>
+
+            </div>
+
         </div>
     </div>
 
 </div>
+
+<style>
+/* کارت موفقیت */
+.success-card {
+    background: white;
+    border-radius: 25px;
+    padding: 50px 40px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+/* آیکون موفقیت */
+.success-icon-wrapper {
+    margin-bottom: 30px;
+}
+
+.success-checkmark {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    position: relative;
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.checkmark {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: #48bb78;
+    stroke-miterlimit: 10;
+    box-shadow: 0 0 0 8px rgba(72, 187, 120, 0.1);
+}
+
+.checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke: #48bb78;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* متن‌های موفقیت */
+.success-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 15px;
+}
+
+.success-subtitle {
+    font-size: 1.1rem;
+    color: #718096;
+    margin-bottom: 35px;
+}
+
+/* Alert اطلاعات */
+.info-alert {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
+    border-right: 4px solid #ffc107;
+    border-radius: 15px;
+    padding: 25px;
+    display: flex;
+    gap: 20px;
+    text-align: right;
+    margin-bottom: 35px;
+}
+
+.alert-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.alert-content {
+    flex: 1;
+}
+
+.alert-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.alert-text {
+    color: #4a5568;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* مراحل بعدی */
+.next-steps {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+}
+
+.steps-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.step-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    text-align: right;
+}
+
+.step-item:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+}
+
+.step-number {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.step-text {
+    color: #2d3748;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* اطلاعات زمانی */
+.timing-info {
+    background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(56, 161, 105, 0.1) 100%);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 35px;
+}
+
+.timing-icon {
+    font-size: 2rem;
+}
+
+.timing-text {
+    color: #2d3748;
+    font-size: 1rem;
+}
+
+.timing-text strong {
+    color: #48bb78;
+}
+
+/* دکمه‌های اکشن */
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.btn-primary-action {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary-action:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+    color: white;
+}
+
+.btn-secondary-action {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary-action:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-3px);
+}
+
+/* بخش پشتیبانی */
+.support-section {
+    padding-top: 30px;
+    border-top: 2px solid #f5f7fa;
+}
+
+.support-text {
+    color: #718096;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+.support-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.support-link:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.support-icon {
+    font-size: 1.2rem;
+}
+
+/* ریسپانسیو */
+@media (max-width: 768px) {
+    .success-card {
+        padding: 40px 25px;
+    }
+
+    .success-title {
+        font-size: 1.6rem;
+    }
+
+    .info-alert {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .step-item {
+        text-align: center;
+        flex-direction: column;
+    }
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
 {% endblock %}

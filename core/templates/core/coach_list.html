@@ -2,74 +2,529 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-4" dir="rtl">
-    <!-- نمایش فقط آخرین پیام -->
-        {% if messages %}
-            {% for message in messages %}
-                {% if forloop.last %}
-                    <div class="alert alert-dismissible fade show
-                    {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}"
-                         role="alert">
+<div class="container mt-4 pt-4" dir="rtl">
+
+    <!-- نمایش پیام‌ها -->
+    {% if messages %}
+        {% for message in messages %}
+            {% if forloop.last %}
+                <div class="alert-message {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">
+                    <div class="alert-icon">
+                        {% if 'success' in message.tags %}
+                            ✓
+                        {% elif 'error' in message.tags or 'danger' in message.tags %}
+                            ✕
+                        {% elif 'warning' in message.tags %}
+                            ⚠
+                        {% else %}
+                            ℹ
+                        {% endif %}
+                    </div>
+                    <div class="alert-content">
                         {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    <button type="button" class="alert-close" onclick="this.parentElement.remove()">
+                        ✕
+                    </button>
+                </div>
+            {% endif %}
+        {% endfor %}
+    {% endif %}
+
+    <!-- هدر صفحه -->
+    <div class="coaches-header text-center mb-5">
+        <h1 class="coaches-title">👨‍🏫 مربیان حرفه‌ای</h1>
+        <p class="coaches-subtitle">بهترین مربیان برای پیشرفت شما</p>
+        <div class="coaches-stats">
+            <span class="stat-badge">{{ coaches|length }} مربی فعال</span>
+        </div>
+    </div>
+
+    <!-- کارت‌های مربی -->
+    {% if coaches %}
+        <div class="coaches-grid">
+            {% for coach in coaches %}
+                {% if coach.enable == True %}
+                    <div class="coach-card">
+
+                        <!-- هدر کارت -->
+                        <div class="coach-header">
+                            <div class="coach-avatar">
+                                <span class="avatar-icon">👤</span>
+                            </div>
+                            <div class="coach-badge">مربی تأیید شده ✓</div>
+                        </div>
+
+                        <!-- محتوای کارت -->
+                        <div class="coach-content">
+
+                            <h3 class="coach-name">{{ coach.user.username }}</h3>
+
+                            <!-- اکسپنشن‌ها -->
+                            <div class="info-section">
+                                <div class="info-label">
+                                    <span class="info-icon">🎮</span>
+                                    اکسپنشن‌ها
+                                </div>
+                                <div class="tags-wrapper">
+                                    {% for expansion in coach.expansions.all %}
+                                        <span class="tag tag-expansion">{{ expansion.name }}</span>
+                                    {% empty %}
+                                        <span class="tag tag-empty">ندارد</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- نوع فعالیت‌ها -->
+                            <div class="info-section">
+                                <div class="info-label">
+                                    <span class="info-icon">⚔️</span>
+                                    نوع فعالیت‌ها
+                                </div>
+                                <div class="tags-wrapper">
+                                    {% for method in coach.methods.all %}
+                                        <span class="tag tag-method">{{ method.name }}</span>
+                                    {% empty %}
+                                        <span class="tag tag-empty">ندارد</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- توضیحات -->
+                            <div class="coach-description">
+                                <p class="description-text">
+                                    {{ coach.description|truncatewords:20 }}
+                                </p>
+                            </div>
+
+                            <!-- زمان بازی -->
+                            <div class="play-time">
+                                <span class="time-icon">⏱️</span>
+                                <span class="time-label">ساعت بازی:</span>
+                                <span class="time-value">{{ coach.timeplay }}</span>
+                            </div>
+
+                            <!-- دکمه اکشن -->
+                            <a href="{% url 'core:coach_detail' user=coach.user.username %}"
+                               class="btn-coach-detail">
+                                مشاهده پروفایل کامل
+                                <span class="btn-arrow">←</span>
+                            </a>
+
+                        </div>
+
                     </div>
                 {% endif %}
             {% endfor %}
-        {% endif %}
-  <h3 class="mb-4 text-end">لیست مربیان</h3>
-
-  <div class="row g-4">
-
-    {% for coach in coaches %}
-     {% if coach.enable == True %}
-      <div class="col-md-4">
-        <div class="card h-100 shadow-sm border-1">
-
-          <div class="card-body text-end">
-
-            <h5 class="card-title mb-1 fw-bold">{{ coach.user.username }}</h5>
-
-            <!-- نمایش expansions -->
-                    <p><strong>اکسپنشن‌ها:</strong>
-                        {% for expansion in coach.expansions.all %}
-                            {{ expansion.name }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                            ندارد
-                        {% endfor %}
-                    </p>
-
-                    <!-- نمایش methods -->
-                    <p><strong>نوع فعالیت‌ها:</strong>
-                        {% for method in coach.methods.all %}
-                            {{ method.name }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                            ندارد
-                        {% endfor %}
-                    </p>
-
-            <p class="card-text mt-2" style="line-height: 1.8;">
-              {{ coach.description|truncatewords:20 }}
-            </p>
-
-            <p class="mb-1"><strong>ساعت بازی:</strong> {{ coach.timeplay }}</p>
-
-
-
-            <a href="{% url 'core:coach_detail' user=coach.user.username %}"
-               class="btn btn-primary w-100 mb-2">
-               مشاهده اطلاعات بیشتر
-            </a>
-
-
-
-          </div>
-
         </div>
-      </div>
-      {% endif %}
-    {% endfor %}
-
-  </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">👨‍🏫</div>
+            <h3 class="empty-title">مربی فعالی یافت نشد</h3>
+            <p class="empty-text">در حال حاضر مربی فعالی در سیستم موجود نیست</p>
+            <a href="{% url 'core:coach_register' %}" class="btn-empty-action">
+                ثبت‌نام به عنوان مربی
+            </a>
+        </div>
+    {% endif %}
 
 </div>
+
+<style>
+/* هدر صفحه */
+.coaches-header {
+    padding: 20px 0;
+}
+
+.coaches-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.coaches-subtitle {
+    font-size: 1.1rem;
+    color: #718096;
+    margin-bottom: 20px;
+}
+
+.coaches-stats {
+    display: flex;
+    justify-content: center;
+}
+
+.stat-badge {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 10px 25px;
+    border-radius: 25px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* پیام‌های Alert */
+.alert-message {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px 25px;
+    border-radius: 15px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alert-success {
+    background: linear-gradient(135deg, rgba(72, 187, 120, 0.1) 0%, rgba(56, 161, 105, 0.1) 100%);
+    border-right: 4px solid #48bb78;
+}
+
+.alert-danger, .alert-error {
+    background: linear-gradient(135deg, rgba(245, 87, 108, 0.1) 0%, rgba(220, 53, 69, 0.1) 100%);
+    border-right: 4px solid #f5576c;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 152, 0, 0.1) 100%);
+    border-right: 4px solid #ffc107;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-right: 4px solid #667eea;
+}
+
+.alert-icon {
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.alert-success .alert-icon {
+    color: #48bb78;
+}
+
+.alert-danger .alert-icon,
+.alert-error .alert-icon {
+    color: #f5576c;
+}
+
+.alert-warning .alert-icon {
+    color: #ffc107;
+}
+
+.alert-info .alert-icon {
+    color: #667eea;
+}
+
+.alert-content {
+    flex: 1;
+    color: #2d3748;
+    font-weight: 600;
+}
+
+.alert-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #a0aec0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.alert-close:hover {
+    background: rgba(0,0,0,0.1);
+    color: #2d3748;
+}
+
+/* گرید مربی‌ها */
+.coaches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 30px;
+}
+
+/* کارت مربی */
+.coach-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.coach-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+    border-color: #667eea;
+}
+
+/* هدر کارت */
+.coach-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 30px 25px 60px 25px;
+    position: relative;
+}
+
+.coach-avatar {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px auto;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    position: relative;
+    z-index: 2;
+}
+
+.avatar-icon {
+    font-size: 2.5rem;
+}
+
+.coach-badge {
+    background: rgba(255,255,255,0.25);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    display: inline-block;
+    backdrop-filter: blur(10px);
+}
+
+/* محتوای کارت */
+.coach-content {
+    padding: 30px 25px 25px 25px;
+    margin-top: -30px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.coach-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+/* بخش اطلاعات */
+.info-section {
+    margin-bottom: 20px;
+}
+
+.info-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+}
+
+.info-icon {
+    font-size: 1.2rem;
+}
+
+/* تگ‌ها */
+.tags-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    min-height: 40px;
+    align-items: flex-start;
+}
+
+.tag {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.tag-expansion {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    color: #667eea;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.tag-method {
+    background: linear-gradient(135deg, rgba(72, 187, 120, 0.15) 0%, rgba(56, 161, 105, 0.15) 100%);
+    color: #48bb78;
+    border: 2px solid rgba(72, 187, 120, 0.3);
+}
+
+.tag-empty {
+    background: #f7fafc;
+    color: #cbd5e0;
+    border: 2px solid #e2e8f0;
+}
+
+/* توضیحات */
+.coach-description {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    border-radius: 12px;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.description-text {
+    color: #4a5568;
+    line-height: 1.7;
+    margin: 0;
+    font-size: 0.95rem;
+    min-height: 60px;
+}
+
+/* زمان بازی */
+.play-time {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(102, 126, 234, 0.08);
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.time-icon {
+    font-size: 1.3rem;
+}
+
+.time-label {
+    color: #718096;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.time-value {
+    color: #2d3748;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+/* دکمه جزئیات */
+.btn-coach-detail {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-coach-detail:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    color: white;
+}
+
+.btn-arrow {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-coach-detail:hover .btn-arrow {
+    transform: translateX(-5px);
+}
+
+/* حالت خالی */
+.empty-state {
+    background: white;
+    border-radius: 20px;
+    padding: 80px 40px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+.empty-icon {
+    font-size: 5rem;
+    opacity: 0.3;
+    margin-bottom: 20px;
+}
+
+.empty-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.empty-text {
+    color: #718096;
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+
+.btn-empty-action {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 35px;
+    border-radius: 25px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-empty-action:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+    color: white;
+}
+
+/* ریسپانسیو */
+@media (max-width: 768px) {
+    .coaches-title {
+        font-size: 1.8rem;
+    }
+
+    .coaches-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
 {% endblock %}

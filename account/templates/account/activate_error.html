@@ -1,27 +1,373 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+<div class="container mt-5 pt-5" dir="rtl">
 
-    <div class="card shadow-lg p-5 text-center" style="max-width: 500px; border-radius: 15px; direction: rtl;">
-        <h2 class="mb-4 text-danger">خطا در فعال‌سازی حساب!</h2>
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
 
-        <p class="mb-3">
-            متأسفانه حساب شما فعال نشد.
-            ممکن است لینک فعال‌سازی منقضی شده یا اشتباه باشد.
-        </p>
+            <div class="error-card">
 
-        <p class="mb-4">
-            لطفاً دوباره ایمیل فعال‌سازی را درخواست کنید یا با پشتیبانی تماس بگیرید.
-        </p>
+                <!-- آیکون خطا -->
+                <div class="error-icon-wrapper">
+                    <div class="error-cross">
+                        <svg class="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <circle class="cross-circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="cross-line" fill="none" d="M16 16 l20 20"/>
+                            <path class="cross-line" fill="none" d="M36 16 l-20 20"/>
+                        </svg>
+                    </div>
+                </div>
 
-        <a href="{% url 'password_reset' %}" class="btn btn-warning px-4 py-2 me-2">
-            درخواست مجدد لینک فعال‌سازی
-        </a>
-        <a href="{% url 'login' %}" class="btn btn-primary px-4 py-2">
-            بازگشت به ورود
-        </a>
+                <!-- پیام خطا -->
+                <h2 class="error-title">فعال‌سازی ناموفق بود! ⚠️</h2>
+                <p class="error-subtitle">متأسفانه نتوانستیم حساب شما را فعال کنیم</p>
+
+                <!-- دلایل احتمالی -->
+                <div class="reasons-box">
+                    <h5 class="reasons-title">دلایل احتمالی:</h5>
+                    <div class="reasons-list">
+                        <div class="reason-item">
+                            <span class="reason-icon">⏱️</span>
+                            <span class="reason-text">لینک فعال‌سازی منقضی شده است</span>
+                        </div>
+                        <div class="reason-item">
+                            <span class="reason-icon">🔗</span>
+                            <span class="reason-text">لینک نامعتبر یا اشتباه است</span>
+                        </div>
+                        <div class="reason-item">
+                            <span class="reason-icon">✓</span>
+                            <span class="reason-text">حساب قبلاً فعال شده است</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- راهنما */
+                <div class="help-box">
+                    <div class="help-icon">💡</div>
+                    <div class="help-content">
+                        <h5 class="help-title">راه حل:</h5>
+                        <p class="help-text">
+                            لطفاً دوباره درخواست لینک فعال‌سازی دهید یا در صورت نیاز با
+                            تیم پشتیبانی ما تماس بگیرید. ما آماده کمک به شما هستیم.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- دکمه‌های اکشن -->
+                <div class="action-buttons">
+                    <a href="{% url 'password_reset' %}" class="btn-request">
+                        <span class="btn-icon">🔄</span>
+                        <span class="btn-text">درخواست لینک جدید</span>
+                    </a>
+                    <a href="{% url 'login' %}" class="btn-login">
+                        <span class="btn-icon">🔐</span>
+                        <span class="btn-text">ورود به حساب</span>
+                    </a>
+                </div>
+
+                <!-- پشتیبانی -->
+                <div class="support-section">
+                    <p class="support-text">نیاز به کمک دارید؟</p>
+                    <a href="#" class="support-link">
+                        <span class="support-icon">💬</span>
+                        تماس با پشتیبانی
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
     </div>
 
 </div>
+
+<style>
+/* کارت خطا */
+.error-card {
+    background: white;
+    border-radius: 25px;
+    padding: 50px 40px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    text-align: center;
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* آیکون خطا */
+.error-icon-wrapper {
+    margin-bottom: 30px;
+}
+
+.error-cross {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    position: relative;
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0) rotate(-45deg);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.cross {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: #f5576c;
+    stroke-miterlimit: 10;
+    box-shadow: 0 0 0 8px rgba(245, 87, 108, 0.1);
+}
+
+.cross-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke: #f5576c;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.cross-line {
+    stroke-dasharray: 28;
+    stroke-dashoffset: 28;
+    stroke-width: 3;
+    stroke: #f5576c;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* متن‌های خطا */
+.error-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 15px;
+}
+
+.error-subtitle {
+    font-size: 1.1rem;
+    color: #718096;
+    margin-bottom: 35px;
+}
+
+/* باکس دلایل */
+.reasons-box {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    text-align: right;
+}
+
+.reasons-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 15px;
+}
+
+.reasons-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.reason-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: white;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.reason-item:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.reason-icon {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.reason-text {
+    color: #4a5568;
+    font-weight: 500;
+    flex: 1;
+}
+
+/* باکس راهنما */
+.help-box {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-right: 4px solid #667eea;
+    border-radius: 15px;
+    padding: 25px;
+    display: flex;
+    gap: 20px;
+    text-align: right;
+    margin-bottom: 35px;
+}
+
+.help-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.help-content {
+    flex: 1;
+}
+
+.help-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.help-text {
+    color: #4a5568;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* دکمه‌های اکشن */
+.action-buttons {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.btn-request {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+}
+
+.btn-request:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 193, 7, 0.5);
+    color: white;
+}
+
+.btn-login {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 15px 25px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+    color: white;
+}
+
+.btn-icon {
+    font-size: 1.3rem;
+}
+
+/* بخش پشتیبانی */
+.support-section {
+    padding-top: 25px;
+    border-top: 2px solid #f5f7fa;
+}
+
+.support-text {
+    color: #718096;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+.support-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.support-link:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.support-icon {
+    font-size: 1.2rem;
+}
+
+/* ریسپانسیو */
+@media (max-width: 768px) {
+    .error-card {
+        padding: 40px 25px;
+    }
+
+    .error-title {
+        font-size: 1.6rem;
+    }
+
+    .help-box {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
 {% endblock %}

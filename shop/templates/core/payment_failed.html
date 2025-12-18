@@ -4,21 +4,75 @@
 <div class="container mt-5 pt-5" dir="rtl">
 
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-7">
 
-            <div class="card shadow-sm p-4 text-center" style="border-radius: 12px;">
+            <div class="failed-card">
 
-                <h3 class="text-danger fw-bold mb-3">پرداخت ناموفق بود ❌</h3>
+                <!-- آیکون خطا -->
+                <div class="error-icon-wrapper">
+                    <div class="error-cross">
+                        <svg class="cross" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                            <circle class="cross-circle" cx="26" cy="26" r="25" fill="none"/>
+                            <path class="cross-line" fill="none" d="M16 16 l20 20"/>
+                            <path class="cross-line" fill="none" d="M36 16 l-20 20"/>
+                        </svg>
+                    </div>
+                </div>
 
-                <p class="text-muted mb-4">
-                    متأسفانه تراکنش انجام نشد. دوباره تلاش کنید.
-                </p>
+                <!-- پیام خطا -->
+                <h2 class="failed-title">پرداخت ناموفق بود 😔</h2>
+                <p class="failed-subtitle">متأسفانه تراکنش شما تکمیل نشد. لطفاً مجدداً تلاش کنید</p>
 
-                <a href="{% url 'shop:product_list' %}"
-                   class="btn btn-warning text-white fw-bold px-4 py-2"
-                   style="border-radius: 8px;">
-                    بازگشت به صفحه اصلی
-                </a>
+                <!-- دلایل احتمالی -->
+                <div class="reasons-section">
+                    <h4 class="reasons-title">دلایل احتمالی:</h4>
+                    <div class="reasons-list">
+                        <div class="reason-item">
+                            <span class="reason-icon">💳</span>
+                            <span class="reason-text">موجودی حساب کافی نبود</span>
+                        </div>
+                        <div class="reason-item">
+                            <span class="reason-icon">🔒</span>
+                            <span class="reason-text">رمز دوم اشتباه وارد شده</span>
+                        </div>
+                        <div class="reason-item">
+                            <span class="reason-icon">⏱️</span>
+                            <span class="reason-text">زمان پرداخت به اتمام رسیده</span>
+                        </div>
+                        <div class="reason-item">
+                            <span class="reason-icon">🌐</span>
+                            <span class="reason-text">مشکل در اتصال به درگاه</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- راهنمایی -->
+                <div class="help-box">
+                    <div class="help-icon">💡</div>
+                    <div class="help-content">
+                        <h5 class="help-title">نکته مهم</h5>
+                        <p class="help-text">در صورتی که مبلغ از حساب شما کسر شده اما خرید تکمیل نشده، تا 72 ساعت آینده به حساب شما برگردانده می‌شود.</p>
+                    </div>
+                </div>
+
+                <!-- دکمه‌های اکشن -->
+                <div class="action-buttons">
+                    <a href="{% url 'shop:checkout' %}" class="btn-retry">
+                        🔄 تلاش مجدد
+                    </a>
+                    <a href="{% url 'shop:cart_show' %}" class="btn-cart">
+                        🛒 بازگشت به سبد خرید
+                    </a>
+                    <a href="{% url 'shop:product_list' %}" class="btn-home">
+                        🏠 صفحه اصلی
+                    </a>
+                </div>
+
+                <!-- پشتیبانی -->
+                <div class="support-section">
+                    <p class="support-text">در صورت نیاز به راهنمایی با پشتیبانی تماس بگیرید</p>
+                    <a href="#" class="support-link">📞 تماس با پشتیبانی</a>
+                </div>
 
             </div>
 
@@ -26,4 +80,286 @@
     </div>
 
 </div>
-{% endblock %}
+
+<style>
+/* کارت خطا */
+.failed-card {
+    background: white;
+    border-radius: 25px;
+    padding: 50px 40px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+    text-align: center;
+}
+
+/* آیکون خطا */
+.error-icon-wrapper {
+    margin-bottom: 30px;
+}
+
+.error-cross {
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    position: relative;
+    animation: scaleIn 0.5s ease;
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0) rotate(-45deg);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+.cross {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: #f5576c;
+    stroke-miterlimit: 10;
+    box-shadow: 0 0 0 8px rgba(245, 87, 108, 0.1);
+}
+
+.cross-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke: #f5576c;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.cross-line {
+    stroke-dasharray: 28;
+    stroke-dashoffset: 28;
+    stroke-width: 3;
+    stroke: #f5576c;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+/* متن‌های خطا */
+.failed-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 15px;
+}
+
+.failed-subtitle {
+    font-size: 1.1rem;
+    color: #718096;
+    margin-bottom: 35px;
+}
+
+/* بخش دلایل */
+.reasons-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 25px;
+    text-align: right;
+}
+
+.reasons-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.reasons-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.reason-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px;
+    background: white;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.reason-item:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.reason-icon {
+    font-size: 1.3rem;
+}
+
+.reason-text {
+    font-size: 0.9rem;
+    color: #4a5568;
+    font-weight: 500;
+}
+
+/* باکس راهنمایی */
+.help-box {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+    border-right: 4px solid #667eea;
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    gap: 15px;
+    text-align: right;
+    margin-bottom: 35px;
+}
+
+.help-icon {
+    font-size: 2.5rem;
+    flex-shrink: 0;
+}
+
+.help-content {
+    flex: 1;
+}
+
+.help-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 8px;
+}
+
+.help-text {
+    font-size: 0.9rem;
+    color: #4a5568;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* دکمه‌های اکشن */
+.action-buttons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.btn-retry {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    font-size: 0.95rem;
+}
+
+.btn-retry:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+    color: white;
+}
+
+.btn-cart {
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.btn-cart:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-3px);
+}
+
+.btn-home {
+    background: #f7fafc;
+    color: #718096;
+    border: 2px solid #e2e8f0;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    font-size: 0.95rem;
+}
+
+.btn-home:hover {
+    background: #edf2f7;
+    color: #4a5568;
+    transform: translateY(-3px);
+}
+
+/* بخش پشتیبانی */
+.support-section {
+    padding-top: 25px;
+    border-top: 2px solid #f5f7fa;
+}
+
+.support-text {
+    color: #718096;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+.support-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.support-link:hover {
+    color: #764ba2;
+    transform: translateY(-2px);
+}
+
+/* ریسپانسیو */
+@media (max-width: 768px) {
+    .failed-card {
+        padding: 40px 25px;
+    }
+
+    .failed-title {
+        font-size: 1.6rem;
+    }
+
+    .reasons-list {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons {
+        grid-template-columns: 1fr;
+    }
+
+    .help-box {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
+
+{% endblock %

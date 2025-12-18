@@ -3,25 +3,48 @@
 {% block content %}
 <div class="container mt-5 pt-4" dir="rtl">
 
-    <div class="row">
+    <!-- هدر صفحه -->
+    <div class="checkout-header text-center mb-5">
+        <h1 class="checkout-main-title">💳 تکمیل خرید</h1>
+        <p class="checkout-subtitle">فقط یک قدم تا دریافت محصولات فاصله دارید</p>
 
-        <div class="col-md-12">
-
-            <!-- عنوان -->
-            <div class="card shadow-sm mb-3">
-                <div class="card-header bg-warning text-white fw-bold">
-                    فاکتور خرید
-                </div>
+        <!-- مراحل خرید -->
+        <div class="checkout-steps">
+            <div class="step completed">
+                <div class="step-circle">✓</div>
+                <div class="step-label">سبد خرید</div>
             </div>
+            <div class="step-line completed"></div>
+            <div class="step active">
+                <div class="step-circle">2</div>
+                <div class="step-label">پرداخت</div>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-circle">3</div>
+                <div class="step-label">تکمیل</div>
+            </div>
+        </div>
+    </div>
 
-            <!-- جدول فاکتور -->
-            <div class="card shadow-sm p-3" style="border-radius: 12px;">
+    <div class="row g-4">
 
-                <div class="table-responsive">
-                    <table class="table table-striped align-middle text-center">
-                        <thead class="table-dark">
+        <!-- بخش فاکتور -->
+        <div class="col-lg-7">
+
+            <div class="invoice-card">
+                <div class="invoice-header">
+                    <h3 class="invoice-title">
+                        <span class="title-icon">📋</span>
+                        فاکتور خرید شما
+                    </h3>
+                </div>
+
+                <div class="invoice-table-wrapper">
+                    <table class="invoice-table">
+                        <thead>
                             <tr>
-                                <th>نام محصول</th>
+                                <th>محصول</th>
                                 <th>تعداد</th>
                                 <th>تخفیف</th>
                                 <th>قیمت واحد</th>
@@ -32,53 +55,111 @@
                         <tbody>
                             {% for id,item in cart.items %}
                                 <tr>
-                                    <td>{{ item.obj.name }}</td>
-                                    <td>{{ item.count }}</td>
-
-                                    <td>
+                                    <td class="product-name-cell">
+                                        <div class="product-name-wrapper">
+                                            <span class="product-icon">📦</span>
+                                            <span class="product-name">{{ item.obj.name }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="quantity-cell">
+                                        <span class="quantity-badge">{{ item.count }}×</span>
+                                    </td>
+                                    <td class="discount-cell">
                                         {% if item.obj.discount %}
-                                            <span class="badge bg-success">{{ item.obj.discount }}٪</span>
+                                            <span class="discount-badge">{{ item.obj.discount }}%</span>
                                         {% else %}
-                                            -
+                                            <span class="no-discount">-</span>
                                         {% endif %}
                                     </td>
-
-                                    <td>{{ item.obj.price }} تومان</td>
-                                    <td class="fw-bold text-success">{{ item.price }} تومان</td>
+                                    <td class="unit-price-cell">{{ item.obj.price }} تومان</td>
+                                    <td class="total-price-cell">{{ item.price }} تومان</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
-
                     </table>
                 </div>
 
-                <hr>
-
-                <!-- مجموع -->
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="fw-bold">مجموع قابل پرداخت:</h5>
-                    <h4 class="text-success fw-bold" id="total-price">{{ total }} تومان</h4>
+                <div class="invoice-summary">
+                    <div class="summary-row">
+                        <span class="summary-label">جمع جزء:</span>
+                        <span class="summary-value">{{ total }} تومان</span>
+                    </div>
+                    <div class="summary-row">
+                        <span class="summary-label">هزینه ارسال:</span>
+                        <span class="summary-value free">رایگان</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-row total">
+                        <span class="summary-label-total">مجموع قابل پرداخت:</span>
+                        <span class="summary-value-total" id="total-price">{{ total }} تومان</span>
+                    </div>
                 </div>
 
-                <hr>
+            </div>
 
-                <!-- فرم پرداخت -->
-                <form method="post" action="{% url 'shop:checkout' %}">
+        </div>
+
+        <!-- فرم پرداخت -->
+        <div class="col-lg-5">
+
+            <div class="payment-card">
+
+                <div class="payment-header">
+                    <h3 class="payment-title">
+                        <span class="title-icon">🔐</span>
+                        اطلاعات پرداخت
+                    </h3>
+                    <p class="payment-subtitle">اطلاعات شما کاملاً امن است</p>
+                </div>
+
+                <form method="post" action="{% url 'shop:checkout' %}" class="payment-form">
                     {% csrf_token %}
 
-                    <div class="row mt-3">
-                        <div class="col-md-8 mx-auto">
-                            <div class="card p-3 shadow-sm">
-                                {{ form.as_p }}
+                    <div class="form-fields">
+                        {% for field in form %}
+                            <div class="form-group">
+                                <label class="form-label">
+                                    {{ field.label }}
+                                    {% if field.field.required %}
+                                        <span class="required-star">*</span>
+                                    {% endif %}
+                                </label>
+                                {{ field }}
+                                {% if field.errors %}
+                                    <div class="field-error">
+                                        {{ field.errors }}
+                                    </div>
+                                {% endif %}
                             </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="payment-features">
+                        <div class="feature-item">
+                            <span class="feature-icon">🔒</span>
+                            <span class="feature-text">پرداخت امن با رمزنگاری SSL</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">✓</span>
+                            <span class="feature-text">ضمانت بازگشت وجه</span>
+                        </div>
+                        <div class="feature-item">
+                            <span class="feature-icon">⚡</span>
+                            <span class="feature-text">پردازش سریع و فوری</span>
                         </div>
                     </div>
 
-                    <div class="text-center mt-4">
-                        <button type="submit" class="btn btn-success w-50 py-2 fw-bold">
-                            پرداخت و تکمیل سفارش
-                        </button>
+                    <button type="submit" class="btn-submit-payment">
+                        <span class="btn-icon">💳</span>
+                        <span class="btn-text">پرداخت و تکمیل سفارش</span>
+                    </button>
+
+                    <div class="back-to-cart">
+                        <a href="{% url 'shop:cart_show' %}" class="back-link">
+                            ← بازگشت به سبد خرید
+                        </a>
                     </div>
+
                 </form>
 
             </div>
@@ -88,4 +169,461 @@
     </div>
 
 </div>
+
+<style>
+/* هدر صفحه */
+.checkout-header {
+    padding: 20px 0;
+}
+
+.checkout-main-title {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.checkout-subtitle {
+    color: #718096;
+    font-size: 1.1rem;
+    margin-bottom: 30px;
+}
+
+/* مراحل خرید */
+.checkout-steps {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.step-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #e2e8f0;
+    color: #a0aec0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+}
+
+.step.completed .step-circle {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+}
+
+.step.active .step-circle {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.step-label {
+    font-size: 0.9rem;
+    color: #718096;
+    font-weight: 600;
+}
+
+.step.completed .step-label,
+.step.active .step-label {
+    color: #2d3748;
+}
+
+.step-line {
+    width: 80px;
+    height: 3px;
+    background: #e2e8f0;
+    margin: 0 10px;
+    position: relative;
+    top: -18px;
+}
+
+.step-line.completed {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+}
+
+/* کارت فاکتور */
+.invoice-card {
+    background: white;
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+}
+
+.invoice-header {
+    margin-bottom: 25px;
+}
+
+.invoice-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.title-icon {
+    font-size: 1.8rem;
+}
+
+/* جدول فاکتور */
+.invoice-table-wrapper {
+    overflow-x: auto;
+    margin-bottom: 25px;
+}
+
+.invoice-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.invoice-table thead th {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    color: #2d3748;
+    font-weight: 700;
+    padding: 15px 12px;
+    text-align: center;
+    font-size: 0.9rem;
+    border: none;
+}
+
+.invoice-table thead th:first-child {
+    border-radius: 10px 0 0 0;
+}
+
+.invoice-table thead th:last-child {
+    border-radius: 0 10px 0 0;
+}
+
+.invoice-table tbody td {
+    padding: 15px 12px;
+    text-align: center;
+    border-bottom: 1px solid #f5f7fa;
+    color: #4a5568;
+}
+
+.invoice-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.invoice-table tbody tr:hover {
+    background: rgba(102, 126, 234, 0.03);
+}
+
+.product-name-cell {
+    text-align: right !important;
+}
+
+.product-name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.product-icon {
+    font-size: 1.3rem;
+}
+
+.product-name {
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.quantity-badge {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.discount-badge {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.85rem;
+}
+
+.no-discount {
+    color: #cbd5e0;
+}
+
+.unit-price-cell {
+    font-weight: 600;
+}
+
+.total-price-cell {
+    font-weight: 700;
+    color: #667eea;
+    font-size: 1.05rem;
+}
+
+/* خلاصه فاکتور */
+.invoice-summary {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    border-radius: 15px;
+    padding: 25px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+}
+
+.summary-label {
+    color: #718096;
+    font-weight: 600;
+}
+
+.summary-value {
+    color: #4a5568;
+    font-weight: 700;
+}
+
+.summary-value.free {
+    color: #48bb78;
+}
+
+.summary-divider {
+    height: 2px;
+    background: white;
+    margin: 15px 0;
+}
+
+.summary-row.total {
+    padding: 15px 0 0 0;
+}
+
+.summary-label-total {
+    font-size: 1.2rem;
+    color: #2d3748;
+    font-weight: 700;
+}
+
+.summary-value-total {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #667eea;
+}
+
+/* کارت پرداخت */
+.payment-card {
+    background: white;
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+    position: sticky;
+    top: 100px;
+}
+
+.payment-header {
+    margin-bottom: 25px;
+}
+
+.payment-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #2d3748;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.payment-subtitle {
+    color: #718096;
+    font-size: 0.95rem;
+}
+
+/* فرم پرداخت */
+.payment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #2d3748;
+    font-size: 0.95rem;
+}
+
+.required-star {
+    color: #f5576c;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 12px 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    color: #2d3748;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.field-error {
+    color: #f5576c;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+/* ویژگی‌های پرداخت */
+.payment-features {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    border-radius: 12px;
+}
+
+.feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.feature-icon {
+    font-size: 1.2rem;
+}
+
+.feature-text {
+    color: #4a5568;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* دکمه پرداخت */
+.btn-submit-payment {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    color: white;
+    border: none;
+    padding: 16px 30px;
+    border-radius: 12px;
+    font-size: 1.15rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(72, 187, 120, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.btn-submit-payment:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(72, 187, 120, 0.5);
+}
+
+.btn-icon {
+    font-size: 1.3rem;
+}
+
+/* لینک بازگشت */
+.back-to-cart {
+    text-align: center;
+}
+
+.back-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.back-link:hover {
+    color: #764ba2;
+    transform: translateX(-5px);
+}
+
+/* ریسپانسیو */
+@media (max-width: 992px) {
+    .payment-card {
+        position: static;
+        top: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .checkout-main-title {
+        font-size: 1.8rem;
+    }
+
+    .checkout-steps {
+        transform: scale(0.9);
+    }
+
+    .step-line {
+        width: 50px;
+    }
+
+    .invoice-card,
+    .payment-card {
+        padding: 25px;
+    }
+
+    .invoice-table {
+        font-size: 0.85rem;
+    }
+
+    .invoice-table thead th,
+    .invoice-table tbody td {
+        padding: 10px 8px;
+    }
+}
+</style>
+
 {% endblock %}

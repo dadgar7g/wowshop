@@ -1,111 +1,442 @@
 {% extends "base.html" %}
 {% load form_filters %}
-{% block content %}
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
 
-    <div class="card shadow-lg p-4" style="width: 350px; border-radius: 15px;">
+{% block content %}
+<div class="login-container">
+
+    <div class="login-card">
 
         {% if request.user.is_authenticated %}
-            <h4 class="text-center mb-4">شما در حال حاضر لاگین هستید</h4>
-            <div class="text-center mt-3">
-                <a href="{% url 'core:home' %}" class="btn btn-primary w-100">
-                    رفتن به صفحه اصلی
+
+            <!-- حالت لاگین شده -->
+            <div class="already-logged">
+                <div class="success-icon">
+                    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                        <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                    </svg>
+                </div>
+                <h3 class="logged-title">شما وارد شده‌اید ✓</h3>
+                <p class="logged-text">با موفقیت به حساب کاربری خود وارد شدید</p>
+                <a href="{% url 'core:home' %}" class="btn-home">
+                    <span class="btn-icon">🏠</span>
+                    <span class="btn-text">رفتن به صفحه اصلی</span>
                 </a>
             </div>
-        {% else %}
-            <h4 class="text-center mb-4">ورود به حساب</h4>
 
+        {% else %}
+
+            <!-- هدر فرم -->
+            <div class="login-header">
+                <div class="header-icon">🔐</div>
+                <h2 class="login-title">خوش آمدید!</h2>
+                <p class="login-subtitle">به حساب کاربری خود وارد شوید</p>
+            </div>
+
+            <!-- پیام خطا -->
             {% if form.errors %}
-                <div class="alert alert-danger text-center py-2">
-                    نام کاربری یا رمز عبور اشتباه است
+                <div class="error-alert">
+                    <div class="error-icon">✕</div>
+                    <div class="error-text">
+                        نام کاربری یا رمز عبور اشتباه است
+                    </div>
                 </div>
             {% endif %}
 
-            <form method="post">
+            <!-- فرم ورود -->
+            <form method="post" class="login-form">
                 {% csrf_token %}
 
-                <div class="mb-3">
-                    <label class="form-label">نام کاربری</label>
-                    {{ form.username|add_class:"form-control" }}
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">👤</span>
+                        نام کاربری
+                    </label>
+                    {{ form.username|add_class:"form-input" }}
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">رمز عبور</label>
-                    {{ form.password|add_class:"form-control" }}
+                <div class="form-group">
+                    <label class="form-label">
+                        <span class="label-icon">🔒</span>
+                        رمز عبور
+                    </label>
+                    {{ form.password|add_class:"form-input" }}
                 </div>
 
-                <button type="submit" class="btn btn-primary w-100 mt-2">
-                    ورود
+                <button type="submit" class="btn-login">
+                    <span class="btn-text">ورود به حساب</span>
+                    <span class="btn-arrow">→</span>
                 </button>
 
             </form>
 
-            <div class="text-center mt-3">
-                <a href="{% url 'password_reset' %}" class="text-decoration-none">
+            <!-- لینک‌های اضافی -->
+            <div class="login-links">
+                <a href="{% url 'password_reset' %}" class="forgot-link">
+                    <span class="link-icon">🔑</span>
                     فراموشی رمز عبور؟
                 </a>
             </div>
-            <div class="text-center mt-3">
-                <span>حساب کاربری ندارید؟</span>
-                <a href="{% url 'account:signup' %}" class="text-decoration-none fw-bold">
+
+            <!-- بخش ثبت‌نام -->
+            <div class="signup-section">
+                <div class="signup-divider">
+                    <span class="divider-text">یا</span>
+                </div>
+                <p class="signup-text">حساب کاربری ندارید؟</p>
+                <a href="{% url 'account:signup' %}" class="btn-signup">
                     ثبت‌نام کنید
                 </a>
             </div>
+
         {% endif %}
 
     </div>
 
 </div>
-{% endblock %}
 
-{#{% extends "base.html" %}#}
-{#{% load form_filters %}#}
-{#{% block content %}#}
-{#    <div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">#}
-{##}
-{#        <div class="card shadow-lg p-4" style="width: 350px; border-radius: 15px;">#}
-{##}
-{#            <h4 class="text-center mb-4">ورود به حساب</h4>#}
-{##}
-{#            {% if form.errors %}#}
-{#                <div class="alert alert-danger text-center py-2">#}
-{#                    نام کاربری یا رمز عبور اشتباه است#}
-{#                </div>#}
-{#            {% endif %}#}
-{##}
-{#            <form method="post">#}
-{#                {% csrf_token %}#}
-{##}
-{#                <div class="mb-3">#}
-{#                    <label class="form-label">نام کاربری</label>#}
-{#                    {{ form.username|add_class:"form-control" }}#}
-{#                </div>#}
-{##}
-{#                <div class="mb-3">#}
-{#                    <label class="form-label">رمز عبور</label>#}
-{#                    {{ form.password|add_class:"form-control" }}#}
-{#                </div>#}
-{##}
-{#                <button type="submit" class="btn btn-primary w-100 mt-2">#}
-{#                    ورود#}
-{#                </button>#}
-{##}
-{#            </form>#}
-{##}
-{#            <div class="text-center mt-3">#}
-{#                <a href="{% url 'password_reset' %}" class="text-decoration-none">#}
-{#                    فراموشی رمز عبور؟#}
-{#                </a>#}
-{#            </div>#}
-{#            <div class="text-center mt-3">#}
-{#                <span>حساب کاربری ندارید؟</span>#}
-{#                <a href="{% url 'account:signup' %}" class="text-decoration-none fw-bold">#}
-{#                    ثبت‌نام کنید#}
-{#                </a>#}
-{#            </div>#}
-{##}
-{#        </div>#}
-{##}
-{#    </div>#}
-{#{% endblock %}#}
-{##}
+<style>
+/* Container */
+.login-container {
+    min-height: 85vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+/* کارت ورود */
+.login-card {
+    background: white;
+    border-radius: 25px;
+    padding: 45px 40px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    animation: slideUp 0.4s ease;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* هدر فرم */
+.login-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.header-icon {
+    font-size: 4rem;
+    margin-bottom: 15px;
+    animation: bounce 1s ease infinite;
+}
+
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.login-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 8px;
+}
+
+.login-subtitle {
+    color: #718096;
+    font-size: 1rem;
+}
+
+/* پیام خطا */
+.error-alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, rgba(245, 87, 108, 0.1) 0%, rgba(220, 53, 69, 0.1) 100%);
+    border-right: 4px solid #f5576c;
+    border-radius: 12px;
+    padding: 15px 20px;
+    margin-bottom: 25px;
+    animation: shake 0.5s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    75% { transform: translateX(10px); }
+}
+
+.error-icon {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #f5576c;
+}
+
+.error-text {
+    color: #2d3748;
+    font-weight: 600;
+    flex: 1;
+}
+
+/* فرم */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 0.95rem;
+}
+
+.label-icon {
+    font-size: 1.1rem;
+}
+
+.form-input {
+    padding: 14px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    color: #2d3748;
+    transition: all 0.3s ease;
+    width: 100%;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+/* دکمه ورود */
+.btn-login {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 16px 30px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btn-login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+}
+
+.btn-arrow {
+    font-size: 1.3rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-login:hover .btn-arrow {
+    transform: translateX(-5px);
+}
+
+/* لینک فراموشی */
+.login-links {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.forgot-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    padding: 8px 15px;
+    border-radius: 8px;
+}
+
+.forgot-link:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #764ba2;
+}
+
+.link-icon {
+    font-size: 1.1rem;
+}
+
+/* بخش ثبت‌نام */
+.signup-section {
+    text-align: center;
+}
+
+.signup-divider {
+    position: relative;
+    margin: 30px 0 20px 0;
+}
+
+.signup-divider::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+}
+
+.divider-text {
+    position: relative;
+    background: white;
+    padding: 0 15px;
+    color: #cbd5e0;
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.signup-text {
+    color: #718096;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+
+.btn-signup {
+    display: inline-block;
+    background: white;
+    color: #667eea;
+    border: 2px solid #667eea;
+    padding: 12px 35px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.btn-signup:hover {
+    background: #667eea;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
+}
+
+/* حالت لاگین شده */
+.already-logged {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.success-icon {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 25px auto;
+}
+
+.checkmark {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 3;
+    stroke: #48bb78;
+    stroke-miterlimit: 10;
+    box-shadow: 0 0 0 8px rgba(72, 187, 120, 0.1);
+}
+
+.checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 3;
+    stroke: #48bb78;
+    animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+}
+
+.checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+}
+
+@keyframes stroke {
+    100% {
+        stroke-dashoffset: 0;
+    }
+}
+
+.logged-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 10px;
+}
+
+.logged-text {
+    color: #718096;
+    font-size: 1rem;
+    margin-bottom: 25px;
+}
+
+.btn-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 35px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.btn-home:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.6);
+    color: white;
+}
+
+.btn-icon {
+    font-size: 1.3rem;
+}
+
+/* ریسپانسیو */
+@media (max-width: 576px) {
+    .login-card {
+        padding: 35px 25px;
+    }
+
+    .login-title {
+        font-size: 1.6rem;
+    }
+}
+</style>
+
+{% endblock %}

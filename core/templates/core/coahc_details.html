@@ -2,120 +2,633 @@
 {% load static %}
 
 {% block content %}
-    <div class="container mt-4" dir="rtl">
+<div class="container mt-5 pt-4" dir="rtl">
 
-        <div class="row g-4">
+    <!-- دکمه بازگشت -->
+    <div class="mb-4">
+        <a href="{% url 'core:coach_list' %}" class="btn-back">
+            ← بازگشت به لیست مربیان
+        </a>
+    </div>
 
-            <!-- ستون راست: اطلاعات مربی -->
-            <div class="col-md-4">
-                <div class="card p-3 shadow-sm text-end">
+    <div class="row g-4">
 
-                    <h4 class="fw-bold">{{ coach.user.username }}</h4>
+        <!-- سایدبار اطلاعات مربی -->
+        <div class="col-lg-4">
+            <div class="coach-sidebar">
 
-                    <!-- نمایش expansions -->
-                    <p><strong>اکسپنشن‌ها:</strong>
-                        {% for expansion in coach.expansions.all %}
-                            {{ expansion.name }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                            ندارد
-                        {% endfor %}
-                    </p>
+                <!-- هدر پروفایل -->
+                <div class="profile-header">
+                    <div class="profile-avatar">
+                        <span class="avatar-icon">👤</span>
+                    </div>
+                    <h3 class="profile-name">{{ coach.user.username }}</h3>
+                    <div class="profile-badge">مربی تأیید شده ✓</div>
+                </div>
 
-                    <!-- نمایش methods -->
-                    <p><strong>نوع فعالیت‌ها:</strong>
-                        {% for method in coach.methods.all %}
-                            {{ method.name }}{% if not forloop.last %}, {% endif %}
-                        {% empty %}
-                            ندارد
-                        {% endfor %}
-                    </p>
+                <!-- اطلاعات اصلی -->
+                <div class="info-sections">
 
-                    <p class="mb-1">
-                        <strong>تایم پلی:</strong> {{ coach.timeplay }} ماه
-                    </p>
-                    <p class="mb-1">
-                        <strong>ایدی دیسکورد:</strong> {{ coach.user.discord_id }}
-                    </p>
+                    <!-- اکسپنشن‌ها -->
+                    <div class="info-box">
+                        <div class="info-box-header">
+                            <span class="info-icon">🎮</span>
+                            <span class="info-title">اکسپنشن‌ها</span>
+                        </div>
+                        <div class="tags-list">
+                            {% for expansion in coach.expansions.all %}
+                                <span class="tag tag-expansion">{{ expansion.name }}</span>
+                            {% empty %}
+                                <span class="tag tag-empty">ندارد</span>
+                            {% endfor %}
+                        </div>
+                    </div>
 
-                    <a href="mailto:{{ coach.user.email }}"
-                       class="btn btn-primary w-100 mt-2">
-                        ارتباط با مربی
+                    <!-- نوع فعالیت‌ها -->
+                    <div class="info-box">
+                        <div class="info-box-header">
+                            <span class="info-icon">⚔️</span>
+                            <span class="info-title">نوع فعالیت‌ها</span>
+                        </div>
+                        <div class="tags-list">
+                            {% for method in coach.methods.all %}
+                                <span class="tag tag-method">{{ method.name }}</span>
+                            {% empty %}
+                                <span class="tag tag-empty">ندارد</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- آمار و اطلاعات -->
+                    <div class="stats-box">
+                        <div class="stat-item">
+                            <span class="stat-icon">⏱️</span>
+                            <div class="stat-info">
+                                <span class="stat-label">تایم پلی</span>
+                                <span class="stat-value">{{ coach.timeplay }} ساعت</span>
+                            </div>
+                        </div>
+
+                        {% if coach.user.discord_id %}
+                            <div class="stat-item">
+                                <span class="stat-icon">💬</span>
+                                <div class="stat-info">
+                                    <span class="stat-label">دیسکورد</span>
+                                    <span class="stat-value discord-id">{{ coach.user.discord_id }}</span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- دکمه تماس -->
+                    <a href="mailto:{{ coach.user.email }}" class="btn-contact">
+                        <span class="btn-icon">📧</span>
+                        <span class="btn-text">ارتباط با مربی</span>
                     </a>
 
                 </div>
+
             </div>
-
-            <!-- ستون چپ: توضیحات -->
-            <div class="col-md-8">
-                <div class="card p-4 shadow-sm">
-
-                    <h5 class="mb-3 fw-bold">درباره مربی</h5>
-
-                    <p style="line-height: 1.9;">
-                        {{ coach.description }}
-                    </p>
-
-                </div>
-            </div>
-
         </div>
 
-        <!-- بخش کامنت‌ها -->
-        <div class="row mt-5">
-            <div class="col-md-12">
+        <!-- محتوای اصلی -->
+        <div class="col-lg-8">
 
-                <div class="card p-4 shadow-sm">
+            <!-- درباره مربی -->
+            <div class="content-card mb-4">
+                <div class="content-header">
+                    <h3 class="content-title">
+                        <span class="title-icon">📝</span>
+                        درباره مربی
+                    </h3>
+                </div>
+                <div class="content-body">
+                    <p class="description-text">{{ coach.description }}</p>
+                </div>
+            </div>
 
-                    <h5 class="fw-bold mb-3">کامنت‌ها</h5>
-
-                    <!-- نمایش کامنت‌های تأیید شده -->
-                    {% for c in coach.comments.all %}
-                        {% if c.enable %}
-                            <div class="border rounded p-3 mb-3 bg-light">
-
-                                <div class="d-flex justify-content-between">
-                                    <strong>{{ c.user.username }}</strong>
-                                    <small class="text-muted">{{ c.created_at|date:"Y/m/d H:i" }}</small>
-                                </div>
-
-                                <p class="mt-2 mb-0" style="white-space: pre-line;">
-                                    {{ c.text }}
-                                </p>
-
-                            </div>
-                        {% endif %}
-                    {% empty %}
-                        <p class="text-muted">فعلاً هیچ کامنتی ثبت نشده.</p>
-                    {% endfor %}
-
-                    <hr class="my-4">
-
-                    <!-- فرم ارسال کامنت -->
-                    {% if user.is_authenticated %}
-                        <h6 class="fw-bold mb-2">ارسال کامنت جدید</h6>
-
-                        <form method="post">
-                            {% csrf_token %}
-                            <textarea name="text"
-                                      rows="4"
-                                      class="form-control mb-2"
-                                      placeholder="نظر خود را وارد کنید..."></textarea>
-
-                            <button class="btn btn-success w-100">
-                                ارسال کامنت
-                            </button>
-                        </form>
-
-                    {% else %}
-                        <p class="text-danger">
-                            برای ارسال کامنت ابتدا باید وارد شوید.
-                        </p>
-                    {% endif %}
-
+            <!-- بخش کامنت‌ها -->
+            <div class="content-card">
+                <div class="content-header">
+                    <h3 class="content-title">
+                        <span class="title-icon">💬</span>
+                        نظرات و دیدگاه‌ها
+                        <span class="comments-count">({{ coach.comments.all|length }})</span>
+                    </h3>
                 </div>
 
+                <div class="content-body">
+
+                    <!-- لیست کامنت‌ها -->
+                    <div class="comments-list">
+                        {% for c in coach.comments.all %}
+                            {% if c.enable %}
+                                <div class="comment-item">
+                                    <div class="comment-header">
+                                        <div class="comment-user">
+                                            <span class="user-avatar">👤</span>
+                                            <span class="user-name">{{ c.user.username }}</span>
+                                        </div>
+                                        <span class="comment-date">{{ c.created_at|date:"Y/m/d H:i" }}</span>
+                                    </div>
+                                    <div class="comment-body">
+                                        {{ c.text }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% empty %}
+                            <div class="no-comments">
+                                <span class="no-comments-icon">💭</span>
+                                <p class="no-comments-text">هنوز نظری ثبت نشده. اولین نفری باشید که نظر می‌دهید!</p>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- فرم ارسال کامنت -->
+                    <div class="comment-form-section">
+                        {% if user.is_authenticated %}
+                            <div class="form-header">
+                                <h4 class="form-title">✍️ نظر خود را بنویسید</h4>
+                            </div>
+                            <form method="post" class="comment-form">
+                                {% csrf_token %}
+                                <textarea name="text"
+                                          class="comment-textarea"
+                                          rows="4"
+                                          placeholder="نظر شما درباره این مربی..."
+                                          required></textarea>
+                                <button type="submit" class="btn-submit-comment">
+                                    ارسال نظر
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="login-prompt">
+                                <span class="login-icon">🔐</span>
+                                <p class="login-text">برای ارسال نظر ابتدا باید وارد شوید.</p>
+                                <a href="{% url 'login' %}" class="btn-login">
+                                    ورود به حساب کاربری
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
             </div>
+
         </div>
 
     </div>
+
+</div>
+
+<style>
+/* دکمه بازگشت */
+.btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 600;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background: rgba(102, 126, 234, 0.1);
+    transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+    background: rgba(102, 126, 234, 0.2);
+    transform: translateX(-5px);
+}
+
+/* سایدبار مربی */
+.coach-sidebar {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    position: sticky;
+    top: 100px;
+}
+
+/* هدر پروفایل */
+.profile-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 40px 30px;
+    text-align: center;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+.avatar-icon {
+    font-size: 3.5rem;
+}
+
+.profile-name {
+    color: white;
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.profile-badge {
+    background: rgba(255,255,255,0.25);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    display: inline-block;
+    backdrop-filter: blur(10px);
+}
+
+/* بخش اطلاعات */
+.info-sections {
+    padding: 30px;
+}
+
+.info-box {
+    margin-bottom: 25px;
+}
+
+.info-box-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.info-icon {
+    font-size: 1.3rem;
+}
+
+.info-title {
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 1rem;
+}
+
+/* تگ‌ها */
+.tags-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.tag-expansion {
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%);
+    color: #667eea;
+    border: 2px solid rgba(102, 126, 234, 0.3);
+}
+
+.tag-method {
+    background: linear-gradient(135deg, rgba(72, 187, 120, 0.15) 0%, rgba(56, 161, 105, 0.15) 100%);
+    color: #48bb78;
+    border: 2px solid rgba(72, 187, 120, 0.3);
+}
+
+.tag-empty {
+    background: #f7fafc;
+    color: #cbd5e0;
+    border: 2px solid #e2e8f0;
+}
+
+/* باکس آمار */
+.stats-box {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 0;
+    border-bottom: 2px solid rgba(255,255,255,0.5);
+}
+
+.stat-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.stat-icon {
+    font-size: 1.8rem;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #718096;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 1.05rem;
+    color: #2d3748;
+    font-weight: 700;
+}
+
+.discord-id {
+    font-family: monospace;
+    background: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+/* دکمه تماس */
+.btn-contact {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-contact:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    color: white;
+}
+
+.btn-icon {
+    font-size: 1.3rem;
+}
+
+/* کارت محتوا */
+.content-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+}
+
+.content-header {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    padding: 25px 30px;
+}
+
+.content-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.title-icon {
+    font-size: 1.6rem;
+}
+
+.comments-count {
+    font-size: 1.2rem;
+    color: #667eea;
+    font-weight: 600;
+}
+
+.content-body {
+    padding: 30px;
+}
+
+/* توضیحات */
+.description-text {
+    color: #4a5568;
+    line-height: 1.9;
+    font-size: 1.05rem;
+    margin: 0;
+    white-space: pre-line;
+}
+
+/* لیست کامنت‌ها */
+.comments-list {
+    margin-bottom: 30px;
+}
+
+.comment-item {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+.comment-item:hover {
+    border-color: #667eea;
+    transform: translateX(-5px);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+}
+
+.comment-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.user-avatar {
+    font-size: 1.5rem;
+}
+
+.user-name {
+    font-weight: 700;
+    color: #2d3748;
+    font-size: 1.05rem;
+}
+
+.comment-date {
+    color: #718096;
+    font-size: 0.9rem;
+}
+
+.comment-body {
+    color: #4a5568;
+    line-height: 1.7;
+    font-size: 1rem;
+    white-space: pre-line;
+}
+
+/* حالت بدون کامنت */
+.no-comments {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.no-comments-icon {
+    font-size: 4rem;
+    opacity: 0.3;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.no-comments-text {
+    color: #718096;
+    font-size: 1.1rem;
+}
+
+/* فرم کامنت */
+.comment-form-section {
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+    border-radius: 15px;
+    padding: 30px;
+}
+
+.form-header {
+    margin-bottom: 20px;
+}
+
+.form-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #2d3748;
+}
+
+.comment-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.comment-textarea {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    color: #2d3748;
+    resize: vertical;
+    transition: all 0.3s ease;
+}
+
+.comment-textarea:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.btn-submit-comment {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border: none;
+    padding: 14px 30px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-submit-comment:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+}
+
+/* پیام ورود */
+.login-prompt {
+    text-align: center;
+    padding: 50px 20px;
+}
+
+.login-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 15px;
+}
+
+.login-text {
+    color: #718096;
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.btn-login {
+    display: inline-block;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-login:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+    color: white;
+}
+
+/* ریسپانسیو */
+@media (max-width: 992px) {
+    .coach-sidebar {
+        position: static;
+        top: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .profile-name {
+        font-size: 1.5rem;
+    }
+
+    .content-header,
+    .content-body {
+        padding: 20px;
+    }
+
+    .comment-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+}
+</style>
+
 {% endblock %}
